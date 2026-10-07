@@ -1,0 +1,269 @@
+\subsection{Precision and Recall}
+\label{sec:precision-recall}
+\slidesrc{Terminology introduction: 43--51; Semantics (long version): 44--50}
+
+Suppose a program searches a collection of documents and returns those it thinks are
+relevant to a query. How good is it? Two questions matter, and they pull in opposite
+directions:
+\begin{itemize}[nosep]
+  \item of what it \emph{returned}, how much is actually relevant? (\textbf{precision})
+  \item of what is actually relevant, how much did it \emph{find}? (\textbf{recall})
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}
+  \draw[thick, nbgray] (-3.8,-2.2) rectangle (4.8,2.3);
+  \fill[nbblue!15]   (-0.7,0) circle (1.6);
+  \fill[nborange!20] (1.7,0)  circle (1.6);
+  \begin{scope}
+    \clip (-0.7,0) circle (1.6);
+    \fill[nbgreen!35] (1.7,0) circle (1.6);
+  \end{scope}
+  \draw[thick, nbblue]   (-0.7,0) circle (1.6);
+  \draw[thick, nborange] (1.7,0)  circle (1.6);
+  \node[nbblue, font=\small\bfseries]   at (-1.6,1.9) {relevant};
+  \node[nborange, font=\small\bfseries] at (2.6,1.9)  {retrieved};
+  \node[font=\footnotesize, align=center] at (-1.3,0) {relevant,\\missed\\(FN)};
+  \node[font=\footnotesize\bfseries] at (0.5,0) {TP};
+  \node[font=\footnotesize, align=center] at (2.3,0) {retrieved,\\not\\relevant\\(FP)};
+  \node[font=\footnotesize, nbgray, anchor=south west] at (-3.8,-2.2) {corpus (all documents)};
+  \node[font=\footnotesize, anchor=south east] at (4.8,-2.2) {neither (TN)};
+\end{tikzpicture}
+\captionof{figure}{The green overlap (TP) holds the documents that are both relevant
+and retrieved. Precision looks at the orange circle (what fraction of it is green),
+recall looks at the blue circle (what fraction of it is green).}
+\end{center}
+
+\begin{nbdef}{Precision and recall}
+\begin{align*}
+  \text{precision} &= \frac{\abs{\{\text{relevant documents}\} \cap \{\text{retrieved documents}\}}}
+                           {\abs{\{\text{retrieved documents}\}}} \\[4pt]
+  \text{recall}    &= \frac{\abs{\{\text{relevant documents}\} \cap \{\text{retrieved documents}\}}}
+                           {\abs{\{\text{relevant documents}\}}}
+\end{align*}
+\textbf{Precision} (also called \emph{positive predictive value}) is the fraction of
+retrieved documents that are relevant to the query. \textbf{Recall} (also called
+\emph{sensitivity}) is the fraction of relevant documents that are successfully
+retrieved. Both are between 0 and 1; $\abs{S}$ denotes the number of elements of the
+set $S$.
+\end{nbdef}
+
+The numerator is the \emph{same} in both formulas: the documents that are both relevant
+and retrieved. Only the denominator changes: precision divides by what the system
+\emph{returned}, recall by what it \emph{should have returned}.
+
+\subsubsection{The same thing with a confusion matrix}
+\notinslides
+
+Each document falls in one of four cases:
+
+\begin{center}
+\begin{tabular}{@{}l c c@{}}
+\toprule
+ & \textbf{relevant} & \textbf{not relevant} \\
+\midrule
+\textbf{retrieved}     & true positive (TP)  & false positive (FP) \\
+\textbf{not retrieved} & false negative (FN) & true negative (TN) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\[
+  \text{precision} = \frac{TP}{TP + FP}, \qquad
+  \text{recall}    = \frac{TP}{TP + FN}.
+\]
+Neither formula uses TN: the (usually huge) number of irrelevant documents that were
+correctly left out does not count.
+
+\subsubsection{Four worked examples}
+\slidesrc{Terminology introduction: 44--51}
+
+The setting is the same for all four examples. You implement an application that
+retrieves the documents containing one specific word (``cat'') and its inflectional
+forms (``cats'', see Section~\ref{sec:morphology}) in a corpus of \textbf{1000}
+documents. Exactly \textbf{24} documents contain ``cat'': these are the \textbf{relevant}
+documents.
+
+\begin{nbexample}{1: a typical system}
+The application retrieves \textbf{36} documents; \textbf{16} of them contain ``cat'' and
+20 do not. So $TP=16$, $FP=20$, $FN = 24-16 = 8$, $TN = 1000-16-20-8 = 956$.
+\begin{align*}
+  \text{precision} &= \frac{16}{36} = \frac{4}{9} \approx 0.444
+     \reason{$TP/(TP+FP) = 16/(16+20)$} \\
+  \text{recall}    &= \frac{16}{24} = \frac{2}{3} \approx 0.667
+     \reason{$TP/(TP+FN) = 16/(16+8)$}
+\end{align*}
+Fewer than half of the results are right, and a third of the cat documents are missed.
+\end{nbexample}
+
+\begin{nbexample}{2: return everything}
+The application retrieves \textbf{all 1000} documents; \textbf{24} of them contain
+``cat'' and 976 do not. So $TP = 24$, $FP = 976$, $FN = 0$, $TN = 0$.
+\begin{align*}
+  \text{precision} &= \frac{24}{1000} = 0.024 \\
+  \text{recall}    &= \frac{24}{24} = 1
+\end{align*}
+Perfect recall, for free: a system that returns everything never misses anything. Its
+precision is terrible.
+\end{nbexample}
+
+\begin{nbwarning}[a typo in the slides]
+Example~2 on the slides says the retrieved documents ``out of which 24 contain the word
+cat, and 1986 do not contain it''. Since only 1000 documents are retrieved, the correct
+number is $1000 - 24 = 976$. The precision and recall values on the slides are correct.
+\end{nbwarning}
+
+\begin{nbexample}{3: play it safe}
+The application retrieves only \textbf{2} documents, and both contain ``cat''. So
+$TP=2$, $FP=0$, $FN=22$, $TN=976$.
+\begin{align*}
+  \text{precision} &= \frac{2}{2} = 1 \\
+  \text{recall}    &= \frac{2}{24} = \frac{1}{12} \approx 0.083
+\end{align*}
+Perfect precision, almost for free: return only the one or two results you are
+completely sure about. Its recall is terrible.
+\end{nbexample}
+
+\begin{nbexample}{4: the perfect system}
+The application retrieves \textbf{24} documents, all containing ``cat''. So $TP=24$,
+$FP=0$, $FN=0$, $TN=976$.
+\[
+  \text{precision} = \frac{24}{24} = 1, \qquad \text{recall} = \frac{24}{24} = 1.
+\]
+\end{nbexample}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[ybar, bar width=13pt, width=\linewidth, height=6.5cm,
+    ymin=0, ymax=1.15, ytick={0,0.25,0.5,0.75,1},
+    symbolic x coords={Ex.\ 1, Ex.\ 2, Ex.\ 3, Ex.\ 4}, xtick=data,
+    tick label style={font=\scriptsize}, label style={font=\small},
+    legend style={font=\small, at={(0.5,1.03)}, anchor=south, legend columns=3, draw=none},
+    enlarge x limits=0.18,
+    nodes near coords, every node near coord/.append style={font=\scriptsize, /pgf/number format/fixed, /pgf/number format/precision=2}]
+  \addplot[fill=nborange!70, draw=nborange] coordinates {(Ex.\ 1,0.444) (Ex.\ 2,0.024) (Ex.\ 3,1) (Ex.\ 4,1)};
+  \addplot[fill=nbblue!60, draw=nbblue]     coordinates {(Ex.\ 1,0.667) (Ex.\ 2,1) (Ex.\ 3,0.083) (Ex.\ 4,1)};
+  \addplot[fill=nbgreen!60, draw=nbgreen]   coordinates {(Ex.\ 1,0.533) (Ex.\ 2,0.047) (Ex.\ 3,0.154) (Ex.\ 4,1)};
+  \legend{precision, recall, $F_1$}
+\end{axis}
+\end{tikzpicture}
+\captionof{figure}{Precision, recall and $F_1$ for the four examples. Examples 2 and 3
+each score perfectly on one measure with a trivial strategy; only $F_1$ exposes them.}
+\end{center}
+
+\begin{nbintuition}[the trade-off]
+Precision and recall must always be read \emph{together}. Returning more documents
+tends to raise recall and lower precision (Example~2 is the extreme); returning fewer
+tends to raise precision and lower recall (Example~3). A single number that is high only
+when \emph{both} are high is the $F_1$ score below.
+\end{nbintuition}
+
+\begin{nbdef}{$F_1$ score (not on the slides)}
+The \textbf{$F_1$ score} is the harmonic mean of precision $P$ and recall $R$:
+\[
+  F_1 = \frac{2PR}{P + R} = \frac{2\,TP}{2\,TP + FP + FN}.
+\]
+The harmonic mean is dominated by the smaller of the two values, so a system cannot get a
+good $F_1$ by maximising only one of them.
+\end{nbdef}
+
+For the four examples:
+\begin{align*}
+  \text{Ex.\ 1:}\quad F_1 &= \frac{2\cdot 16}{2\cdot 16 + 20 + 8} = \frac{32}{60} \approx 0.533 \\
+  \text{Ex.\ 2:}\quad F_1 &= \frac{2\cdot 24}{2\cdot 24 + 976 + 0} = \frac{48}{1024} \approx 0.047 \\
+  \text{Ex.\ 3:}\quad F_1 &= \frac{2\cdot 2}{2\cdot 2 + 0 + 22} = \frac{4}{26} \approx 0.154 \\
+  \text{Ex.\ 4:}\quad F_1 &= \frac{2\cdot 24}{2\cdot 24 + 0 + 0} = 1
+\end{align*}
+
+\subsubsection{Another example: five algorithms}
+\slidesrc{Semantics (long version): 44--50}
+
+The long version of the semantics slides repeats the definitions with a second example.
+A query asks for the documents about topic $T$ in a corpus $C$. The correct answer is
+known: $D_1, D_2, D_4, D_5, D_6, D_7, D_8$ deal with $T$ (7 relevant documents) and no
+other document does.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}l l c c c@{}}
+\toprule
+\textbf{Algorithm} & \textbf{Returns} & $\abs{\text{rel}\cap\text{ret}}$ & \textbf{Precision} & \textbf{Recall} \\
+\midrule
+A1 & $D_1, D_2, D_3, D_4$            & 3 & $3/4 = 75\%$       & $3/7 \approx 43\%$ \\
+A2 & $D_1, \dots, D_8$               & 7 & $7/8 = 87.5\%$     & $7/7 = 100\%$ \\
+A3 & $D_1$ only                      & 1 & $1/1 = 100\%$      & $1/7 \approx 14\%$ \\
+A4 & all and only the relevant & 7 & $7/7 = 100\%$      & $7/7 = 100\%$ \\
+A5 & 1000 docs, incl.\ the 7 relevant & 7 & $7/1000 = 0.7\%$ & $7/7 = 100\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The same lessons as before: A3 buys perfect precision by returning almost nothing, A5
+buys perfect recall by returning almost everything; only A4 is perfect on both. (On the
+slide for A2 the formulas are labelled ``precision(A1)'' and ``recall(A1)'': a
+copy-paste slip, the values are those of A2.)
+
+\subsubsection{Exercises}
+\notinslides
+
+\begin{nbexercise}{1}{morphemes}
+Split each word into morphemes and classify each morpheme as free or bound, and each
+bound morpheme as derivational or inflectional: \emph{unhappiness}, \emph{walked},
+\emph{teachers}, \emph{rewritten}. Which of \emph{bookshelf}, \emph{bookish},
+\emph{books} is a compound?
+\end{nbexercise}
+\begin{nbsolution}
+\begin{itemize}[nosep]
+  \item \emph{un-happi-ness}: \emph{un-} bound, derivational (negates the meaning);
+        \emph{happy} free root; \emph{-ness} bound, derivational (adjective $\to$ noun).
+  \item \emph{walk-ed}: \emph{walk} free root; \emph{-ed} bound, inflectional (past tense).
+  \item \emph{teach-er-s}: \emph{teach} free root; \emph{-er} bound, derivational
+        (verb $\to$ noun, ``one who teaches''); \emph{-s} bound, inflectional (plural).
+  \item \emph{re-writ-ten}: \emph{re-} bound, derivational (``again''); \emph{write}
+        free root; \emph{-en} bound, inflectional (past participle).
+\end{itemize}
+Only \emph{bookshelf} is a compound (\emph{book} + \emph{shelf}, both free).
+\emph{Bookish} is derived (\emph{-ish} is bound), \emph{books} is inflected.
+
+\emph{Lesson}: derivational morphemes sit closer to the root than inflectional ones
+(\emph{teach-er-s}, not \emph{teach-s-er}).
+\end{nbsolution}
+
+\begin{nbexercise}{2}{precision and recall}
+A corpus has 500 documents, 40 of which are relevant to a query. A search engine
+returns 50 documents, 30 of which are relevant. Compute TP, FP, FN, TN, precision,
+recall and $F_1$. What happens to precision and recall if the engine also returns 50 more
+documents, none of them relevant?
+\end{nbexercise}
+\begin{nbsolution}
+$TP = 30$, $FP = 50 - 30 = 20$, $FN = 40 - 30 = 10$, $TN = 500 - 30 - 20 - 10 = 440$.
+\begin{align*}
+  \text{precision} &= \frac{30}{50} = 0.6, \qquad
+  \text{recall} = \frac{30}{40} = 0.75, \\
+  F_1 &= \frac{2\cdot 30}{2\cdot 30 + 20 + 10} = \frac{60}{90} \approx 0.667.
+\end{align*}
+With 50 more irrelevant documents: $TP = 30$, $FP = 70$, $FN = 10$, so
+precision $= 30/100 = 0.3$ (halved) while recall stays $30/40 = 0.75$, and
+$F_1 = 60/(60+70+10) = 60/140 \approx 0.429$.
+
+\emph{Lesson}: adding wrong results never changes recall but always lowers precision.
+\end{nbsolution}
+
+\begin{nbsummary}[terminology]
+\begin{itemize}[nosep]
+  \item \textbf{Morpheme}: smallest meaningful unit; \textbf{free} (stands alone:
+        \emph{dog}) or \textbf{bound} (\emph{un-}, \emph{-ness}, \emph{-s}).
+  \item Bound morphemes: \textbf{derivational} (new word: meaning or part of speech
+        changes, \emph{happy} $\to$ \emph{happiness}) or \textbf{inflectional} (new form
+        of the same word: tense, number, \ldots; \emph{dog} $\to$ \emph{dogs}).
+  \item \textbf{Word}: smallest element uttered in isolation with meaning; one or more
+        morphemes. \textbf{Compound}: word made of $\geq 2$ \emph{free} morphemes.
+  \item \textbf{Corpus}: large structured set of texts. \textbf{Genre of a corpus}: from
+        text-external features (medium, function, format). \textbf{Collocation}: words
+        co-occurring more often than by chance (\emph{fast food}, not \emph{quick food}).
+  \item $\text{precision} = TP/(TP+FP)$: of what I returned, how much is right;
+        $\text{recall} = TP/(TP+FN)$: of what is right, how much I returned;
+        $F_1 = 2PR/(P+R)$. Returning everything gives recall 1; returning very few
+        sure hits gives precision 1.
+\end{itemize}
+\end{nbsummary}

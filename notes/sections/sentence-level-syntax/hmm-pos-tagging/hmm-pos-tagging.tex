@@ -1,0 +1,255 @@
+\subsection{Statistical POS Tagging: Hidden Markov Models}
+\label{sec:hmm-pos-tagging}
+\slidesrc{Syntax: sentence, HMM: 1--20}
+
+The rule-based approach of Section~\ref{sec:grammars-parsing} needs a linguist to write
+the grammar. The statistical approach instead \emph{learns} from a corpus already tagged
+by hand how likely each tag is after another tag, and how likely each word is for each
+tag, then picks the most probable tag sequence for a new sentence. The classic model is
+the Hidden Markov Model. The slides (from a Microsoft course on edX) introduce it with a
+non-linguistic example, which we follow; then we map it to POS tagging.
+
+\subsubsection{The model}
+\slidesrc{Syntax: sentence, HMM: 3}
+
+\begin{nbdef}{Hidden Markov Model (HMM)}
+An \textbf{HMM} models a process that moves between \textbf{states}:
+\begin{itemize}[nosep]
+  \item the states are \textbf{hidden}: we cannot observe them;
+  \item at each step the current state emits an \textbf{output} (observation), which we
+        do see.
+\end{itemize}
+Our goal: from the sequence of outputs, find the most likely \textbf{sequence of
+states}. Formally an HMM has
+\begin{itemize}[nosep]
+  \item a set of states $Q$ and of possible observations $O$;
+  \item \textbf{start probabilities} $\pi(s)$: probability that the first state is $s$;
+  \item \textbf{transition probabilities} $a(s' \to s) = P(s_t = s \mid s_{t-1} = s')$;
+  \item \textbf{emission probabilities} $b_s(o) = P(o_t = o \mid s_t = s)$.
+\end{itemize}
+\end{nbdef}
+
+Two assumptions make it ``Markov'' and keep it tractable: the next state depends only on
+the current state (not on the whole history), and each output depends only on the state
+that emits it.
+
+\subsubsection{The weather example}
+\slidesrc{Syntax: sentence, HMM: 4--5}
+
+We are interested in the weather of a small town during the week of 5 October 1900.
+No weather records were kept, but we have the diary of a teenager who wrote down the one
+snack he had each day: hot chocolate, soda or ice cream. For our purposes the weather is
+\emph{cold}, \emph{normal} or \emph{hot}. We are given:
+
+\begin{center}
+\small
+\begin{tabular}{@{}l ccc @{\hspace{1.2cm}} l ccc@{}}
+\toprule
+\multicolumn{4}{@{}l}{\textbf{Start / transition} $P(\text{today} \mid \text{yesterday})$} &
+\multicolumn{4}{l@{}}{\textbf{Emission} $P(\text{snack} \mid \text{weather})$}\\
+\midrule
+from $\downarrow$ to $\rightarrow$ & Cold & Normal & Hot & & hot choc. & soda & ice cream \\
+\midrule
+Start  & .1 & .8 & .1 & Cold   & .7 & .3 & 0 \\
+Cold   & .7 & .1 & .2 & Normal & .1 & .7 & .2 \\
+Normal & .3 & .4 & .3 & Hot    & 0  & .6 & .4 \\
+Hot    & .2 & .4 & .4 & & & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each row sums to 1. For example $P(\text{hot} \mid \text{cold}) = .2$ and
+$P(\text{soda} \mid \text{hot}) = .6$. The diary for the 7 days is
+
+\begin{center}
+soda, soda, hot chocolate, ice cream, soda, soda, ice cream.
+\end{center}
+
+\textbf{Question}: what was the most likely weather sequence for the week?
+
+\begin{nbintuition}[why not try every sequence?]
+With 3 states and 7 days there are $3^7 = 2187$ possible weather sequences; with the 45
+tags of a POS tagset and a 20-word sentence there are $45^{20}$, far too many. The
+Viterbi algorithm finds the best one in time proportional to
+(days) $\times$ (states)$^2$, using the same trick as the edit distance
+(Section~\ref{sec:minimum-edit-distance}): for every state at every step, keep only the
+best way to get there.
+\end{nbintuition}
+
+\subsubsection{The Viterbi algorithm}
+\slidesrc{Syntax: sentence, HMM: 6--16}
+
+\begin{nbfact}{Viterbi}
+Let $v_t(s)$ be the probability of the \emph{best} state sequence that ends in state $s$
+on day $t$ and emits the first $t$ observations.
+\begin{align*}
+  \text{day 1:}\quad v_1(s) &= \pi(s) \cdot b_s(o_1)
+     \reason{p(transition) $\times$ p(output)}\\
+  \text{day } t > 1\text{:}\quad v_t(s) &= \max_{s'} \bigl[\, v_{t-1}(s') \cdot a(s' \to s) \,\bigr] \cdot b_s(o_t)
+\end{align*}
+For each cell we also store a \textbf{backpointer} to the $s'$ that achieved the maximum.
+At the end, pick the state with the largest $v_T(s)$ and follow the backpointers back to
+day 1.
+\end{nbfact}
+
+\begin{nbexample}{the first two days}
+\textbf{Day 1} (soda):
+\begin{align*}
+  v_1(\text{Cold})   &= .1 \cdot .3 = .03, &
+  v_1(\text{Normal}) &= .8 \cdot .7 = .56, &
+  v_1(\text{Hot})    &= .1 \cdot .6 = .06.
+\end{align*}
+\textbf{Day 2} (soda), cell Cold: which yesterday is the best way to arrive at Cold?
+\begin{align*}
+  v_2(\text{Cold}) &= \max\bigl(\underbrace{.03 \cdot .7}_{\text{from Cold}},\;
+                                 \underbrace{.56 \cdot .3}_{\text{from Normal}},\;
+                                 \underbrace{.06 \cdot .2}_{\text{from Hot}}\bigr) \cdot .3 \\
+                   &= \max(.021,\ .168,\ .012) \cdot .3 = .168 \cdot .3 = .0504
+     \reason{backpointer: Normal}
+\end{align*}
+Similarly $v_2(\text{Normal}) = \max(.03\cdot .1,\ .56\cdot .4,\ .06\cdot .4)\cdot .7 =
+.224 \cdot .7 = .1568$ and $v_2(\text{Hot}) = \max(.03\cdot .2,\ .56\cdot .3,\ .06\cdot
+.4)\cdot .6 = .168\cdot .6 = .1008$, both with backpointer Normal.
+\end{nbexample}
+
+Continuing the same way for all seven days fills the \textbf{trellis}:
+
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l ccccccc@{}}
+\toprule
+ & Day 1 & Day 2 & Day 3 & Day 4 & Day 5 & Day 6 & Day 7 \\
+ & soda & soda & hot choc. & ice cream & soda & soda & ice cream \\
+\midrule
+Hot    & .06 & .1008 & 0 & \cellcolor{nbteal!25}\textbf{.00263} & .000632 & .000152 & \cellcolor{nbteal!25}\textbf{.0000248} \\
+       & & {\scriptsize$\leftarrow$N} & & {\scriptsize$\leftarrow$C} & {\scriptsize$\leftarrow$H} & {\scriptsize$\leftarrow$H} & {\scriptsize$\leftarrow$N} \\
+Normal & \cellcolor{nbteal!25}\textbf{.56} & \cellcolor{nbteal!25}\textbf{.1568} & .00627 & .000659 & \cellcolor{nbteal!25}\textbf{.000738} & \cellcolor{nbteal!25}\textbf{.000207} & .0000165 \\
+       & & {\scriptsize$\leftarrow$N} & {\scriptsize$\leftarrow$N} & {\scriptsize$\leftarrow$C} & {\scriptsize$\leftarrow$H} & {\scriptsize$\leftarrow$N} & {\scriptsize$\leftarrow$N} \\
+Cold   & .03 & .0504 & \cellcolor{nbteal!25}\textbf{.0329} & 0 & .000158 & .0000664 & 0 \\
+       & & {\scriptsize$\leftarrow$N} & {\scriptsize$\leftarrow$N} & & {\scriptsize$\leftarrow$H} & {\scriptsize$\leftarrow$N} & \\
+\bottomrule
+\end{tabular}
+\captionof{table}{The Viterbi trellis (values rounded to 3 significant digits). Under
+each value, the backpointer: the state of the previous day that gave the maximum.
+Shaded: the best path, recovered by backtracking from the largest value of day 7.}
+\end{center}
+
+\begin{itemize}[nosep]
+  \item Some cells are 0 because the output is impossible in that state: no hot
+        chocolate on a hot day, no ice cream on a cold day.
+  \item On day 7 the best value is Hot (.0000248 $>$ .0000165), so the path ends in Hot.
+        Its backpointer is Normal (day 6), whose backpointer is Normal (day 5), then Hot
+        (day 4), then Cold (day 3), then Normal, Normal.
+\end{itemize}
+
+\begin{nbfact}{Result}
+\textbf{Most likely weather}: normal, normal, cold, hot, normal, normal, hot.
+\end{nbfact}
+
+\begin{nbwarning}[rounding on the slides]
+The slides compute with rounded intermediate values, so some cells differ slightly from
+the exact ones (e.g.\ day 4 Hot: $.007 \cdot .4 = .0027$ instead of $.0329\cdot .2\cdot .4
+= .00263$). One cell is a slip: day 2 Normal is written ``$.224 \cdot .7 = .1589$'', but
+$.224\cdot .7 = .1568$. None of this changes the final path.
+\end{nbwarning}
+
+\begin{nbintuition}[numbers get tiny]
+Every step multiplies by numbers smaller than 1, so after a few dozen words the values
+underflow the floating-point range. Real implementations add \emph{logarithms} of the
+probabilities instead of multiplying them: $\log$ is increasing, so the $\max$ (and the
+best path) does not change.
+\end{nbintuition}
+
+\subsubsection{From weather to POS tags}
+\slidesrc{Syntax: sentence, HMM: 17--20}
+
+The weather problem is POS tagging in disguise:
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+ & \textbf{Weather} & \textbf{POS tagging} \\
+\midrule
+hidden states    & cold, normal, hot & tags: DT, NN, VB, \ldots \\
+observations     & snacks in the diary & words of the sentence \\
+transitions      & $P(\text{hot} \mid \text{cold})$ & $P(\text{NN} \mid \text{DT})$: a noun after a determiner \\
+emissions        & $P(\text{soda} \mid \text{hot})$ & $P(\text{flies} \mid \text{VBZ})$ \\
+answer           & the weather of the week & the tag of each word \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Transition and emission probabilities are estimated by \emph{counting} in a hand-tagged
+corpus (e.g.\ the Brown corpus): $P(\text{NN}\mid\text{DT}) = $ (number of times DT is
+followed by NN) / (number of DTs). The Python code of the course implements Viterbi on
+the weather example and prints the guessed sequence (\texttt{day=1 normal},
+\texttt{day=2 normal}, \texttt{day=3 cold}, \ldots, \texttt{day=7 hot}).
+
+\paragraph{HMM lab.} Experiment with the HMM Python code; extend it with other parts of
+speech (see the Brown corpus tags,
+\url{https://en.wikipedia.org/wiki/Brown_Corpus#Part-of-speech_tags_used}), words and
+transitions, and use it to tag ``\emph{time flies like an arrow}''
+(Section~\ref{sec:pos-tagging}); invent other short ambiguous sentences and extend the
+code so that it tags them properly.
+
+\subsubsection{Maximum Entropy Markov Models}
+\slidesrc{Syntax: sentence, HMM: 19}
+
+An HMM can reach very high accuracy in POS tagging, but it needs architectural
+additions to deal with \textbf{unknown words}, suffixes and so on: an HMM can only use
+$P(\text{word}\mid\text{tag})$, so a word never seen in training has no emission
+probability at all.
+
+\textbf{Maximum Entropy Markov Models} (MEMM) combine the HMM idea (a sequence of
+hidden states, decoded with Viterbi) with \textbf{logistic regression}, a probabilistic
+classifier trained with supervised machine learning. Instead of $P(\text{word} \mid
+\text{tag})$, an MEMM directly models $P(\text{tag} \mid \text{word, previous tag,
+features})$, where the features can be anything: suffix (\emph{-ing}, \emph{-ly}),
+capitalisation, presence of digits or hyphens. This handles unknown words naturally. An
+MEMM is trained on a POS-annotated text of the language; this is how the Stanford POS
+tagger works (\url{https://nlp.stanford.edu/software/tagger.shtml}).
+
+\subsubsection{Exercises}
+\notinslides
+
+\begin{nbexercise}{1}{a shorter diary}
+With the same model, find the most likely weather for a two-day diary: \emph{hot
+chocolate, ice cream}.
+\end{nbexercise}
+\begin{nbsolution}
+Day 1 (hot chocolate): $v_1(\text{C}) = .1\cdot .7 = .07$, $v_1(\text{N}) = .8\cdot .1 =
+.08$, $v_1(\text{H}) = .1 \cdot 0 = 0$.
+
+Day 2 (ice cream):
+\begin{align*}
+  v_2(\text{C}) &= \max(\dots)\cdot 0 = 0\\
+  v_2(\text{N}) &= \max(.07\cdot .1,\ .08\cdot .4,\ 0)\cdot .2 = .032\cdot .2 = .0064
+     \reason{from N}\\
+  v_2(\text{H}) &= \max(.07\cdot .2,\ .08\cdot .3,\ 0)\cdot .4 = .024\cdot .4 = .0096
+     \reason{from N}
+\end{align*}
+Best final state: Hot (.0096), backpointer Normal. Answer: \textbf{normal, hot}.
+
+\emph{Lesson}: on day 1 Cold explains hot chocolate better ($.7$ vs $.1$), but the start
+probabilities favour Normal so much ($.8$ vs $.1$) that Normal wins. The best path is a
+compromise between transitions and emissions.
+\end{nbsolution}
+
+\begin{nbsummary}[syntax at the sentence level]
+\begin{itemize}[nosep]
+  \item Sentence breaking: period = end, unless the previous token is an abbreviation,
+        but yes if the next token is capitalised: about 95\% correct.
+  \item POS tagging: tag each word using definition \emph{and} context; Penn Treebank
+        tagset (36 tags: NN, NNS, VB, VBZ, JJ, DT, IN, \ldots).
+  \item Generative grammar (Chomsky 1957). Chomsky hierarchy: regular $\subset$
+        context-free $\subset$ context-sensitive $\subset$ recursively enumerable
+        (finite automaton, pushdown automaton, linear-bounded TM, TM).
+  \item CFG = lexicon + rules with one nonterminal on the left; parse tree; plain CFGs
+        overgenerate (no agreement). DCGs add arguments to nonterminals (Prolog).
+  \item HMM: hidden states, observed outputs; $\pi$, transitions $a$, emissions $b$.
+        Viterbi: $v_t(s) = \max_{s'} v_{t-1}(s')\,a(s'\to s)\,b_s(o_t)$ + backpointers.
+  \item MEMM = HMM + logistic regression; uses arbitrary features, handles unknown words.
+\end{itemize}
+\end{nbsummary}

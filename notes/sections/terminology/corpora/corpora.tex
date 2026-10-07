@@ -1,0 +1,77 @@
+\subsection{Corpora, Genre and Collocations}
+\label{sec:corpora}
+\slidesrc{Terminology introduction: 39--41}
+
+\subsubsection{Corpus}
+\slidesrc{Terminology introduction: 39}
+
+\begin{nbdef}{Corpus (plural: corpora)}
+A \textbf{text corpus} is a large and structured set of texts (nowadays usually stored
+and processed electronically). Corpora are used for statistical analysis and hypothesis
+testing, for checking occurrences, and for validating linguistic rules within a specific
+language territory.
+\end{nbdef}
+
+Example: the corpora by Mark Davies, originally at \url{https://corpus.byu.edu/} and now
+at \url{https://www.english-corpora.org/}: COCA (Corpus of Contemporary American English),
+NOW (News on the Web), and others. You can search them to see how often and in which
+contexts a word or phrase is used.
+
+\begin{nbwhy}
+Corpora are the raw material of statistical and neural NLP
+(Section~\ref{sec:nlp-history}): probabilities, word embeddings and LLMs are all learnt
+from corpora. What the corpus contains (its size, languages, genres, time period)
+determines what the model learns.
+\end{nbwhy}
+
+\subsubsection{Genre}
+\slidesrc{Terminology introduction: 40}
+
+\begin{nbdef}{Genre}
+\begin{itemize}[nosep]
+  \item \textbf{Genre}: a style or category of art, music or literature.
+  \item \textbf{Genre of a corpus}: usually defined on the basis of
+        \emph{text-external} features, such as medium, function and format (e.g.\
+        newspaper articles, academic papers, fiction, spoken conversation transcripts,
+        social media posts).
+\end{itemize}
+\end{nbdef}
+
+``Text-external'' means that the genre is decided by \emph{where the text comes from and
+what it is for}, not by counting words inside it. Texts of different genres differ a
+lot (sentence length, vocabulary, formality), so a model trained on newspapers often
+performs worse on tweets.
+
+\subsubsection{Collocations}
+\slidesrc{Terminology introduction: 41}
+
+\begin{nbdef}{Collocation}
+A \textbf{collocation} is a sequence of words or terms that co-occur \emph{more often
+than would be expected by chance}. Examples: ``pay attention'', ``fast food'', ``make an
+effort'', ``powerful engine''.
+\end{nbdef}
+
+\emph{Fast} and \emph{quick} mean roughly the same thing, yet native speakers combine
+them with different nouns (example from the NOW corpus):
+
+\begin{center}
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{Natural English} & \textbf{Unnatural English} \\
+\midrule
+the fast train  & the \sout{quick} train \\
+fast food       & \sout{quick} food \\
+a quick shower  & a \sout{fast} shower \\
+a quick meal    & a \sout{fast} meal \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{nbintuition}[``more often than by chance'']
+If words were combined at random, \emph{fast food} and \emph{quick food} would appear
+about as often as the frequencies of \emph{fast} and \emph{quick} predict. In a corpus,
+\emph{fast food} appears far more often than that, and \emph{quick food} hardly ever.
+That excess is what makes it a collocation. Nothing in grammar or meaning forbids
+``quick food'': collocations are a matter of \emph{usage}, which is why they are learnt
+from corpora.
+\end{nbintuition}

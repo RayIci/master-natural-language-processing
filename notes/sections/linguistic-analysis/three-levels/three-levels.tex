@@ -1,0 +1,51 @@
+\subsection{The Three Levels}
+\label{sec:three-levels}
+\slidesrc{Terminology introduction: 23--24}
+
+\begin{nbwarning}[exam]
+The lecturer is explicit: when the exam asks for ``the three levels of linguistic
+analysis'', it refers to \textbf{these three}: syntax, semantics and pragmatics.
+\end{nbwarning}
+
+\begin{nbdef}{The three levels of linguistic analysis}
+Given a natural-language utterance, we can ask three questions, each building on the
+previous one:
+\begin{itemize}[nosep]
+  \item \textbf{Syntax}: \emph{what is grammatical?} The form and structure of the
+        utterance: which sequences of words are well formed, and how words group into
+        phrases and sentences.
+  \item \textbf{Semantics}: \emph{what does it mean?} The literal meaning of the
+        words and of the way they are combined.
+  \item \textbf{Pragmatics}: \emph{what does it do?} The purpose of the utterance in
+        its context: what the speaker wants to achieve by saying it.
+\end{itemize}
+\end{nbdef}
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth,
+    lvl/.style={draw, thick, minimum width=5.6cm, minimum height=0.85cm, align=center, font=\small}]
+  \node[font=\small\itshape, nbgreen!60!black] (u) at (0,0) {natural language utterance};
+  \node[lvl, fill=nbred!8,    draw=nbred]    (syn) at (0,1.2) {\textbf{Syntax}: what is grammatical?};
+  \node[lvl, fill=nbblue!8,   draw=nbblue]   (sem) at (0,2.3) {\textbf{Semantics}: what does it mean?};
+  \node[lvl, fill=nbgreen!10, draw=nbgreen]  (pra) at (0,3.4) {\textbf{Pragmatics}: what does it do?};
+  \draw[->, thick, nbgray] (u) -- (syn);
+  \draw[->, thick, nbgray] (syn) -- (sem);
+  \draw[->, thick, nbgray] (sem) -- (pra);
+  \node[right=0.4cm of syn, font=\footnotesize, align=left] {``Tell me the pressure\\of both front tires'' is well formed};
+  \node[right=0.4cm of sem, font=\footnotesize, align=left] {it is about the pressure\\of the two front tyres};
+  \node[right=0.4cm of pra, font=\footnotesize, align=left] {it is a \emph{request}\\for information};
+\end{tikzpicture}
+\captionof{figure}{The three levels, from the bottom up, applied to a sentence from the
+ChatBDI case study (Section~\ref{sec:chatbdi}).}
+\end{center}
+
+\begin{nbexample}{the same idea with everyday sentences}
+\begin{itemize}[nosep]
+  \item ``Colorless green ideas sleep furiously'' (Chomsky): syntactically correct,
+        semantically nonsense.
+  \item ``Me want cookie'': syntactically wrong, but the meaning is perfectly clear.
+  \item ``Can you pass the salt?'': syntax and semantics describe a question about your
+        \emph{ability}; pragmatically it is a \emph{request}, and answering ``yes''
+        without passing the salt misses the point.
+\end{itemize}
+\end{nbexample}

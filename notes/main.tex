@@ -1,0 +1,37 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[parfill]{parskip}
+\usepackage{minted}            % code listings; needs latexmk -shell-escape
+\setminted{breaklines=true, fontsize=\small, linenos=true, frame=lines, framesep=2mm}
+
+\input{preamble/preamble}      % boxes, colours, macros, plot style, solutions toggle
+\renewcommand{\nbwhytitle}{Why this matters for NLP}
+% \showsolutionsfalse          % uncomment to hide all exercise solutions
+
+\title{Natural Language Processing\\[4pt]\large Course Notes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% one line per section, in reading order
+% \input{sections/<topic>/<topic>}
+\input{sections/birth-of-language/birth-of-language}
+\input{sections/introduction-to-nlp/introduction-to-nlp}
+\input{sections/linguistic-analysis/linguistic-analysis}
+\input{sections/terminology/terminology}
+\input{sections/regular-expressions/regular-expressions}
+\input{sections/word-level-syntax/word-level-syntax}
+\input{sections/sentence-level-syntax/sentence-level-syntax}
+\input{sections/distributional-semantics/distributional-semantics}
+\input{sections/frame-model-semantics/frame-model-semantics}
+\input{sections/lexical-semantics/lexical-semantics}
+
+\end{document}

@@ -1,0 +1,106 @@
+\subsection{A Short History of NLP}
+\label{sec:nlp-history}
+\slidesrc{Terminology introduction: 4--8}
+
+NLP has gone through five main eras. Each changed \emph{where the knowledge about
+language comes from}: first from people writing rules, then from statistics over
+corpora, then from neural networks learning their own representations.
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, x=1.6cm]
+  \draw[->, thick] (0,0) -- (9.3,0);
+  \foreach \x/\lab in {0/1950, 2.6/1990, 5.6/2013, 6.8/2017, 8.2/2022} {
+    \draw (\x,0.12) -- (\x,-0.12) node[below, font=\scriptsize] {\lab};
+  }
+  \fill[nbblue!25]   (0,0.25)   rectangle (2.6,0.85);
+  \fill[nbgreen!25]  (2.6,0.25) rectangle (5.6,0.85);
+  \fill[nborange!30] (5.6,0.25) rectangle (6.8,0.85);
+  \fill[nbpurple!25] (6.8,0.25) rectangle (8.2,0.85);
+  \fill[nbred!25]    (8.2,0.25) rectangle (9.2,0.85);
+  \node[font=\scriptsize\bfseries] at (1.3,0.55) {Symbolic};
+  \node[font=\scriptsize\bfseries] at (4.1,0.55) {Statistical};
+  \node[font=\scriptsize\bfseries] at (6.2,0.55) {Neural};
+  \node[font=\scriptsize\bfseries, align=center] at (7.5,0.55) {Transf.};
+  \node[font=\scriptsize\bfseries] at (8.7,0.55) {LLMs};
+  \node[font=\scriptsize, align=center, above] at (1.3,0.9) {rules written\\by hand};
+  \node[font=\scriptsize, align=center, above] at (4.1,0.9) {probabilities\\from corpora};
+  \node[font=\scriptsize, align=center, above] at (6.2,0.9) {learnt\\features};
+  \node[font=\scriptsize, align=center, above] at (7.5,0.9) {attention,\\pre-training};
+  \node[font=\scriptsize, align=center, above] at (8.7,0.9) {generative\\chat};
+\end{tikzpicture}
+\captionof{figure}{The eras of NLP. Boundaries are approximate and the eras overlap: the
+neural era is usually dated from word embeddings (around 2013), the transformer era
+from the 2017 transformer paper, the LLM era from the release of ChatGPT (2022).}
+\end{center}
+
+\subsubsection{Symbolic NLP (1950s -- early 1990s)}
+\slidesrc{Terminology introduction: 4}
+
+Programs based on \textbf{hand-written rules} and knowledge bases. Classic systems:
+\begin{itemize}[nosep]
+  \item \textbf{ELIZA} (1966, Joseph Weizenbaum, MIT): a chatbot imitating a
+        psychotherapist, using simple pattern matching and substitution
+        (``I am sad'' $\to$ ``Why are you sad?''). It understood nothing, yet many users
+        attributed real understanding to it.
+  \item \textbf{SHRDLU} (1968--1970, Terry Winograd, MIT): a program that understood
+        commands in English about a small ``blocks world'' (``put the red pyramid on the
+        blue block'') and could answer questions about it.
+  \item \textbf{PARRY} (1972, Kenneth Colby, Stanford): a chatbot simulating a person with
+        paranoid schizophrenia; famously, it was made to ``talk'' with ELIZA.
+  \item \textbf{Ontologies} (e.g.\ MARGIE, 1973, Roger Schank): representing the
+        meaning of sentences with structured conceptual knowledge.
+\end{itemize}
+Links: \url{https://en.wikipedia.org/wiki/ELIZA}, \url{https://en.wikipedia.org/wiki/SHRDLU},
+\url{https://en.wikipedia.org/wiki/PARRY}, \url{https://www.ijcai.org/Proceedings/73}.
+
+\subsubsection{Statistical NLP (1990s -- 2010s)}
+\slidesrc{Terminology introduction: 5}
+
+\begin{itemize}[nosep]
+  \item \textbf{Large corpora} became available, also multilingual (e.g.\ parliament
+        proceedings translated into many languages).
+  \item Statistical models make \textbf{soft, probabilistic decisions} by attaching
+        real-valued weights to each input feature, instead of applying hard rules.
+  \item Example: \textbf{part-of-speech tagging with Hidden Markov Models} (covered
+        later in the course).
+\end{itemize}
+
+\subsubsection{Neural NLP (2010s)}
+\slidesrc{Terminology introduction: 6}
+
+\begin{itemize}[nosep]
+  \item \textbf{End-to-end learning} of a higher-level task (e.g.\ question answering),
+        instead of relying on a pipeline of separate intermediate tasks (tokenise, tag,
+        parse, \ldots).
+  \item No need to \textbf{engineer features} by hand: the network learns its own
+        representation of the language.
+  \item A new paradigm, distinct from statistical NLP (example: \textbf{neural machine
+        translation}).
+  \item Example: \textbf{word embeddings}, vectors representing words so that words
+        with similar meaning are close in space.
+\end{itemize}
+
+\subsubsection{Transformers (``it seems a long time ago\ldots'')}
+\slidesrc{Terminology introduction: 7}
+
+\textbf{BERT} (Bidirectional Encoder Representations from Transformers, Google) is a
+model pre-trained on huge amounts of text and then fine-tuned for specific tasks. It is
+built on the \textbf{transformer} architecture, introduced in the paper \emph{Attention
+Is All You Need} (Vaswani et al., NeurIPS 2017).
+
+\begin{nbwarning}[dates and the link on the slide]
+The slide says ``BERT, Google (2019)'' and links to a NeurIPS 2017 paper. That link is the
+\emph{transformer} paper (\emph{Attention Is All You Need}), not the BERT paper. BERT
+(Devlin et al.) was released in October 2018 and published at NAACL in 2019, so both
+2018 and 2019 are found in the literature.
+\end{nbwarning}
+
+\subsubsection{Generative AI and LLMs (present)}
+\slidesrc{Terminology introduction: 8}
+
+\begin{itemize}[nosep]
+  \item \textbf{GPT}: Generative Pre-trained Transformer. \textbf{ChatGPT} was released in
+        November 2022.
+  \item Other large language models and tools: Llama, Gemini, \ldots; and Ollama, a tool
+        to run open models locally.
+\end{itemize}

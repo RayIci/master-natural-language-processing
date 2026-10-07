@@ -1,0 +1,32 @@
+\subsection{Why Traditional NLP Still Matters}
+\label{sec:why-traditional-nlp}
+\slidesrc{Terminology introduction: 9--10}
+
+If LLMs can do almost everything, why study tokenisers, taggers and grammars? Because
+traditional NLP methods and approaches are still required in three situations.
+
+\begin{nbfact}{When traditional NLP is required}
+\begin{enumerate}[nosep]
+  \item \textbf{Not enough data}: when the amount of training data is insufficient to
+        apply machine learning or deep learning methods successfully, or to train LLMs
+        (e.g.\ low-resource languages, very specialised domains).
+  \item \textbf{Pre- and post-processing}: when NLP pipelines need preprocessing (e.g.\
+        tokenisation) or postprocessing and transformation of their output (e.g.\
+        extracting knowledge from syntactic parses). This includes \emph{refining and
+        validating the results} of ML, DL and LLM models.
+  \item \textbf{LLMs cannot be used}, for technical reasons (cost, latency, hardware),
+        legal reasons (privacy, data that cannot leave the organisation) or ethical
+        reasons (lack of transparency, bias).
+\end{enumerate}
+\end{nbfact}
+
+\begin{nbintuition}
+Even an LLM starts with a tokeniser, a very traditional NLP component. And when an LLM
+produces an answer that a program must use (a database query, a logical fact), checking
+that the answer is well formed and consistent is again a job for traditional methods.
+The case study below shows exactly this.
+\end{nbintuition}
+
+The course will therefore discuss (some of) the common problems of NLP following a
+\emph{standard linguistic analysis approach} (Section~\ref{sec:linguistic-analysis}),
+with examples of (some of) the common techniques and their common implementations.

@@ -1,0 +1,120 @@
+\subsection{Geometric Interpretation}
+\label{sec:geometric-interpretation}
+\slidesrc{Distributional semantics: 22--27; Semantics (long version): 6}
+
+\subsubsection{Words as points}
+\slidesrc{Distributional semantics: 22--24}
+
+The row vector $\mathbf{x}_{\text{dog}} = (115, 83, 10, 42, 33, 17)$ describes how
+\emph{dog} is used in the corpus. It can be seen as the coordinates of a \textbf{point}
+in an $n$-dimensional Euclidean space ($n = 6$ here, one dimension per context). We can
+draw two dimensions, \emph{get} and \emph{use}: $\mathbf{x}_{\text{dog}} = (115, 10)$,
+$\mathbf{x}_{\text{cat}} = (52, 4)$, $\mathbf{x}_{\text{knife}} = (51, 84)$,
+$\mathbf{x}_{\text{boat}} = (59, 23)$.
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=10cm, axis equal image, xmin=0, xmax=130, ymin=0, ymax=105,
+    xlabel={get}, ylabel={use}, title={Two dimensions of the English V--Obj DSM},
+    title style={font=\small}, tick label style={font=\scriptsize}, label style={font=\small},
+    axis lines=left, clip=false]
+  % unit-length arc (radius 80, as in the slides)
+  \addplot[domain=0:90, samples=60, nbgray, thin] ({80*cos(x)}, {80*sin(x)});
+  \draw[-{Stealth}, thick, nbgreen]  (axis cs:0,0) -- (axis cs:51,84);
+  \draw[-{Stealth}, thick, nbblue]   (axis cs:0,0) -- (axis cs:59,23);
+  \draw[-{Stealth}, thick, black]    (axis cs:0,0) -- (axis cs:52,4);
+  \draw[-{Stealth}, thick, nbred]    (axis cs:0,0) -- (axis cs:115,10);
+  \fill[nbgreen] (axis cs:51,84) circle (2pt) node[above left, font=\small] {knife};
+  \fill[nbblue]  (axis cs:59,23) circle (2pt) node[above, font=\small] {boat};
+  \fill[black]   (axis cs:52,4)  circle (2pt) node[above left, font=\small] {cat};
+  \fill[nbred]   (axis cs:115,10) circle (2pt) node[above, font=\small] {dog};
+  % normalised points on the arc
+  \draw[nbgreen, thick] (axis cs:41.5,68.4) circle (2.5pt);
+  \draw[nbblue, thick]  (axis cs:74.5,29.1) circle (2.5pt);
+  \draw[nbred, thick]   (axis cs:79.7,7.0)  circle (2.5pt);
+  % angle between knife and dog
+  \addplot[domain=5:58.7, samples=40, dashed, thick] ({48*cos(x)}, {48*sin(x)});
+  \node[font=\small] at (axis cs:48,50) {$\alpha$};
+\end{axis}
+\end{tikzpicture}
+\captionof{figure}{Words as vectors in the (get, use) plane. Circles on the arc: the same
+vectors normalised to the same length (only the direction is kept). \emph{Dog} and
+\emph{cat} point in almost the same direction even though they are far apart as points.}
+\end{center}
+
+A first idea: \textbf{similarity = spatial proximity}, measured with the Euclidean
+distance. But the location of a point depends on the \textbf{frequency} of the noun:
+\emph{dog} is about 2.7 times more frequent than \emph{cat}, so all its counts are larger
+and its point lies much farther from the origin.
+
+\begin{nbexample}{Euclidean distance is misleading}
+\begin{align*}
+  d(\text{dog}, \text{cat})  &= \sqrt{(115-52)^2 + (10-4)^2}  = \sqrt{3969 + 36}  \approx 63.3\\
+  d(\text{dog}, \text{boat}) &= \sqrt{(115-59)^2 + (10-23)^2} = \sqrt{3136 + 169} \approx 57.5
+\end{align*}
+By Euclidean distance, \emph{boat} is closer to \emph{dog} than \emph{cat} is: a
+consequence of frequency, not of meaning.
+\end{nbexample}
+
+\subsubsection{Direction, not location}
+\slidesrc{Distributional semantics: 25--27}
+
+A vector can also be seen as an \textbf{arrow from the origin}. Its \emph{length} mostly
+reflects how frequent the word is; its \emph{direction} reflects \emph{the proportions}
+in which the word occurs with the different contexts, i.e.\ how it is used. So the
+direction is more important than the location. Two equivalent solutions:
+\begin{itemize}[nosep]
+  \item use the \textbf{angle} $\alpha$ between two vectors as a distance measure;
+  \item or \textbf{normalise} the length $\norm{\mathbf{x}}$ of every arrow to the same
+        value, and then compare points (the circles on the arc in the figure).
+\end{itemize}
+
+\begin{nbdef}{Cosine similarity}
+The \textbf{cosine similarity} of two vectors is the cosine of the angle between them:
+\[
+  \cos\alpha = \frac{\mathbf{x}\cdot\mathbf{y}}{\norm{\mathbf{x}}\,\norm{\mathbf{y}}}
+             = \frac{\sum_i x_i y_i}{\sqrt{\sum_i x_i^2}\,\sqrt{\sum_i y_i^2}}.
+\]
+It is 1 for vectors pointing in the same direction, 0 for orthogonal vectors (with
+non-negative counts it is never negative), and it does not change if a vector is
+multiplied by a positive number: it ignores frequency.
+\end{nbdef}
+
+\begin{nbexample}{dog vs.\ cat and dog vs.\ knife in two dimensions}
+\begin{align*}
+  \cos(\text{dog}, \text{cat}) &= \frac{115\cdot 52 + 10\cdot 4}{\sqrt{115^2+10^2}\,\sqrt{52^2+4^2}}
+     = \frac{6020}{115.43 \cdot 52.15} \approx 1.000 \quad(\alpha \approx 0.6^\circ)\\
+  \cos(\text{dog}, \text{knife}) &= \frac{115\cdot 51 + 10\cdot 84}{115.43 \cdot 98.27}
+     = \frac{6705}{11343} \approx 0.591 \quad(\alpha \approx 53.8^\circ)
+\end{align*}
+Now \emph{cat} is (in these two dimensions) practically identical to \emph{dog}, and
+\emph{knife} is far. The slides report $\alpha = 54.3^\circ$ for knife--dog; computing it
+from the counts gives $53.8^\circ$, the small difference does not matter.
+\end{nbexample}
+
+\begin{nbwhy}
+Every modern word representation, from count-based DSMs to \textbf{word embeddings}
+(\emph{word2vec}, GloVe) to the internal vectors of BERT and GPT, follows this recipe:
+a word is a vector learnt from its contexts, and similar words have vectors with a small
+angle between them. Word2vec learns short dense vectors (a few hundred dimensions)
+directly, instead of counting; implementations in Python and C, with examples, are linked
+in the course's AulaWeb module.
+\end{nbwhy}
+
+\begin{nbsummary}[distributional semantics]
+\begin{itemize}[nosep]
+  \item Wittgenstein: meaning = use; Firth: ``you shall know a word by the company it
+        keeps''; Harris: difference of meaning correlates with difference of
+        distribution.
+  \item \emph{bardiwac}: the meaning of an unknown word can be inferred from its
+        contexts alone.
+  \item Co-occurrence matrix: rows = target words, columns = contexts, cells = counts;
+        each row is the word's vector. Weight the counts (e.g.\ $\log(1+f)$) before
+        comparing.
+  \item Euclidean distance is dominated by frequency; use the \textbf{angle}, i.e.\
+        \textbf{cosine similarity} $\mathbf{x}\cdot\mathbf{y}/(\norm{\mathbf{x}}\norm{\mathbf{y}})$,
+        or normalise the vectors.
+  \item This is the basis of word embeddings (word2vec) and of the representations in
+        LLMs.
+\end{itemize}
+\end{nbsummary}

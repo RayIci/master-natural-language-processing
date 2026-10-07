@@ -1,0 +1,35 @@
+\section{Lexical Semantics, WSD and NER}
+\label{sec:lexical-semantics}
+\slidesrc{Semantics (long version): 11--43}
+
+\begin{nbwarning}[source of this section]
+This section comes from the \emph{long} version of the semantics slides, which was not
+shown in class (the lessons used the shortened decks of
+Sections~\ref{sec:distributional-semantics} and~\ref{sec:frame-model-semantics}). It is
+included because it completes the semantics part of the course map
+(Section~\ref{sec:course-map}): lexical semantics, ontologies, word sense
+disambiguation and named entity recognition. Check with the lecturer how much of it is
+exam material.
+\end{nbwarning}
+
+Distributional semantics learns meaning from usage; frame and model-theoretic semantics
+build structured meanings of sentences. \textbf{Lexical semantics} studies the meanings
+of \emph{words} and the relations among them, and organises them into resources such as
+WordNet. Two classic tasks use these resources: deciding which meaning of an ambiguous
+word is meant (WSD), and finding the names of people, places and organisations in a text
+(NER).
+
+This section covers:
+\begin{enumerate}[nosep]
+  \item the lexicon and the relations among word meanings
+        (Section~\ref{sec:lexical-relations});
+  \item thesauri and WordNet (Section~\ref{sec:wordnet});
+  \item word sense disambiguation and the Lesk algorithm
+        (Section~\ref{sec:word-sense-disambiguation});
+  \item named entity recognition (Section~\ref{sec:named-entity-recognition}).
+\end{enumerate}
+
+\input{sections/lexical-semantics/lexical-relations/lexical-relations}
+\input{sections/lexical-semantics/wordnet/wordnet}
+\input{sections/lexical-semantics/word-sense-disambiguation/word-sense-disambiguation}
+\input{sections/lexical-semantics/named-entity-recognition/named-entity-recognition}

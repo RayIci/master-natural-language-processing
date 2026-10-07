@@ -1,0 +1,571 @@
+\subsection{Parts of Speech: a Grammar Recap}
+\label{sec:parts-of-speech}
+\notinslides
+
+The course often talks about nouns, pronouns, adjectives, determiners\ldots{} without
+defining them: they are assumed from school grammar. This subsection is a quick recap to
+come back to whenever needed, with the link to the Italian grammar you already know and
+the Penn Treebank tags used in POS tagging (Section~\ref{sec:pos-tagging}). Italian
+translations are always in \ita{green}; most tables pair each English word with its
+Italian counterpart, one per row.
+
+\begin{nbintuition}[English and Italian names]
+The English \textbf{parts of speech} (also \emph{word classes} or \emph{lexical
+categories}) are the Italian \textbf{parti del discorso}. Assigning one to each word of a
+sentence is what Italian school calls \textbf{analisi grammaticale}, and what NLP calls
+\textbf{POS tagging}. The sentence-level analysis (subject, object, \ldots) is the
+\textbf{analisi logica}, recalled at the end of this subsection.
+\end{nbintuition}
+
+\subsubsection{Overview}
+\notinslides
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l >{\raggedright\arraybackslash}p{2.5cm} c >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{English} & \textbf{Italiano} & \textbf{Class} & \textbf{Penn tags} & \textbf{Examples} \\
+\midrule
+Noun         & nome (sostantivo) & open   & NN, NNS, NNP, NNPS & cat \ita{gatto}, ideas \ita{idee}, Rome \ita{Roma} \\
+Verb         & verbo             & open   & VB, VBD, VBG, VBN, VBP, VBZ, MD & run \ita{correre}, ran \ita{corse}, is \ita{è}, can \ita{può} \\
+Adjective    & aggettivo (qualificativo) & open & JJ, JJR, JJS & red \ita{rosso}, bigger \ita{più grande}, best \ita{il migliore} \\
+Adverb       & avverbio          & open   & RB, RBR, RBS, WRB & quickly \ita{velocemente}, very \ita{molto}, where \ita{dove} \\
+Pronoun      & pronome           & closed & PRP, PRP\$, WP, WP\$, EX & I \ita{io}, me \ita{me/mi}, mine \ita{il mio}, who \ita{chi} \\
+Determiner   & articolo, agg.\ determinativo & closed & DT, PDT, WDT & the \ita{il/la}, a \ita{un/una}, this \ita{questo}, every \ita{ogni} \\
+Preposition  & preposizione      & closed & IN, TO & of \ita{di}, to \ita{a}, from \ita{da}, in \ita{in} \\
+Conjunction  & congiunzione      & closed & CC, IN & and \ita{e}, but \ita{ma}, because \ita{perché} \\
+Interjection & interiezione      & closed & UH & oh \ita{oh}, wow \ita{caspita}, ouch \ita{ahi} \\
+\midrule
+Numeral      & aggettivo numerale & closed & CD & three \ita{tre}, 1908 \\
+Particle     & (no equivalent)   & closed & RP & give \emph{up} \ita{rinunciare}, turn \emph{off} \ita{spegnere} \\
+\bottomrule
+\end{tabularx}
+\captionof{table}{Parts of speech at a glance. \emph{Open} classes accept new words all
+the time (\emph{to google} \ita{googlare}, \emph{selfie}); \emph{closed} classes are small
+fixed lists (Section~\ref{sec:grammars-parsing}).}
+\end{center}
+
+\begin{nbwarning}[variable and invariable]
+In Italian, five parts of speech are \emph{variabili} (articolo, nome, aggettivo,
+pronome, verbo: they change with gender, number, person, tense) and four are
+\emph{invariabili} (avverbio, preposizione, congiunzione, interiezione). English inflects
+much less: \textbf{articles and adjectives never change} (\emph{the red car}
+\ita{la macchina rossa}, \emph{the red cars} \ita{le macchine rosse}: in English only
+\emph{car} changes), and nouns have number but \textbf{no grammatical gender}.
+\end{nbwarning}
+
+%======================================================================
+\subsubsection{Nouns}
+\notinslides
+
+A \textbf{noun} names a person, animal, thing, place or idea. \quad
+\textbf{Italiano}: \emph{nome} / \emph{sostantivo}.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X l@{}}
+\toprule
+\textbf{Type} & \textbf{Italiano} & \textbf{Examples} & \textbf{Penn} \\
+\midrule
+common             & nome comune            & city \ita{città}, dog \ita{cane} & NN \\
+proper             & nome proprio           & Genoa \ita{Genova}, Mary \ita{Maria} & NNP \\
+plural             & plurale                & dogs \ita{cani}, children \ita{bambini}, the Alps \ita{le Alpi} & NNS, NNPS \\
+countable          & numerabile             & a chair \ita{una sedia}, two chairs \ita{due sedie} & NN, NNS \\
+uncountable (mass) & non numerabile         & water \ita{acqua}, information \ita{informazioni}, advice \ita{consigli} & NN \\
+concrete / abstract & concreto / astratto   & table \ita{tavolo} / happiness \ita{felicità} & NN \\
+compound           & nome composto          & football \ita{calcio}, bus stop \ita{fermata dell'autobus} & NN \\
+possessive \emph{'s} & complemento di specificazione & Mary's book \ita{il libro di Maria} & NNP + POS \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{Differences with Italian}: no gender (\emph{the table} \ita{il tavolo},
+\emph{the chair} \ita{la sedia}: the same \emph{the}); uncountable nouns have no plural and
+no \emph{a} even when Italian uses a plural (\emph{some information} \ita{delle
+informazioni}, \emph{a piece of advice} \ita{un consiglio}).
+
+%======================================================================
+\subsubsection{Pronouns}
+\notinslides
+
+A \textbf{pronoun} stands for a noun (or a whole noun phrase). \quad
+\textbf{Italiano}: \emph{pronome}.
+
+\needspace{8\baselineskip}\paragraph{Personal, possessive and reflexive pronouns.} One row per person:
+
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}l l l l l l@{}}
+\toprule
+\textbf{Person} & \textbf{Subject} & \textbf{Object} & \textbf{Possessive adj.} & \textbf{Possessive pron.} & \textbf{Reflexive} \\
+ & \emph{pers.\ soggetto} & \emph{pers.\ complemento} & \emph{agg.\ possessivo} & \emph{pron.\ possessivo} & \emph{riflessivo} \\
+\midrule
+1s & I \ita{io}      & me \ita{me, mi}       & my \ita{mio}     & mine \ita{il mio}    & myself \ita{mi, me stesso} \\
+2s & you \ita{tu}    & you \ita{te, ti}      & your \ita{tuo}   & yours \ita{il tuo}   & yourself \ita{ti, te stesso} \\
+3s m. & he \ita{lui}    & him \ita{lui, lo, gli} & his \ita{suo}   & his \ita{il suo}     & himself \ita{si, sé stesso} \\
+3s f. & she \ita{lei}   & her \ita{lei, la, le} & her \ita{suo}    & hers \ita{il suo}    & herself \ita{si, sé stessa} \\
+3s thing & it \ita{esso, --} & it \ita{lo, la}     & its \ita{suo}    & --                   & itself \ita{si} \\
+1p & we \ita{noi}    & us \ita{noi, ci}      & our \ita{nostro} & ours \ita{il nostro} & ourselves \ita{ci, noi stessi} \\
+2p & you \ita{voi}   & you \ita{voi, vi}     & your \ita{vostro} & yours \ita{il vostro} & yourselves \ita{vi, voi stessi} \\
+3p & they \ita{loro} & them \ita{loro, li, le} & their \ita{loro} & theirs \ita{il loro} & themselves \ita{si, sé stessi} \\
+\midrule
+\textbf{Penn tag} & PRP & PRP & PRP\$ & PRP & PRP \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\needspace{8\baselineskip}\paragraph{The other pronouns.}
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X l@{}}
+\toprule
+\textbf{Type} & \textbf{English} & \textbf{Italiano} & \textbf{Penn} \\
+\midrule
+Demonstrative & this / these           & \ita{questo, questa / questi, queste} & DT \\
+              & that / those           & \ita{quello, quella / quelli, quelle} & DT \\
+\midrule
+Relative      & who (people)           & \ita{che, il quale} \quad \emph{the man \underline{who} called} \ita{l'uomo che ha chiamato} & WP \\
+              & which (things)         & \ita{che, il quale} \quad \emph{the book \underline{which} I read} \ita{il libro che ho letto} & WDT \\
+              & that (people, things)  & \ita{che} & WDT \\
+              & whom                   & \ita{cui} \quad \emph{the girl \underline{to whom} I wrote} \ita{la ragazza a cui ho scritto} & WP \\
+              & whose                  & \ita{il cui} \quad \emph{the man \underline{whose} car\ldots} \ita{l'uomo la cui macchina\ldots} & WP\$ \\
+\midrule
+Interrogative & who?                   & \ita{chi?} & WP \\
+              & what?                  & \ita{che cosa?} & WP \\
+              & which?                 & \ita{quale?} & WDT \\
+              & whose?                 & \ita{di chi?} & WP\$ \\
+\midrule
+Indefinite    & someone / somebody     & \ita{qualcuno} & NN \\
+              & something              & \ita{qualcosa} & NN \\
+              & nobody / no one        & \ita{nessuno} & NN \\
+              & nothing                & \ita{niente, nulla} & NN \\
+              & everybody / everyone   & \ita{tutti, ognuno} & NN \\
+              & everything             & \ita{tutto} & NN \\
+              & anybody / anything     & \ita{chiunque / qualsiasi cosa} (in questions: \ita{qualcuno / qualcosa}) & NN \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Differences with Italian}:
+\begin{itemize}[nosep]
+  \item Italian is \emph{pro-drop}: the subject pronoun can be omitted (\ita{mangio}).
+        English always needs it (\emph{I eat}), even a dummy one: \emph{\underline{it}
+        rains} \ita{piove}, \emph{\underline{there} is a cat} \ita{c'è un gatto}
+        (\emph{there} here is ``existential'', tag EX).
+  \item The possessive adjective has \emph{no article} in English: \emph{my book}
+        \ita{il mio libro}; and it agrees with the \emph{owner}: \emph{her brother}
+        \ita{suo fratello} (of a woman), \emph{his sister} \ita{sua sorella} (of a man).
+  \item Italian unstressed object pronouns (\ita{mi, ti, lo, la, ci, vi, li, le, gli})
+        go before the verb, English ones after it: \ita{lo vedo} \emph{I see him}.
+\end{itemize}
+
+%======================================================================
+\subsubsection{Verbs}
+\notinslides
+
+A \textbf{verb} expresses an action, an event or a state. \quad
+\textbf{Italiano}: \emph{verbo}.
+
+\needspace{8\baselineskip}\paragraph{The forms of an English verb.} English has only a few verb forms, and they
+are exactly what the Penn tags list:
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l >{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\textbf{Tag} & \textbf{Form} & \textbf{Example} & \textbf{Italian equivalent} \\
+\midrule
+VB  & base form             & \emph{to \underline{eat}} \ita{mangiare}, \emph{I can \underline{eat}} \ita{posso mangiare} & infinito \\
+VBP & present, not 3rd sing. & \emph{I/we/they \underline{eat}} \ita{mangio / mangiamo / mangiano} & presente indicativo \\
+VBZ & present, 3rd sing.    & \emph{she \underline{eats}} \ita{(lei) mangia} & presente, 3\textsuperscript{a} sing. \\
+VBD & past tense            & \emph{she \underline{ate}} \ita{mangiò / mangiava / ha mangiato} & passato remoto / imperfetto / pass.\ prossimo \\
+VBN & past participle       & \emph{she has \underline{eaten}} \ita{ha mangiato} & participio passato \\
+VBG & gerund / present participle & \emph{she is \underline{eating}} \ita{sta mangiando}, \emph{\underline{eating} is fun} \ita{mangiare è divertente} & gerundio, infinito sostantivato \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\needspace{8\baselineskip}\paragraph{English tenses and Italian tempi.} Everything beyond those forms is built
+with auxiliaries (\emph{be, have, do}) and modals:
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.0cm} l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.0cm}@{}}
+\toprule
+\textbf{English tense} & \textbf{Example} & \textbf{Italiano} & \textbf{Tempo / modo} \\
+\midrule
+present simple       & I eat              & \ita{mangio}                    & presente \\
+present continuous   & I am eating        & \ita{sto mangiando / mangio}    & presente (stare + gerundio) \\
+past simple          & I ate              & \ita{mangiai / ho mangiato}     & passato remoto / prossimo \\
+past continuous      & I was eating       & \ita{mangiavo / stavo mangiando} & imperfetto \\
+present perfect      & I have eaten       & \ita{ho mangiato}               & passato prossimo \\
+past perfect         & I had eaten        & \ita{avevo mangiato}            & trapassato prossimo \\
+future               & I will eat         & \ita{mangerò}                   & futuro semplice \\
+future perfect       & I will have eaten  & \ita{avrò mangiato}             & futuro anteriore \\
+conditional          & I would eat        & \ita{mangerei}                  & condizionale presente \\
+past conditional     & I would have eaten & \ita{avrei mangiato}            & condizionale passato \\
+imperative           & eat!               & \ita{mangia!}                   & imperativo \\
+passive              & it is / was eaten  & \ita{è / fu mangiato}           & forma passiva \\
+\bottomrule
+\end{tabularx}
+\end{center}
+The Italian \emph{congiuntivo} has (almost) no English form: \emph{I think he is right}
+\ita{penso che abbia ragione}, \emph{if I were rich} \ita{se fossi ricco}.
+
+\needspace{8\baselineskip}\paragraph{Auxiliaries and modals.}
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l >{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X l@{}}
+\toprule
+\textbf{English} & \textbf{Italiano} & \textbf{Example} & \textbf{Penn} \\
+\midrule
+be      & \ita{essere} (also \ita{stare})  & \emph{she is tired} \ita{è stanca}, \emph{she is eating} \ita{sta mangiando} & VB\ldots \\
+have    & \ita{avere}                      & \emph{she has eaten} \ita{ha mangiato} & VB\ldots \\
+do      & -- (no equivalent)               & \emph{do you know?} \ita{sai?}, \emph{I don't know} \ita{non so} & VB\ldots \\
+can     & \ita{potere, sapere}             & \emph{I can swim} \ita{so nuotare}, \emph{can I go?} \ita{posso andare?} & MD \\
+must    & \ita{dovere}                     & \emph{you must go} \ita{devi andare} & MD \\
+should  & \ita{dovrei} (condizionale)      & \emph{you should rest} \ita{dovresti riposare} & MD \\
+may / might & \ita{potrei, può darsi che}  & \emph{it might rain} \ita{potrebbe piovere} & MD \\
+will    & (futuro)                         & \emph{she will come} \ita{verrà} & MD \\
+would   & (condizionale)                   & \emph{she would come} \ita{verrebbe} & MD \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Modals never change form (\emph{she can}, not \emph{she cans}) and are followed by the
+base form (VB). They correspond to the Italian \emph{verbi servili} (\ita{potere, dovere,
+volere}) or to a tense of the main verb.
+
+\needspace{8\baselineskip}\paragraph{Other verb distinctions.}
+\begin{itemize}[nosep]
+  \item \textbf{Transitive} \ita{transitivo}: \emph{she reads \underline{a book}}
+        \ita{lei legge un libro}; \textbf{intransitive} \ita{intransitivo}: \emph{she
+        sleeps} \ita{lei dorme}.
+  \item \textbf{Phrasal verbs}: verb + particle (RP) with a new meaning: \emph{give up}
+        \ita{rinunciare}, \emph{look after} \ita{badare a}, \emph{turn off}
+        \ita{spegnere}, \emph{find out} \ita{scoprire}.
+\end{itemize}
+
+%======================================================================
+\subsubsection{Adjectives}
+\notinslides
+
+An \textbf{adjective} describes or qualifies a noun. \quad
+\textbf{Italiano}: \emph{aggettivo qualificativo}.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X l@{}}
+\toprule
+\textbf{Degree} \emph{(grado)} & \textbf{Short adjective} & \textbf{Long adjective} & \textbf{Penn} \\
+\midrule
+positive \emph{(positivo)}      & big \ita{grande}                  & expensive \ita{costoso}                   & JJ \\
+comparative of majority \emph{(comp.\ di maggioranza)} & bigger than \ita{più grande di} & more expensive than \ita{più costoso di} & JJR / RBR + JJ \\
+comparative of minority \emph{(comp.\ di minoranza)}   & less big than \ita{meno grande di} & less expensive than \ita{meno costoso di} & RBR + JJ \\
+comparative of equality \emph{(comp.\ di uguaglianza)} & as big as \ita{grande come}   & as expensive as \ita{costoso come}        & RB + JJ \\
+relative superlative \emph{(superlativo relativo)}     & the biggest \ita{il più grande} & the most expensive \ita{il più costoso} & JJS / RBS + JJ \\
+absolute superlative \emph{(superlativo assoluto)}     & very big \ita{grandissimo}    & very expensive \ita{costosissimo}         & RB + JJ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Irregular: \emph{good, better, best} \ita{buono, migliore, il migliore};
+\emph{bad, worse, worst} \ita{cattivo, peggiore, il peggiore}; \emph{far, further,
+furthest} \ita{lontano, più lontano, il più lontano}.
+
+Position: \textbf{attributive} \emph{a \underline{red} car} \ita{una macchina rossa}
+vs.\ \textbf{predicative} \emph{the car is \underline{red}} \ita{la macchina è rossa}
+(\emph{funzione attributiva / predicativa}).
+
+\textbf{Differences with Italian}: English adjectives are invariable and come
+\emph{before} the noun: \emph{a red car, two red cars} \ita{una macchina rossa, due
+macchine rosse}. What Italian calls \emph{aggettivi determinativi} (possessivi,
+dimostrativi, indefiniti, interrogativi, numerali) are \textbf{not} adjectives in English
+grammar: \emph{my} \ita{mio} is PRP\$, \emph{this} \ita{questo} and \emph{every}
+\ita{ogni} are DT, \emph{three} \ita{tre} is CD.
+
+%======================================================================
+\subsubsection{Adverbs}
+\notinslides
+
+An \textbf{adverb} modifies a verb, an adjective, another adverb or a whole sentence.
+\quad \textbf{Italiano}: \emph{avverbio}. Manner adverbs are formed with \emph{-ly}, the
+Italian \emph{-mente}: \emph{quick-ly} \ita{veloce-mente}.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X l@{}}
+\toprule
+\textbf{Type} & \textbf{English $\to$ Italiano} & \textbf{Penn} \\
+\midrule
+manner \emph{(di modo)}           & quickly \ita{velocemente}, slowly \ita{lentamente}, well \ita{bene}, badly \ita{male} & RB \\
+time \emph{(di tempo)}            & now \ita{ora}, today \ita{oggi}, yesterday \ita{ieri}, tomorrow \ita{domani}, soon \ita{presto}, already \ita{già}, still \ita{ancora} & RB, NN \\
+place \emph{(di luogo)}           & here \ita{qui}, there \ita{lì}, everywhere \ita{ovunque}, inside \ita{dentro}, outside \ita{fuori} & RB \\
+frequency \emph{(di frequenza)}   & always \ita{sempre}, often \ita{spesso}, sometimes \ita{a volte}, never \ita{mai} & RB \\
+quantity \emph{(di quantità)}     & very \ita{molto}, too \ita{troppo}, quite \ita{abbastanza}, a little \ita{un po'}, almost \ita{quasi} & RB \\
+affirmation / negation            & yes \ita{sì}, not \ita{non}, also \ita{anche}, certainly \ita{certamente} & RB, UH \\
+interrogative \emph{(interrogativo)} & when? \ita{quando?}, where? \ita{dove?}, why? \ita{perché?}, how? \ita{come?}, how much? \ita{quanto?} & WRB \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Comparison works as for adjectives: \emph{fast} \ita{velocemente}, \emph{faster} \ita{più
+velocemente} (RBR), \emph{fastest} \ita{il più velocemente} (RBS).
+
+%======================================================================
+\subsubsection{Determiners and articles}
+\notinslides
+
+A \textbf{determiner} comes before a noun and specifies \emph{which} or \emph{how many}.
+\quad \textbf{Italiano}: \emph{articolo} and most \emph{aggettivi determinativi}.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.0cm} l >{\raggedright\arraybackslash}X l@{}}
+\toprule
+\textbf{Type} & \textbf{English} & \textbf{Italiano} & \textbf{Penn} \\
+\midrule
+definite article \emph{(determinativo)}  & the     & \ita{il, lo, la, l', i, gli, le}: \emph{the boy, the girl, the books} \ita{il ragazzo, la ragazza, i libri} & DT \\
+indefinite article \emph{(indeterminativo)} & a / an & \ita{un, uno, una, un'}: \emph{a dog, an apple, an hour} \ita{un cane, una mela, un'ora} & DT \\
+partitive \emph{(partitivo)}    & some / --   & \ita{del, dello, della, dei, degli, delle}: \emph{some bread} \ita{del pane} & DT \\
+\midrule
+demonstrative \emph{(dimostrativo)} & this / these & \ita{questo, questa / questi, queste} & DT \\
+                                    & that / those & \ita{quel, quello, quella / quei, quegli, quelle} & DT \\
+\midrule
+quantifier \emph{(indefinito)}  & every / each & \ita{ogni / ciascuno}: \emph{every day} \ita{ogni giorno} & DT \\
+                                & some / any   & \ita{qualche, alcuni / qualsiasi} & DT \\
+                                & no           & \ita{nessuno}: \emph{no money} \ita{nessun soldo} & DT \\
+                                & all / both   & \ita{tutti / entrambi} & DT, PDT \\
+                                & many / much  & \ita{molti / molto}: \emph{many books, much time} \ita{molti libri, molto tempo} & JJ \\
+                                & few / little & \ita{pochi / poco} & JJ \\
+\midrule
+interrogative \emph{(interrogativo)} & which? / what? & \ita{quale? / che?}: \emph{which book?} \ita{quale libro?} & WDT \\
+                                     & whose?          & \ita{di chi?}: \emph{whose car?} \ita{di chi è la macchina?} & WP\$ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The English articles never change: one \emph{the} for all seven Italian forms, and the
+choice between \emph{a} and \emph{an} depends only on the \emph{sound} that follows
+(\emph{an hour}, \emph{a university}). Predeterminers (PDT) come before another
+determiner: \emph{\underline{all} the cats} \ita{tutti i gatti}, \emph{\underline{both}
+the girls} \ita{entrambe le ragazze}.
+
+%======================================================================
+\subsubsection{Prepositions}
+\notinslides
+
+A \textbf{preposition} links a noun phrase to the rest of the sentence, expressing place,
+time, means, \ldots \quad \textbf{Italiano}: \emph{preposizione}.
+
+\needspace{8\baselineskip}\paragraph{The Italian preposizioni semplici and their English translations.} There is
+no one-to-one mapping: each Italian preposition has several English translations,
+depending on the meaning.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}l l >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Italiano} & \textbf{English} & \textbf{Examples} \\
+\midrule
+\ita{di}      & of          & \emph{a glass of wine} \ita{un bicchiere di vino} \\
+              & from        & \emph{I am from Genoa} \ita{sono di Genova} \\
+              & about       & \emph{let's talk about it} \ita{parliamone (parliamo di questo)} \\
+              & than        & \emph{taller than me} \ita{più alto di me} \\
+              & 's          & \emph{Mary's book} \ita{il libro di Maria} \\
+\midrule
+\ita{a}       & to          & \emph{I go to Rome} \ita{vado a Roma}, \emph{I give it to Bob} \ita{lo do a Bob} \\
+              & at          & \emph{at home} \ita{a casa}, \emph{at 5} \ita{alle 5} \\
+              & in          & \emph{I live in Genoa} \ita{abito a Genova} \\
+\midrule
+\ita{da}      & from        & \emph{from Rome to Milan} \ita{da Roma a Milano} \\
+              & by          & \emph{written by Dante} \ita{scritto da Dante} \\
+              & for / since & \emph{for two years} \ita{da due anni}, \emph{since 2020} \ita{dal 2020} \\
+              & at / to someone's & \emph{at Mario's} \ita{da Mario}, \emph{to the doctor} \ita{dal dottore} \\
+\midrule
+\ita{in}      & in / into   & \emph{in Italy} \ita{in Italia}, \emph{into the room} \ita{nella stanza} \\
+              & by          & \emph{by train} \ita{in treno} \\
+\midrule
+\ita{con}     & with        & \emph{with Bob} \ita{con Bob}, \emph{with a knife} \ita{con un coltello} \\
+\midrule
+\ita{su}      & on          & \emph{on the table} \ita{sul tavolo} \\
+              & about       & \emph{a book about Rome} \ita{un libro su Roma} \\
+              & out of      & \emph{one out of ten} \ita{uno su dieci} \\
+\midrule
+\ita{per}     & for         & \emph{for you} \ita{per te}, \emph{for two hours} \ita{per due ore} \\
+              & through     & \emph{through the city} \ita{per la città} \\
+              & to (purpose) & \emph{I study to learn} \ita{studio per imparare} \\
+\midrule
+\ita{tra / fra} & between   & \emph{between Rome and Milan} \ita{tra Roma e Milano} \\
+              & among       & \emph{among friends} \ita{tra amici} \\
+              & in (time)   & \emph{in two hours} \ita{tra due ore} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\needspace{8\baselineskip}\paragraph{Other common English prepositions.} \emph{under} \ita{sotto}, \emph{over /
+above} \ita{sopra}, \emph{near} \ita{vicino a}, \emph{behind} \ita{dietro}, \emph{in front
+of} \ita{davanti a}, \emph{before} \ita{prima di}, \emph{after} \ita{dopo}, \emph{during}
+\ita{durante}, \emph{until} \ita{fino a}, \emph{without} \ita{senza}, \emph{against}
+\ita{contro}, \emph{towards} \ita{verso}.
+
+\needspace{8\baselineskip}\paragraph{Preposizioni articolate.} English has none: the preposition and the article
+stay two separate words (two tokens).
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}l l l l l@{}}
+\toprule
+\textbf{Italiano} & \ita{del} (di + il) & \ita{al} (a + il) & \ita{dal} (da + il) & \ita{nel} (in + il) \\
+\textbf{English}  & of the / from the   & to the / at the   & from the / by the   & in the \\
+\midrule
+\textbf{Italiano} & \ita{sul} (su + il) & \ita{della, alla, dalla, nella, sulla} & \ita{dei, ai, dai, nei, sui} & \ldots \\
+\textbf{English}  & on the              & of/to/from/in/on the          & of/to/from/in/on the        & \\
+\bottomrule
+\end{tabular}
+\end{center}
+In Penn, all prepositions are IN except \emph{to}, which always gets its own tag TO (also
+in \emph{to run} \ita{correre}).
+
+%======================================================================
+\subsubsection{Conjunctions}
+\notinslides
+
+A \textbf{conjunction} connects words, phrases or clauses. \quad
+\textbf{Italiano}: \emph{congiunzione}.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.6cm} l l >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Type} & \textbf{English} & \textbf{Italiano} & \textbf{Example} \\
+\midrule
+coordinating     & and        & \ita{e}         & \emph{bread and butter} \ita{pane e burro} \\
+\emph{(coordinanti)}, CC & or & \ita{o, oppure} & \emph{tea or coffee?} \ita{tè o caffè?} \\
+                 & but        & \ita{ma, però}  & \emph{tired but happy} \ita{stanco ma felice} \\
+                 & nor        & \ita{né}        & \emph{neither Bob nor Mary} \ita{né Bob né Maria} \\
+                 & so         & \ita{quindi, perciò} & \emph{it rained, so I stayed} \ita{pioveva, quindi sono rimasto} \\
+\midrule
+subordinating    & because    & \ita{perché, poiché} & \emph{I stayed because it rained} \ita{sono rimasto perché pioveva} \\
+\emph{(subordinanti)}, IN & although & \ita{sebbene, anche se} & \emph{although it was late} \ita{sebbene fosse tardi} \\
+                 & if         & \ita{se}        & \emph{if you want} \ita{se vuoi} \\
+                 & when       & \ita{quando}    & \emph{when I arrived} \ita{quando sono arrivato} \\
+                 & while      & \ita{mentre}    & \emph{while she slept} \ita{mentre dormiva} \\
+                 & that       & \ita{che}       & \emph{I know that you are right} \ita{so che hai ragione} \\
+                 & until      & \ita{finché}    & \emph{wait until I call} \ita{aspetta finché non chiamo} \\
+                 & so that    & \ita{affinché}  & \emph{so that you understand} \ita{affinché tu capisca} \\
+                 & as / since & \ita{siccome}   & \emph{as it was late, \ldots} \ita{siccome era tardi, \ldots} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Penn uses IN for both prepositions and subordinating conjunctions: \emph{before lunch}
+\ita{prima di pranzo} and \emph{before I left} \ita{prima che partissi} get the same tag.
+
+%======================================================================
+\subsubsection{Interjections, numerals and particles}
+\notinslides
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X l@{}}
+\toprule
+\textbf{Type} & \textbf{English $\to$ Italiano} & \textbf{Penn} \\
+\midrule
+interjection \emph{(interiezione)} & oh \ita{oh}, wow \ita{caspita}, ouch \ita{ahi}, hey \ita{ehi}, yes \ita{sì}, no \ita{no}, hello \ita{ciao} & UH \\
+cardinal \emph{(numerale cardinale)} & one \ita{uno}, three \ita{tre}, twenty \ita{venti}, 1908, 3.14 \ita{3,14} & CD \\
+ordinal \emph{(numerale ordinale)}  & first \ita{primo}, second \ita{secondo}, third \ita{terzo} & JJ \\
+particle (phrasal verbs)         & give \underline{up} \ita{rinunciare}, turn \underline{off} \ita{spegnere}, go \underline{away} \ita{andare via} & RP \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Particles look like prepositions but belong to the verb, changing its meaning. No
+Italian part of speech corresponds; the closest is an adverb (\ita{andare
+\underline{via}}, \ita{tirare \underline{su}}). Note the decimal separator: \emph{3.14} in
+English, \ita{3,14} in Italian, which matters for tokenisers
+(Section~\ref{sec:sentence-breaking}).
+
+%======================================================================
+\subsubsection{Worked example: analisi grammaticale in English}
+\notinslides
+
+\begin{nbexample}{tagging a sentence}
+\emph{Wow, there are three very big dogs in your garden, but my sister did not see them
+because she was running.}\\
+\ita{Caspita, ci sono tre cani molto grandi nel tuo giardino, ma mia sorella non li ha
+visti perché stava correndo.}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}l l l l @{\hspace{0.25cm}} l l l l@{}}
+\toprule
+\textbf{Word} & \textbf{it.} & \textbf{Tag} & \textbf{Parte del discorso} & \textbf{Word} & \textbf{it.} & \textbf{Tag} & \textbf{Parte del discorso} \\
+\midrule
+Wow    & \ita{caspita} & UH   & interiezione          & my      & \ita{mia}     & PRP\$ & agg.\ possessivo \\
+there  & \ita{ci}      & EX   & (sogg.\ fittizio)     & sister  & \ita{sorella} & NN   & nome comune \\
+are    & \ita{sono}    & VBP  & verbo (essere)        & did     & --            & VBD  & verbo ausiliare \\
+three  & \ita{tre}     & CD   & agg.\ numerale        & not     & \ita{non}     & RB   & avv.\ di negazione \\
+very   & \ita{molto}   & RB   & avv.\ di quantità     & see     & \ita{visti}   & VB   & verbo \\
+big    & \ita{grandi}  & JJ   & agg.\ qualificativo   & them    & \ita{li}      & PRP  & pron.\ pers.\ compl. \\
+dogs   & \ita{cani}    & NNS  & nome comune, plur.    & because & \ita{perché}  & IN   & cong.\ subordinante \\
+in     & \ita{nel}     & IN   & preposizione          & she     & --            & PRP  & pron.\ pers.\ sogg. \\
+your   & \ita{tuo}     & PRP\$ & agg.\ possessivo     & was     & \ita{stava}   & VBD  & verbo ausiliare \\
+garden & \ita{giardino} & NN  & nome comune           & running & \ita{correndo} & VBG & verbo (gerundio) \\
+but    & \ita{ma}      & CC   & cong.\ coordinante    &         &               &      & \\
+\bottomrule
+\end{tabular}
+\end{center}
+The ``--'' cells show two differences from Italian: the auxiliary \emph{did} has no
+Italian counterpart (Italian negates with \ita{non} alone), and the subject \emph{she} is
+dropped in Italian (\ita{stava correndo}). Note also \emph{in your} $\to$ \ita{nel tuo}
+(preposizione articolata).
+
+A statistical tagger (NLTK's default one) gets most of this right but tags \emph{Wow} as
+NNP (a proper noun): a capitalised unknown word at the start of a sentence looks like a
+name, and interjections are rare in the newspaper text taggers are trained on.
+\end{nbexample}
+
+%======================================================================
+\subsubsection{From words to sentences: analisi logica}
+\notinslides
+
+Parts of speech classify \emph{words}. The \textbf{functions} words and phrases play in a
+sentence are the subject of \emph{analisi logica}; in the parse trees of
+Section~\ref{sec:grammars-parsing} they correspond to positions in the tree. Running
+example: \emph{Cynthia sold the bike to Bob for \$200 yesterday} \ita{ieri Cynthia ha
+venduto la bici a Bob per 200 dollari}.
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{English} & \textbf{Italiano} & \textbf{In the parse tree / example} \\
+\midrule
+Subject           & soggetto            & the $NP$ before the verb: \emph{\underline{Cynthia}} \ita{Cynthia} \\
+Predicate (verb)  & predicato verbale   & the verb of the $VP$: \emph{sold} \ita{ha venduto} \\
+Predicate (\emph{be} + noun/adj.) & predicato nominale & \emph{she \underline{is happy}} \ita{lei è felice} (\emph{happy} = nome del predicato) \\
+Direct object     & complemento oggetto & the $NP$ after the verb: \emph{\underline{the bike}} \ita{la bici} \\
+Indirect object   & complemento di termine & \emph{\underline{to Bob}} \ita{a Bob}; also without \emph{to}: \emph{gave \underline{Bob} the bike} \ita{diede la bici a Bob} \\
+Adverbials        & complementi indiretti (prezzo, tempo, luogo, \ldots) & $PP$s and adverbs: \emph{\underline{for \$200}} \ita{per 200 dollari}, \emph{\underline{yesterday}} \ita{ieri}, \emph{\underline{in Genoa}} \ita{a Genova} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{nbwhy}
+These functions are what semantic role labelling turns into roles
+(Section~\ref{sec:frame-semantics}): in the running example the subject is the
+\textsc{seller}, the direct object the \textsc{goods}, the indirect object the
+\textsc{buyer}, the \emph{for}-phrase (\emph{complemento di prezzo}) the \textsc{price}.
+\end{nbwhy}
+
+\begin{nbsummary}[parts of speech]
+\begin{itemize}[nosep]
+  \item Open classes: \textbf{noun} (NN\ldots{} = nome), \textbf{verb} (VB\ldots, MD = verbo),
+        \textbf{adjective} (JJ\ldots{} = agg.\ qualificativo), \textbf{adverb} (RB\ldots{} =
+        avverbio).
+  \item Closed classes: \textbf{pronoun} (PRP, WP = pronome), \textbf{determiner} (DT =
+        articolo, agg.\ determinativi), \textbf{preposition} (IN, TO = preposizione),
+        \textbf{conjunction} (CC coordinating, IN subordinating = congiunzione),
+        \textbf{interjection} (UH = interiezione); plus numerals (CD) and particles (RP).
+  \item English vs.\ Italian: no gender, invariable articles and adjectives, adjectives
+        before the noun, subject pronoun always required, no preposizioni articolate,
+        prepositions do not map one-to-one, few verb forms (the rest via auxiliaries and
+        modals), \emph{do} in questions and negations.
+  \item Analisi grammaticale = POS tagging; analisi logica = functions in the sentence
+        (subject, predicate, objects, adverbials).
+\end{itemize}
+\end{nbsummary}

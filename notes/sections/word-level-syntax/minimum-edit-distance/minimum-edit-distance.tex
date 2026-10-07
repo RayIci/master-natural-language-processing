@@ -1,0 +1,261 @@
+\subsection{Minimum Edit Distance}
+\label{sec:minimum-edit-distance}
+\slidesrc{Syntax: RE \& word: 66--82}
+
+\subsubsection{How similar are two strings?}
+\slidesrc{Syntax: RE \& word: 66--68, 72--73}
+
+Many tasks need a measure of how close two strings are:
+\begin{itemize}
+  \item \textbf{Spell correction}: the user typed \emph{graffe}. Which is closest:
+        \emph{graf}, \emph{graft}, \emph{grail} or \emph{giraffe}?
+  \item \textbf{Computational biology}: align two sequences of nucleotides (the bases
+        Adenine, Guanine, Thymine/Uracil and Cytosine of DNA/RNA), giving each letter a
+        partner letter or a gap \texttt{-}:
+\begin{center}
+\small\ttfamily
+\begin{tabular}{@{}l@{}}
+AGGCTATCACCTGACCTCCAGGCCGATGCCC\\
+TAGCTATCACGACCGCGGTCGATTTGCCCGAC\\[3pt]
+\textrm{\normalsize aligned:}\\
+-AGGCTATCACCTGACCTCCAGGCCGA--TGCCC---\\
+TAG-CTATCAC--GACCGC--GGTCGATTTGCCCGAC
+\end{tabular}
+\end{center}
+        Alignments are used in molecular phylogenetics (evolutionary relationships from
+        hereditary differences in DNA), in comparing the genomes of ill and healthy
+        individuals, and to understand the function of unknown proteins.
+  \item \textbf{Evaluating machine translation and speech recognition}: compare the
+        system's output (hypothesis H) with a reference (R), counting substitutions (S),
+        insertions (I) and deletions (D):
+\begin{center}
+\small
+\begin{tabular}{@{}l *{9}{c}@{}}
+R: & Spokesman & confirms & *   & senior & government & adviser & was & shot & *    \\
+H: & Spokesman & said     & the & senior & *          & adviser & was & shot & dead \\
+   &           & S        & I   &        & D          &         &     &      & I
+\end{tabular}
+\end{center}
+  \item \textbf{Named entity extraction and coreference}: deciding that \emph{IBM Inc.}
+        and \emph{IBM}, or \emph{Stanford President John Hennessy} and \emph{Stanford
+        University President John Hennessy}, refer to the same entity.
+\end{itemize}
+
+\subsubsection{Definition}
+\slidesrc{Syntax: RE \& word: 69--71}
+
+\begin{nbdef}{Minimum edit distance}
+The \textbf{minimum edit distance} between two strings is the minimum number of
+editing operations
+\begin{itemize}[nosep]
+  \item \textbf{insertion} of a character,
+  \item \textbf{deletion} of a character,
+  \item \textbf{substitution} of a character with another,
+\end{itemize}
+needed to transform one string into the other. If operations have \emph{costs}, it is the
+minimum total cost. With cost 1 for insertions and deletions and \textbf{cost 2 for
+substitutions} it is called the \textbf{Levenshtein distance} (the version used in these
+notes unless stated otherwise).
+\end{nbdef}
+
+An \textbf{alignment} shows the operations explicitly. For \emph{intention} and
+\emph{execution} (\texttt{*} = gap):
+\[
+\begin{array}{*{10}{c}}
+  \texttt{I} & \texttt{N} & \texttt{T} & \texttt{E} & \texttt{*} & \texttt{N} & \texttt{T} & \texttt{I} & \texttt{O} & \texttt{N}\\
+  | & | & | & | & | & | & | & | & | & |\\
+  \texttt{*} & \texttt{E} & \texttt{X} & \texttt{E} & \texttt{C} & \texttt{U} & \texttt{T} & \texttt{I} & \texttt{O} & \texttt{N}\\
+  \text{d} & \text{s} & \text{s} & & \text{i} & \text{s} & & & &
+\end{array}
+\]
+One deletion (d), three substitutions (s) and one insertion (i):
+\begin{itemize}[nosep]
+  \item if every operation costs 1, the distance is $1 + 3 + 1 = 5$;
+  \item with Levenshtein costs (substitution $= 2$), it is $1 + 3\cdot 2 + 1 = 8$.
+\end{itemize}
+
+\begin{nbexample}{the spelling question}
+Levenshtein distances from \emph{graffe}: \emph{giraffe} $=1$ (insert \texttt{i}),
+\emph{graf} $=2$ (delete \texttt{f} and \texttt{e}), \emph{graft} $=3$ (delete
+\texttt{f}, substitute \texttt{e}$\to$\texttt{t}), \emph{grail} $=5$. So \emph{giraffe}
+is the best correction. (With all costs equal to 1: $1, 2, 2, 3$.)
+\end{nbexample}
+
+\subsubsection{Edit distance as search}
+\slidesrc{Syntax: RE \& word: 74--78}
+
+Finding the minimum edit distance is a search for a path (a sequence of edits) from the
+start string to the final string:
+\begin{itemize}[nosep]
+  \item \textbf{initial state}: the word we are transforming;
+  \item \textbf{operators}: insert, delete, substitute;
+  \item \textbf{goal state}: the word we are trying to reach;
+  \item \textbf{path cost}: what we minimise, the number (or cost) of edits.
+\end{itemize}
+The space of all edit sequences is huge, so we cannot explore it naively. But many
+distinct paths end up in the \emph{same} state (the same prefix of $X$ turned into the
+same prefix of $Y$), and for each such state we only need to remember the
+\emph{cheapest} way to reach it. That is exactly the idea of dynamic programming.
+
+\begin{nbdef}{The subproblems}
+For strings $X$ of length $n$ and $Y$ of length $m$, let
+\[
+  D(i, j) = \text{edit distance between } X[1..i] \text{ and } Y[1..j],
+\]
+i.e.\ between the first $i$ characters of $X$ and the first $j$ characters of $Y$. The
+edit distance between $X$ and $Y$ is $D(n, m)$.
+\end{nbdef}
+
+\textbf{Dynamic programming} computes $D(n,m)$ \emph{bottom-up} in a table, solving the
+problem by combining solutions to subproblems: first $D(i,j)$ for small $i, j$, then
+larger ones from the smaller values already computed.
+
+\subsubsection{The algorithm}
+\slidesrc{Syntax: RE \& word: 79--80}
+
+\begin{nbfact}{Levenshtein distance by dynamic programming}
+\textbf{Initialisation} (distance from the empty string):
+\[ D(i, 0) = i, \qquad D(0, j) = j. \]
+\textbf{Recurrence}: for each $i = 1, \dots, n$ and each $j = 1, \dots, m$,
+\[
+  D(i,j) = \min \begin{cases}
+     D(i-1, j) + 1 & \text{deletion of } X[i]\\
+     D(i, j-1) + 1 & \text{insertion of } Y[j]\\
+     D(i-1, j-1) + \begin{cases} 2 & \text{if } X[i] \neq Y[j]\\ 0 & \text{if } X[i] = Y[j]\end{cases}
+       & \text{substitution or copy}
+  \end{cases}
+\]
+\textbf{Termination}: $D(n, m)$ is the distance.
+\end{nbfact}
+
+\begin{nbintuition}[reading the recurrence]
+To turn $X[1..i]$ into $Y[1..j]$, look at the \emph{last} column of an optimal
+alignment. Either the last character of $X$ was deleted (and the rest is an optimal
+alignment of $X[1..i-1]$ with $Y[1..j]$), or the last character of $Y$ was inserted, or
+the two last characters are aligned with each other (free if equal, a substitution
+otherwise). The minimum over the three cases is the answer.
+\end{nbintuition}
+
+The general version (Jurafsky and Martin) uses arbitrary costs \texttt{del-cost},
+\texttt{ins-cost}, \texttt{sub-cost}, which can depend on the letters, to model that some
+letters are more likely to be inserted or confused than others; copying a letter costs
+$\texttt{sub-cost}(x,x) = 0$.
+
+\begin{nbwarning}[indices on the slide]
+The slide defines $X$ of length $n$ and $Y$ of length $m$, but the recurrence loops over
+$i = 1\dots M$, $j = 1\dots N$ and terminates with $D(N, M)$. The letters are swapped:
+$i$ indexes $X$ and runs to $n$, $j$ indexes $Y$ and runs to $m$, and the result is
+$D(n,m)$. The bottom-up loop also covers $1 \le i \le n$, $1 \le j \le m$ (the slide
+writes strict inequalities).
+\end{nbwarning}
+
+\subsubsection{The table and the backtrace}
+\slidesrc{Syntax: RE \& word: 81--82}
+
+\begin{nbexample}{intention $\to$ execution}
+Rows: the source \emph{intention}; columns: the target \emph{execution}; \texttt{\#} is
+the empty prefix. Each cell is computed from its left, upper and upper-left neighbours.
+\begin{center}
+\small
+\begin{tabular}{@{}c|cccccccccc@{}}
+ & \# & \textbf{e} & \textbf{x} & \textbf{e} & \textbf{c} & \textbf{u} & \textbf{t} & \textbf{i} & \textbf{o} & \textbf{n} \\ \hline
+\# & \cellcolor{nbteal!25}\textbf{0} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
+\textbf{i} & \cellcolor{nbteal!25}\textbf{1} & 2 & 3 & 4 & 5 & 6 & 7 & 6 & 7 & 8 \\
+\textbf{n} & 2 & \cellcolor{nbteal!25}\textbf{3} & 4 & 5 & 6 & 7 & 8 & 7 & 8 & 7 \\
+\textbf{t} & 3 & 4 & \cellcolor{nbteal!25}\textbf{5} & 6 & 7 & 8 & 7 & 8 & 9 & 8 \\
+\textbf{e} & 4 & 3 & 4 & \cellcolor{nbteal!25}\textbf{5} & \cellcolor{nbteal!25}\textbf{6} & 7 & 8 & 9 & 10 & 9 \\
+\textbf{n} & 5 & 4 & 5 & 6 & 7 & \cellcolor{nbteal!25}\textbf{8} & 9 & 10 & 11 & 10 \\
+\textbf{t} & 6 & 5 & 6 & 7 & 8 & 9 & \cellcolor{nbteal!25}\textbf{8} & 9 & 10 & 11 \\
+\textbf{i} & 7 & 6 & 7 & 8 & 9 & 10 & 9 & \cellcolor{nbteal!25}\textbf{8} & 9 & 10 \\
+\textbf{o} & 8 & 7 & 8 & 9 & 10 & 11 & 10 & 9 & \cellcolor{nbteal!25}\textbf{8} & 9 \\
+\textbf{n} & 9 & 8 & 9 & 10 & 11 & 12 & 11 & 10 & 9 & \cellcolor{nbteal!25}\textbf{8} \\
+\end{tabular}
+\captionof{table}{Levenshtein table. The bottom-right cell is the distance (8). Shaded
+cells: one minimum-cost path found by the backtrace.}
+\end{center}
+Some cells, step by step:
+\begin{align*}
+  D(1,1) &= \min\bigl(D(0,1)+1,\ D(1,0)+1,\ D(0,0)+2\bigr) = \min(2, 2, 2) = 2\\
+  D(4,1) &= \min\bigl(D(3,1)+1,\ D(4,0)+1,\ D(3,0)+0\bigr) = \min(5, 5, 3) = 3\\
+  D(9,9) &= \min\bigl(D(8,9)+1,\ D(9,8)+1,\ D(8,8)+0\bigr) = \min(10, 10, 8) = 8
+\end{align*}
+In $D(1,1)$ the letters differ (\texttt{i}, \texttt{e}), so the diagonal costs 2; in
+$D(4,1)$ and $D(9,9)$ they are equal, so the diagonal is a free copy.
+\end{nbexample}
+
+\textbf{Backtrace.} The table gives the distance, not the alignment. To get the
+alignment, when filling each cell we remember \emph{which} neighbour(s) gave the minimum
+(an arrow $\leftarrow$, $\uparrow$ or $\nwarrow$). After the table is full, we start from
+the bottom-right cell and follow the arrows back to $(0,0)$: $\uparrow$ is a deletion,
+$\leftarrow$ an insertion, $\nwarrow$ a substitution or a copy. The shaded path, read from
+the top-left, is: delete \texttt{i}; \texttt{n}$\to$\texttt{e}; \texttt{t}$\to$\texttt{x};
+copy \texttt{e}; insert \texttt{c}; \texttt{n}$\to$\texttt{u}; copy \texttt{t},
+\texttt{i}, \texttt{o}, \texttt{n}. That is exactly the alignment shown above, with cost
+$1 + 2 + 2 + 0 + 1 + 2 = 8$. When several neighbours tie, there are several optimal
+alignments.
+
+\begin{nbintuition}[cost of the algorithm]
+The table has $(n+1)(m+1)$ cells, each computed in constant time from three neighbours,
+so the algorithm takes $O(nm)$ time and space; the backtrace adds $O(n+m)$. The naive
+search over all edit sequences is exponential.
+\end{nbintuition}
+
+\subsubsection{Exercises}
+\notinslides
+
+\begin{nbexercise}{1}{small tables}
+Compute the Levenshtein table for \emph{cat} $\to$ \emph{cut} and for \emph{cat} $\to$
+\emph{act}. Give the distance and an optimal alignment for each.
+\end{nbexercise}
+\begin{nbsolution}
+\emph{cat} $\to$ \emph{cut} (rows c, a, t; columns c, u, t):
+\[
+\begin{array}{c|cccc}
+   & \# & c & u & t\\ \hline
+\# & 0 & 1 & 2 & 3\\
+c  & 1 & 0 & 1 & 2\\
+a  & 2 & 1 & 2 & 3\\
+t  & 3 & 2 & 3 & 2
+\end{array}
+\]
+Distance 2: copy \texttt{c}, substitute \texttt{a}$\to$\texttt{u} (cost 2), copy
+\texttt{t}. Deleting \texttt{a} and inserting \texttt{u} also costs 2: there are two
+optimal alignments.
+
+\emph{cat} $\to$ \emph{act} (columns a, c, t):
+\[
+\begin{array}{c|cccc}
+   & \# & a & c & t\\ \hline
+\# & 0 & 1 & 2 & 3\\
+c  & 1 & 2 & 1 & 2\\
+a  & 2 & 1 & 2 & 3\\
+t  & 3 & 2 & 3 & 2
+\end{array}
+\]
+Distance 2, e.g.\ delete \texttt{c}, copy \texttt{a}, insert \texttt{c}, copy \texttt{t}.
+
+\emph{Lesson}: swapping two adjacent letters costs 2. The Damerau--Levenshtein variant
+adds \emph{transposition} as a fourth operation, because swaps are a very common typing
+error.
+\end{nbsolution}
+
+\begin{nbsummary}[syntax at the word level]
+\begin{itemize}[nosep]
+  \item Word segmentation: spaces are only an approximation; Chinese, Japanese, Thai have
+        no word spaces. MaxMatch = greedy longest dictionary word (good for Chinese,
+        bad for English).
+  \item Stop words: very frequent, little content; no universal list. A word frequent in
+        a document may be topical: compare with the corpus.
+  \item $\text{tf}(t,d)=\#t/\text{len}(d)$,
+        $\text{idf}(t,C)=\log\bigl(\abs{C}/\abs{\{d: t\in d\}}\bigr)$,
+        tf-idf = tf $\cdot$ idf; a word in every document has idf $=0$.
+  \item Stemming = heuristic suffix chopping (Porter: measure $m$ in $[C](VC)^m[V]$,
+        conditional rules in 7 steps; over- and under-stemming). Lemmatisation =
+        dictionary + morphology, returns the lemma.
+  \item Minimum edit distance: insertions, deletions, substitutions; Levenshtein:
+        substitution costs 2. Dynamic programming: $D(i,0)=i$, $D(0,j)=j$,
+        $D(i,j)$ = minimum over the upper neighbour $+1$ (deletion), the left
+        neighbour $+1$ (insertion), the diagonal neighbour $+2$ (substitution) or $+0$
+        (copy); the backtrace gives the alignment; time and space $O(nm)$.
+\end{itemize}
+\end{nbsummary}

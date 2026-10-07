@@ -1,0 +1,173 @@
+\subsection{Stop Words and TF-IDF}
+\label{sec:stop-words-tfidf}
+\slidesrc{Syntax: RE \& word: 21--47}
+
+\subsubsection{Stop words}
+\slidesrc{Syntax: RE \& word: 21--23}
+
+\begin{nbdef}{Stop words}
+\textbf{Stop words} are words that are filtered out before or after processing natural
+language text. The term usually refers to the \emph{most common} words of a language
+(\emph{the}, \emph{of}, \emph{and}, \emph{a}, \emph{to}, \ldots), but there is no single
+universal list used by all NLP tools, and some tools do not use one at all.
+\end{nbdef}
+
+\begin{itemize}[nosep]
+  \item \textbf{How a stop list is built}: sort the terms by \emph{collection frequency}
+        (the total number of times each term appears in the document collection), take
+        the most frequent ones, and often filter them by hand according to their meaning
+        in the domain of the documents. The words of the stop list are then discarded
+        during indexing. Example lists: \url{https://www.ranks.nl/stopwords}.
+  \item \textbf{When not to remove them}: some tools avoid removing stop words to
+        support \emph{phrase search} (exact, not keyword-based): ``to be or not to be''
+        consists almost only of stop words.
+\end{itemize}
+
+A word cloud of a novel (the slides show one for a Thomas Hardy novel) is dominated by
+\emph{the}, \emph{and}, \emph{of}, \emph{to}, \emph{a}, \emph{was}, \emph{her}: they are
+frequent in \emph{any} English text and say nothing about this one.
+
+\subsubsection{Frequent in the document or frequent in the language?}
+\slidesrc{Syntax: RE \& word: 24--29}
+
+\begin{nbintuition}[the key question]
+Is a word that appears often in a document always a stop word? No. A word can be
+frequent in a document $d$ for two very different reasons:
+\begin{itemize}[nosep]
+  \item it is related to the \textbf{topic} of $d$ (``cat'' in a document about cats);
+  \item it is frequent in the \textbf{language} (``the'' in every document).
+\end{itemize}
+To tell them apart, we must look not only at $d$ but at a whole \textbf{corpus}: a
+topical word is frequent in \emph{some} documents, a stop word in \emph{all} of them.
+\end{nbintuition}
+
+The running example uses two short documents:
+
+\begin{nbexample}{the corpus}
+\textbf{Doc1} (54 words): \emph{The cat (Felis catus) is a small carnivorous mammal. It
+is the only domesticated species in the family Felidae and often referred to as the
+domestic cat to distinguish it from wild members of the family. The cat is either a
+house cat or a farm cat, which are pets, or a feral cat.}
+
+\textbf{Doc2} (42 words): \emph{A car (or automobile) is a wheeled motor vehicle used for
+transportation. Cars became widely available in the early 20th century. One of the first
+cars accessible to the masses was the 1908 Model T. Cars were rapidly adopted in the US.}
+
+\begin{center}
+\small
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+ & \textbf{``the''} & \textbf{``cat''} & \textbf{``car(s)''} \\
+\midrule
+Doc1 & 6 & 6 & 0 \\
+Doc2 & 5 & 0 & 4 \\
+\midrule
+corpus $C_2 = \{\text{Doc1}, \text{Doc2}\}$ & 11 & 6 & 4 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Corpus $C_1$ contains only Doc1; corpus $C_2$ contains Doc1 and Doc2.
+\end{nbexample}
+
+\begin{nbwarning}[a counting slip in the slides]
+The slides count \textbf{4} occurrences of ``the'' in Doc2 (and 10 in $C_2$). Doc2
+actually contains it \textbf{5} times: \emph{\underline{the} early}, \emph{\underline{the}
+first}, \emph{\underline{the} masses}, \emph{\underline{the} 1908}, \emph{\underline{the}
+US}. This changes $\text{tf}(\text{``the''}, \text{Doc2})$ from $4/42$ to $5/42$, but not
+the final TF-IDF value, which is $0$ either way (see below).
+\end{nbwarning}
+
+In $C_1$ alone, ``the'' and ``cat'' are equally frequent (6 times each): with a single
+document there is no way to tell a topical word from a stop word. In $C_2$ the
+difference appears: ``the'' is in \emph{both} documents, ``cat'' only in one.
+
+\subsubsection{Term frequency and inverse document frequency}
+\slidesrc{Syntax: RE \& word: 30--34}
+
+\begin{nbdef}{TF-IDF}
+\textbf{Term frequency}: the number of times term $t$ occurs in document $d$, usually
+normalised by the length of the document:
+\[
+  \text{tf}(t, d) = \frac{\text{number of occurrences of } t \text{ in } d}{\text{length}(d)}.
+\]
+\textbf{Inverse document frequency}: the logarithm of the inverse fraction of documents
+of the corpus $C$ that contain $t$:
+\[
+  \text{idf}(t, C) = \log \frac{\abs{C}}{\abs{\{d \in C : t \in d\}}},
+\]
+where $\abs{C}$ is the number of documents in the corpus.
+
+\textbf{TF-IDF}: the product of the two,
+\[
+  \text{tf-idf}(t, d, C) = \text{tf}(t, d) \cdot \text{idf}(t, C).
+\]
+\end{nbdef}
+
+\begin{itemize}
+  \item \textbf{tf} is high when $t$ is frequent \emph{in this document}.
+  \item \textbf{idf} is high when $t$ is \emph{rare in the corpus}. If $t$ occurs in
+        every document, the fraction is $\abs{C}/\abs{C} = 1$ and $\text{idf} = \log 1 = 0$:
+        the word cannot distinguish documents at all, exactly like a stop word.
+  \item The \textbf{logarithm} dampens the effect: a word in 1 document out of 1000 is
+        more informative than one in 10 out of 1000, but not 10 times more.
+  \item If $t$ appears in \emph{no} document the denominator is 0. A common fix is to
+        add 1 to the denominator; it makes sense when the corpus is large enough, since
+        it slightly distorts the values.
+\end{itemize}
+
+\begin{nbwarning}[base of the logarithm]
+The slides' numbers use the base-10 logarithm ($\log 2 \approx 0.301$). Other sources use
+the natural logarithm ($\ln 2 \approx 0.693$). The base only rescales all idf values by
+the same factor, so the \emph{ranking} of words does not change; just be consistent.
+\end{nbwarning}
+
+\subsubsection{Worked example on \texorpdfstring{$C_2$}{C2}}
+\slidesrc{Syntax: RE \& word: 35--46}
+
+\begin{nbexample}{TF-IDF of ``the'', ``cat'', ``car''}
+First the idf values ($\abs{C_2} = 2$):
+\begin{align*}
+  \text{idf}(\text{the}, C_2) &= \log\tfrac{2}{2} = \log 1 = 0
+      \reason{``the'' is in both documents}\\
+  \text{idf}(\text{cat}, C_2) &= \log\tfrac{2}{1} = \log 2 \approx 0.301
+      \reason{only in Doc1}\\
+  \text{idf}(\text{car}, C_2) &= \log\tfrac{2}{1} = \log 2 \approx 0.301
+      \reason{only in Doc2}
+\end{align*}
+Then the products:
+\begin{align*}
+  \text{tf-idf}(\text{the}, \text{Doc1}, C_2) &= \tfrac{6}{54}\cdot 0 = 0 \\
+  \text{tf-idf}(\text{the}, \text{Doc2}, C_2) &= \tfrac{5}{42}\cdot 0 = 0 \\
+  \text{tf-idf}(\text{cat}, \text{Doc1}, C_2) &= \tfrac{6}{54}\cdot 0.301 \approx 0.111 \cdot 0.301 \approx 0.033 \\
+  \text{tf-idf}(\text{cat}, \text{Doc2}, C_2) &= 0 \cdot 0.301 = 0
+      \reason{tf $=0$, idf irrelevant}\\
+  \text{tf-idf}(\text{car}, \text{Doc1}, C_2) &= 0 \cdot 0.301 = 0 \\
+  \text{tf-idf}(\text{car}, \text{Doc2}, C_2) &= \tfrac{4}{42}\cdot 0.301 \approx 0.095 \cdot 0.301 \approx 0.029
+\end{align*}
+\end{nbexample}
+
+\begin{center}
+\small
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+\textbf{tf-idf} & \textbf{``the''} & \textbf{``cat''} & \textbf{``car''} \\
+\midrule
+Doc1 & 0 & \textbf{0.033} & 0 \\
+Doc2 & 0 & 0 & \textbf{0.029} \\
+\bottomrule
+\end{tabular}
+\captionof{table}{TF-IDF in $C_2$. Each document's only non-zero word is its topic.}
+\end{center}
+
+``The'' is as frequent as ``cat'' in Doc1, but its TF-IDF is $0$ because it appears
+everywhere; ``cat'' and ``car'' come out as the words that characterise their documents.
+This is how TF-IDF finds \emph{keywords} and, symmetrically, \emph{stop words} (terms with
+idf close to 0) automatically. Online analysers such as
+\url{https://www.online-utility.org/text/analyzer.jsp} compute word frequencies of a
+text you paste.
+
+\begin{nbwhy}
+TF-IDF is one of the text features of Section~\ref{sec:course-map}: representing each
+document by the TF-IDF values of its words gives a vector that search engines use to
+rank documents for a query and classifiers use to decide the topic of a text.
+\end{nbwhy}

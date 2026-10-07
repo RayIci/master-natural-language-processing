@@ -1,0 +1,127 @@
+\subsection{A Map of the Course}
+\label{sec:course-map}
+\slidesrc{Terminology introduction: 27--33}
+
+The topics of the course can be placed on the three levels. This list is a roadmap: each
+item will get its own section later in these notes.
+
+\subsubsection{Syntax}
+\slidesrc{Terminology introduction: 27--29}
+
+The course starts with \textbf{regular expressions}, the basic tool for finding
+patterns in text (Section~\ref{sec:regular-expressions}). Then the word level
+(Section~\ref{sec:word-level-syntax}) and the sentence level
+(Section~\ref{sec:sentence-level-syntax}):
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.2cm} X@{}}
+\toprule
+\textbf{Word level} & \textbf{What it is about} \\
+\midrule
+Word segmentation & splitting a text into words (tokens) \\
+Identification of stop words & finding very frequent words with little content
+  (\emph{the}, \emph{of}, \emph{and}) that are often filtered out \\
+Stemming and lemmatisation & reducing \emph{running}, \emph{ran}, \emph{runs} to a common
+  form (a crude stem or the dictionary lemma \emph{run}) \\
+Minimum edit distance & how many edits turn one string into another (the Levenshtein
+  distance used in Section~\ref{sec:chatbdi}) \\
+\midrule
+\textbf{Sentence level} & \\
+\midrule
+Sentence breaking & splitting a text into sentences (harder than it looks: think of
+  ``Dr.\ Smith'' or ``3.14'') \\
+Part-of-speech tagging & labelling each word as noun, verb, adjective, \ldots \\
+Parsing & building the grammatical structure (tree) of a sentence \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Semantics}
+\slidesrc{Terminology introduction: 30}
+
+Covered in Sections~\ref{sec:distributional-semantics} (distributional),
+\ref{sec:frame-model-semantics} (frame and model-theoretic) and
+\ref{sec:lexical-semantics} (lexical semantics, WSD, NER).
+
+\begin{itemize}[nosep]
+  \item \textbf{Distributional semantics}: the meaning of a word is learnt from the
+        contexts it appears in (``you shall know a word by the company it keeps'').
+  \item \textbf{Lexical semantics}: the meaning of words and the relations among them
+        (synonyms, antonyms, hypernyms such as \emph{animal} for \emph{dog}).
+  \item \textbf{Ontologies}: formal, structured representations of the concepts of a
+        domain and their relations.
+  \item \textbf{Word sense disambiguation}: choosing the right meaning of an ambiguous
+        word in context (\emph{bank} of a river or a bank that lends money).
+  \item \textbf{Named entity recognition (NER)}: finding names of people, places,
+        organisations, dates, \ldots\ in text.
+\end{itemize}
+
+\subsubsection{Transformers and LLMs}
+\slidesrc{Terminology introduction: 31}
+
+\textbf{BERT} and \textbf{GPT}, introduced in Section~\ref{sec:nlp-history}.
+
+\subsubsection{Features for representing a text}
+\slidesrc{Terminology introduction: 32}
+
+Many NLP tasks (classification, sentiment analysis, authorship detection, \ldots) need
+to turn a text into numbers. The most common non-trivial features are:
+\begin{itemize}[nosep]
+  \item \textbf{Bag of Words}: a text is represented by the counts of its words,
+        ignoring their order.
+  \item \textbf{N-grams}, at word and character level: counts of sequences of $n$
+        consecutive words (``natural language'', $n=2$) or characters (``nat'', $n=3$),
+        which keep some local order.
+  \item \textbf{TF-IDF} (term frequency -- inverse document frequency): word counts
+        re-weighted so that words frequent in \emph{this} document but rare in the
+        collection count more.
+  \item \textbf{Flesch--Kincaid readability}: how hard a text is to read, from the
+        average sentence length and the average number of syllables per word. The
+        grade-level version is
+        \[
+          \text{FKGL} = 0.39\,\frac{\text{words}}{\text{sentences}}
+                      + 11.8\,\frac{\text{syllables}}{\text{words}} - 15.59,
+        \]
+        roughly the US school grade needed to understand the text.
+  \item \textbf{LIWC} (Linguistic Inquiry and Word Count): counts of words in
+        psychologically meaningful categories (emotions, pronouns, cognitive processes,
+        \ldots), from a hand-built dictionary.
+  \item \textbf{Emotion words}, based on models of basic emotions: \textbf{Ekman}'s six
+        (anger, disgust, fear, happiness, sadness, surprise) or \textbf{Plutchik}'s eight
+        (joy, trust, fear, surprise, sadness, disgust, anger, anticipation).
+  \item \ldots
+\end{itemize}
+
+\subsubsection{Pragmatics}
+\slidesrc{Terminology introduction: 33}
+
+``\textbf{How to Do Things with Words}'' is the title of the book (1962) by the
+philosopher J.\,L.~Austin that founded the study of \emph{speech acts}. Austin noticed
+that some sentences do not describe the world but \emph{perform} an action:
+``I name this ship\ldots'', ``I promise\ldots'', ``Shoot her!''. Saying them, in the right
+context, \emph{is} doing the act. Compare them with a statement like ``France is
+hexagonal'', which describes the world and can be (roughly) true or false.
+
+\begin{nbwhy}
+The \emph{performatives} of agent communication languages in the ChatBDI case study
+(\texttt{tell}, \texttt{askAll}, \texttt{achieve}, \ldots; Section~\ref{sec:chatbdi}) come
+directly from speech-act theory: every message is classified by the act it performs.
+\end{nbwhy}
+
+\begin{nbsummary}[levels of linguistic analysis]
+\begin{itemize}[nosep]
+  \item The three levels (exam!): \textbf{syntax} (what is grammatical?),
+        \textbf{semantics} (what does it mean?), \textbf{pragmatics} (what does it do?).
+  \item Programming analogy: no compiler errors / no implementation bugs / the right
+        algorithm. $2+3$ vs.\ $3+2$: different syntax, same semantics; \texttt{3/2} in
+        Python 2.7 vs.\ 3: same syntax, different semantics; a neural network for a coin
+        flip: good semantics, bad pragmatics.
+  \item Syntax: regular expressions; word level (segmentation, stop words,
+        stemming/lemmatisation, edit distance); sentence level (sentence breaking, POS
+        tagging, parsing).
+  \item Semantics: distributional and lexical semantics, ontologies, WSD, NER.
+  \item Text features: BoW, n-grams, TF-IDF, Flesch--Kincaid, LIWC, emotion words.
+  \item Pragmatics: Austin, \emph{How to Do Things with Words}, speech acts.
+\end{itemize}
+\end{nbsummary}

@@ -1,0 +1,157 @@
+\subsection{Morphemes, Words and Compounds}
+\label{sec:morphology}
+\slidesrc{Terminology introduction: 35--38, 42}
+
+\subsubsection{Morphemes}
+\slidesrc{Terminology introduction: 35--36}
+
+\begin{nbdef}{Morpheme}
+A \textbf{morpheme} is the smallest grammatical unit in a language; in other words, the
+smallest \emph{meaningful} unit of a language. The field of linguistics that studies
+morphemes is called \textbf{morphology}.
+\end{nbdef}
+
+A morpheme is not the same as a word. The principal difference is that a morpheme may
+or may not stand alone, whereas a word, by definition, is freestanding. In
+\emph{dogs} there is one word but two morphemes: \emph{dog} (the animal) and \emph{-s}
+(``more than one''). Neither \emph{d} nor \emph{og} carries meaning, so they are not
+morphemes.
+
+\begin{nbdef}{Free and bound morphemes}
+Every morpheme is either free or bound.
+\begin{itemize}[nosep]
+  \item A \textbf{free morpheme} can function independently as a word (e.g.\
+        \emph{town}, \emph{dog}).
+  \item A \textbf{bound morpheme} appears only as part of a word, always together with a
+        \textbf{root} and sometimes with other bound morphemes. For example,
+        \emph{un-} never appears alone. Most bound morphemes in English are
+        \textbf{affixes}: \textbf{prefixes} (before the root, \emph{un-}) and
+        \textbf{suffixes} (after the root, \emph{-ness}).
+\end{itemize}
+\end{nbdef}
+
+\begin{nbexample}{unbreakable}
+\emph{Unbreakable} is made of three morphemes:
+\begin{center}
+\begin{tikzpicture}[
+    m/.style={draw, rounded corners, minimum height=0.8cm, minimum width=1.7cm, font=\small},
+    lab/.style={font=\scriptsize, align=center}]
+  \node[font=\large\itshape] (w) at (2.4,1.5) {unbreakable};
+  \node[m, fill=nbred!8,  draw=nbred]  (a) at (0,0)   {un-};
+  \node[m, fill=nbblue!8, draw=nbblue] (b) at (2.4,0) {break};
+  \node[m, fill=nbred!8,  draw=nbred]  (c) at (4.8,0) {-able};
+  \draw[nbgray] (w.south) -- (a.north); \draw[nbgray] (w.south) -- (b.north); \draw[nbgray] (w.south) -- (c.north);
+  \node[lab, below=2pt of a] {bound prefix\\``not''};
+  \node[lab, below=2pt of b] {root\\free morpheme};
+  \node[lab, below=2pt of c] {bound suffix\\``can be done''};
+\end{tikzpicture}
+\end{center}
+\end{nbexample}
+
+\begin{nbwarning}[\emph{-able} is bound]
+The slide calls \emph{-able} ``a free morpheme signifying \emph{can be done}''. As a
+suffix it is \textbf{bound}: it cannot stand alone with the meaning ``that can be
+done'' and needs a root (\emph{break-able}, \emph{read-able}). The English word
+\emph{able} exists, but it is a separate free morpheme with a different use (``she is
+able to swim''). So \emph{unbreakable} = bound prefix + free root + bound suffix.
+\end{nbwarning}
+
+\subsubsection{Derivational and inflectional morphemes}
+\slidesrc{Terminology introduction: 37}
+
+Bound morphemes are further divided according to \emph{what they change}.
+
+\begin{nbdef}{Derivational and inflectional morphemes}
+\begin{itemize}[nosep]
+  \item A \textbf{derivational morpheme}, combined with a root, changes the
+        \textbf{meaning} or the \textbf{part of speech} of the word: it creates a
+        \emph{new word}.
+  \item An \textbf{inflectional morpheme} modifies a verb's tense, aspect, mood, person or
+        number, or a noun's, pronoun's or adjective's number, gender or case,
+        \emph{without} changing the word's meaning or class (part of speech): it creates
+        a different \emph{form of the same word}.
+\end{itemize}
+\end{nbdef}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}l l l X@{}}
+\toprule
+\textbf{Root} & \textbf{Morpheme} & \textbf{Result} & \textbf{What changed} \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Derivational}} \\
+happy (adjective) & -ness & happiness (noun) & part of speech: adjective $\to$ noun \\
+kind              & un-   & unkind           & meaning is inverted \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Inflectional}} \\
+dog  & -s  & dogs   & number (singular $\to$ plural) \\
+wait & -ed & waited & tense (present $\to$ past) \\
+\bottomrule
+\end{tabularx}
+\captionof{table}{Derivation makes a new word, inflection a new form of the same word.}
+\end{center}
+
+\begin{nbintuition}[a dictionary test]
+Ask: ``would a dictionary give the result its own entry?'' \emph{Happiness} and
+\emph{unkind} have their own entries (derivation), \emph{dogs} and \emph{waited} are found
+under \emph{dog} and \emph{wait} (inflection). This is exactly the difference between
+\emph{lemmatisation} (going back to the dictionary form, removing inflection) and the
+analysis of word formation, which we will meet later in the course.
+\end{nbintuition}
+
+\subsubsection{Words}
+\slidesrc{Terminology introduction: 38}
+
+\begin{nbdef}{Word}
+A \textbf{word} is the smallest element that can be uttered in isolation with
+objective or practical meaning.
+\end{nbdef}
+
+This contrasts with a morpheme, which is the smallest unit of meaning but does not
+necessarily stand on its own:
+\begin{itemize}[nosep]
+  \item a word may consist of a \textbf{single morpheme}: \emph{oh!}, \emph{rock},
+        \emph{red}, \emph{quick}, \emph{run}, \emph{expect};
+  \item or of \textbf{several}: \emph{rock-s}, \emph{red-ness}, \emph{quick-ly},
+        \emph{runn-ing}, \emph{un-expect-ed};
+  \item and a morpheme may be unable to stand on its own as a word: in the examples,
+        \emph{-s}, \emph{-ness}, \emph{-ly}, \emph{-ing}, \emph{un-}, \emph{-ed}.
+\end{itemize}
+
+\subsubsection{Compounds}
+\slidesrc{Terminology introduction: 42}
+
+\begin{nbdef}{Compound}
+A \textbf{compound} is a word composed of more than one \emph{free} morpheme.
+\end{nbdef}
+
+The last part is usually the \textbf{head} (it gives the category of the whole word),
+and the first part is the \textbf{modifier}. Compounds can be written as one word
+(\emph{football}), with a hyphen (\emph{blue-green}) or even as two words
+(\emph{snow white}).
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l @{\hspace{1.6cm}} l l l@{}}
+\toprule
+\textbf{Modifier} & \textbf{Head} & \textbf{Compound} & \textbf{Modifier} & \textbf{Head} & \textbf{Compound} \\
+\midrule
+noun        & noun      & football    & noun        & verb        & browbeat \\
+adjective   & noun      & blackboard  & adjective   & verb        & highlight \\
+verb        & noun      & breakwater  & verb        & verb        & freeze-dry \\
+preposition & noun      & underworld  & preposition & verb        & undercut \\
+noun        & adjective & snow white  & noun        & preposition & love-in \\
+adjective   & adjective & blue-green  & adverb      & preposition & forthwith \\
+verb        & adjective & tumbledown  & verb        & preposition & takeout \\
+preposition & adjective & over-ripe   & preposition & preposition & without \\
+\bottomrule
+\end{tabular}
+\captionof{table}{English compounds by the category of their two parts.}
+\end{center}
+
+\begin{nbwarning}[compound vs.\ derived word]
+\emph{Blackboard} is a compound (\emph{black} and \emph{board} are both free).
+\emph{Unkind} is \emph{not} a compound: \emph{un-} is bound, so it is a derived word.
+Also note that the meaning of a compound is often not the sum of its parts: a
+\emph{blackboard} can be green.
+\end{nbwarning}

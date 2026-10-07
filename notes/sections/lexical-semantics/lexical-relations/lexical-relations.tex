@@ -1,0 +1,142 @@
+\subsection{The Lexicon and Lexical Relations}
+\label{sec:lexical-relations}
+\slidesrc{Semantics (long version): 11--21}
+
+\subsubsection{Lexicon and lexical units}
+\slidesrc{Semantics (long version): 11--13}
+
+Linguistic theories generally regard a human language as made of two parts:
+\begin{itemize}[nosep]
+  \item a \textbf{lexicon}: essentially a catalogue of the language's words (its
+        \emph{wordstock}). It is also thought to include bound morphemes, which cannot
+        stand alone as words (most affixes, Section~\ref{sec:morphology}), and in some
+        analyses compound words and certain idioms and collocations;
+  \item a \textbf{grammar}: a system of rules that combine those words into meaningful
+        sentences (Section~\ref{sec:grammars-parsing}).
+\end{itemize}
+Dictionaries try to list the lexicon in alphabetical order, usually without the bound
+morphemes.
+
+\begin{nbdef}{Lexical semantics}
+The units of analysis of \textbf{lexical semantics} are \textbf{lexical units}: not only
+words but also sub-words (affixes) and larger units (compound words, phrases). Lexical
+units make up the lexicon. Lexical semantics studies how the meaning of lexical units
+correlates with the structure of the language (syntax), and how meanings relate to each
+other through \textbf{lexical relations}: hyponymy, hypernymy, synonymy, antonymy,
+homonymy, \ldots
+\end{nbdef}
+
+\subsubsection{Synonymy}
+\slidesrc{Semantics (long version): 14}
+
+\begin{nbdef}{Synonymy}
+\textbf{Synonymy} is similarity of meaning. Leibniz: two expressions are synonymous if
+substituting one for the other \emph{never} changes the truth value of a sentence in which
+the substitution is made.
+\end{nbdef}
+
+Such \emph{global} synonymy is rare (a language with perfect synonyms would be
+redundant). A more useful notion is \textbf{synonymy relative to a context}: two
+expressions are synonymous in a linguistic context $C$ if substituting one for the other
+in $C$ does not alter the truth value. E.g.\ \emph{board} and \emph{plank} are
+synonyms in ``he nailed a \underline{\quad} to the wall'' but not in ``the
+\underline{\quad} of directors''. A consequence of defining synonymy by substitution:
+words of different syntactic categories cannot be synonyms (\emph{quick} and
+\emph{quickly} cannot replace each other).
+
+\subsubsection{Antonymy}
+\slidesrc{Semantics (long version): 15}
+
+The antonym of a word $x$ is sometimes \emph{not-$x$}, but not always: \emph{rich} and
+\emph{poor} are antonyms, but \emph{not rich} does not imply \emph{poor} (many people
+consider themselves neither). Antonymy is a lexical relation between \emph{word forms},
+not a semantic relation between concepts: \emph{rise}/\emph{fall} and
+\emph{ascend}/\emph{descend} are antonym pairs, but \emph{rise}/\emph{descend} sounds
+odd, even though the concepts are the same.
+
+\subsubsection{Hyponymy and hypernymy}
+\slidesrc{Semantics (long version): 16--17}
+
+\begin{nbdef}{Hyponymy and hypernymy}
+\textbf{Hyponymy} is a semantic relation between word meanings: \{maple\} is a
+\textbf{hyponym} of \{tree\}. The inverse relation is \textbf{hypernymy}: \{tree\} is a
+\textbf{hypernym} of \{maple\}. Also called subordination/superordination,
+subset/superset, or the \textbf{IS-A} relation. Test: a native speaker must accept
+sentences of the form ``An $x$ is a (kind of) $y$''. For verbs the relation is called
+\textbf{troponymy} (\emph{to lisp} is a manner of \emph{to talk}).
+\end{nbdef}
+
+\begin{center}
+\begin{tikzpicture}[w/.style={font=\small, text=nbblue}, e/.style={draw=nborange!80}]
+  \node[w] (an) at (-1.2,0) {animals};
+  \node[w] (do) at (-3.8,-1.1) {dogs};
+  \node[w] (ca) at (0.4,-1.1) {cats};
+  \node[w] (ho) at (2.0,-1.1) {horses};
+  \node[w] (pi) at (3.5,-1.1) {pigs};
+  \node[w] (te) at (-5.9,-2.2) {terrier};
+  \node[w] (bl) at (-3.6,-2.2) {bloodhound};
+  \node[w] (co) at (-1.0,-2.2) {cocker spaniel};
+  \node[w] (t1) at (-8.7,-3.3) {Cesky terrier};
+  \node[w] (t2) at (-5.9,-3.3) {Border terrier};
+  \node[w] (t3) at (-2.5,-3.3) {Australian terrier};
+  \foreach \c in {do,ca,ho,pi} \draw[e] (an.south) -- (\c.north);
+  \foreach \c in {te,bl,co} \draw[e] (do.south) -- (\c.north);
+  \foreach \c in {t1,t2,t3} \draw[e] (te.south) -- (\c.north);
+\end{tikzpicture}
+\captionof{figure}{A hyponymy (IS-A) hierarchy: a Border terrier is a terrier, a terrier
+is a dog, a dog is an animal. Hyponymy is transitive.}
+\end{center}
+
+\subsubsection{Meronymy and holonymy}
+\slidesrc{Semantics (long version): 18--20}
+
+\begin{nbdef}{Meronymy and holonymy}
+A concept $C_1$ is a \textbf{meronym} of a concept $C_2$ in a language $L$ if native
+speakers of $L$ accept sentences like ``A $C_2$ has a $C_1$ (as a part)'' or ``A $C_1$ is
+a part of a $C_2$''. The inverse relation is \textbf{holonymy}. It is the
+\textbf{HAS-AS-PART} relation, organised in a part hierarchy (e.g.\ \emph{car} has
+\emph{engine}, \emph{door}, \emph{wheel}, \emph{tyres}; \emph{engine} has
+\emph{cylinder}, \emph{exhaust valve}, \ldots).
+\end{nbdef}
+
+Part-of is asymmetric and, \emph{with caution}, transitive. Transitivity fails when
+different kinds of part-whole relation are chained:
+\begin{itemize}[nosep]
+  \item A musician has an arm. \hfill (component of a body)
+  \item An orchestra has a musician. \hfill (member of a group)
+  \item but: ?\,An orchestra has an arm.
+\end{itemize}
+
+\subsubsection{Homonymy}
+\slidesrc{Semantics (long version): 21}
+
+\begin{nbdef}{Homonyms, homophones, homographs}
+\begin{itemize}[nosep]
+  \item \textbf{Homonyms}: the same word form with multiple unrelated meanings.
+  \item \textbf{Homophones}: words that \emph{sound} alike but are written differently.
+  \item \textbf{Homographs}: words with the same spelling, possibly different
+        pronunciation, and different meanings.
+\end{itemize}
+\end{nbdef}
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}*{3}{>{\raggedright\arraybackslash}X}@{}}
+\toprule
+\textbf{Homonyms} & \textbf{Homophones} & \textbf{Homographs} \\
+\midrule
+the \emph{spruce} tree / to \emph{spruce} up & \emph{addition} for maths / \emph{edition} of a book & \emph{desert} = abandon / area of land \\
+\emph{suit} yourself / wore a \emph{suit} & I want \emph{to} go / I like it \emph{too} / one plus one is \emph{two} & \emph{bass} = fish / instrument \\
+weigh on the \emph{scale} / \emph{scale} the wall & \emph{capitol} building / state \emph{capital} & \emph{close} = nearby / to shut \\
+the price is \emph{fair} / go to the \emph{fair} & pick a \emph{flower} / bake with \emph{flour} & \emph{bow} = to bend down / ribbon \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{nbwhy}
+Homographs and homonyms are a problem for every task that looks at written forms: a
+search for \emph{bass} returns both fish and guitars (low precision, Section~\ref{sec:precision-recall}),
+and a distributional vector for \emph{bass} mixes the contexts of all its meanings.
+Choosing the right meaning in context is word sense disambiguation
+(Section~\ref{sec:word-sense-disambiguation}).
+\end{nbwhy}

@@ -1,0 +1,24 @@
+\section{Syntax at the Word Level}
+\label{sec:word-level-syntax}
+\slidesrc{Syntax: RE \& word: 16--82}
+
+Before a sentence can be tagged or parsed, the text must be cut into words, and the
+words must often be cleaned and normalised. This section covers the word-level tasks of
+the syntactic level (Section~\ref{sec:course-map}):
+\begin{enumerate}[nosep]
+  \item \textbf{word segmentation}: where does a word start and end?
+        (Section~\ref{sec:word-segmentation});
+  \item \textbf{stop words} and \textbf{TF-IDF}: which words carry little information,
+        and how to measure how important a word is for a document
+        (Section~\ref{sec:stop-words-tfidf});
+  \item \textbf{stemming and lemmatisation}: reducing \emph{organizes},
+        \emph{organizing} to a common form, with the Porter stemmer in detail
+        (Section~\ref{sec:stemming-lemmatization});
+  \item \textbf{minimum edit distance}: how similar are two strings, computed with
+        dynamic programming (Section~\ref{sec:minimum-edit-distance}).
+\end{enumerate}
+
+\input{sections/word-level-syntax/word-segmentation/word-segmentation}
+\input{sections/word-level-syntax/stop-words-tfidf/stop-words-tfidf}
+\input{sections/word-level-syntax/stemming-lemmatization/stemming-lemmatization}
+\input{sections/word-level-syntax/minimum-edit-distance/minimum-edit-distance}

@@ -1,0 +1,27 @@
+\section{Regular Expressions}
+\label{sec:regular-expressions}
+\slidesrc{Syntax: RE \& word: 1--15}
+
+Regular expressions are the first tool of the syntactic level
+(Section~\ref{sec:course-map}). They are the simplest way to describe a \emph{set of
+strings} by a pattern, and they are everywhere in NLP: tokenisers, sentence splitters,
+data cleaning, rule-based chatbots, information extraction. Formally they describe the
+\emph{regular languages}, the bottom level of the Chomsky hierarchy that we will meet in
+Section~\ref{sec:grammars-parsing}.
+
+This section covers:
+\begin{enumerate}[nosep]
+  \item the syntax of regular expressions: disjunction, negation, repetition, anchors
+        (Section~\ref{sec:regex-syntax});
+  \item a worked example that shows the two kinds of errors a pattern can make
+        (Section~\ref{sec:regex-example});
+  \item ELIZA: a whole ``conversation'' built from cascades of substitutions
+        (Section~\ref{sec:eliza}).
+\end{enumerate}
+
+In these notes a pattern is written in colour, e.g.\ \re{[wW]oodchuck}, and the text it
+matches is \underline{underlined}.
+
+\input{sections/regular-expressions/regex-syntax/regex-syntax}
+\input{sections/regular-expressions/regex-example/regex-example}
+\input{sections/regular-expressions/eliza/eliza}

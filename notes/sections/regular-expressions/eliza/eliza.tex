@@ -1,0 +1,104 @@
+\subsection{ELIZA: Conversation by Substitution}
+\label{sec:eliza}
+\slidesrc{Syntax: RE \& word: 11--15}
+
+ELIZA (Section~\ref{sec:nlp-history}) is the classic proof of how far regular
+expressions alone can go. It understands nothing: it applies a \textbf{cascade} of
+regex substitutions to the user's sentence and returns the result. A conversation with
+an online version (\url{https://www.masswerk.at/elizabot/}) looks like this:
+
+\begin{center}
+\begin{minipage}{0.85\linewidth}
+\small\ttfamily
+ELIZA: How do you do. Please tell me your problem.\\
+YOU:\ \ \ I had an unpleasant discussion with a friend of mine\\
+ELIZA: Can you elaborate on that ?\\
+YOU:\ \ \ She told me that I am stupid\\
+ELIZA: Is it because you are stupid that you came to me ?\\
+YOU:\ \ \ yes, it is exactly because I am stupid...\\
+ELIZA: I see.
+\end{minipage}
+\end{center}
+
+\emph{``Is it because you are stupid that you came to me?''} is just the user's
+\emph{``I am stupid''} with \emph{I am} rewritten to \emph{you are} and pasted into a
+template.
+
+\subsubsection{A tiny ELIZA in Python}
+\slidesrc{Syntax: RE \& word: 14--15}
+
+Three substitutions applied in cascade with Python's \texttt{re.sub}, which takes a
+pattern, a replacement and a string:
+
+\begin{minted}{python}
+import re
+str = "I feel sad, my heart is broken"
+str = re.sub("I", "you", str)        # you feel sad, my heart is broken
+str = re.sub("my", "your", str)      # you feel sad, your heart is broken
+str = re.sub(r"you (feel|are) (sad|sorry|desperate)(.*)",
+             r"Why do you say that you \1 \2\3?", str)
+print(str)   # Why do you say that you feel sad, your heart is broken?
+\end{minted}
+
+\begin{itemize}[nosep]
+  \item Steps 1 and 2 swap the point of view (\emph{I} $\to$ \emph{you},
+        \emph{my} $\to$ \emph{your}).
+  \item Step 3 uses \textbf{capture groups}: each pair of round brackets in the pattern
+        remembers what it matched, and \texttt{\textbackslash 1}, \texttt{\textbackslash 2},
+        \texttt{\textbackslash 3} in the replacement paste it back. Here
+        \texttt{\textbackslash 1} = \emph{feel}, \texttt{\textbackslash 2} = \emph{sad},
+        \texttt{\textbackslash 3} = \emph{, your heart is broken}.
+  \item The \texttt{r"..."} prefix makes a \emph{raw string}, so that Python does not
+        interpret the backslashes itself.
+\end{itemize}
+
+\begin{nbwarning}[order and context matter]
+\texttt{re.sub("I", "you", str)} replaces \emph{every} capital \texttt{I}, also inside
+words (``\emph{It}'' becomes ``\emph{yout}''), and the order of the cascade matters: if
+we swapped \emph{you} $\to$ \emph{I} as well, a later rule could undo an earlier one. Real
+ELIZA implementations use word boundaries (\re{\textbackslash bI\textbackslash b}) and
+swap pronouns in a single pass.
+\end{nbwarning}
+
+\subsubsection{Exercises}
+\notinslides
+
+\begin{nbexercise}{1}{prices}
+Write a regex matching prices in dollars such as \emph{\$5} and \emph{\$19.99} (an
+optional decimal part with exactly two digits). What does it return on ``not \$3.5''?
+\end{nbexercise}
+\begin{nbsolution}
+\re{\textbackslash\$[0-9]+(\textbackslash.[0-9][0-9])?}: an escaped dollar sign (\re{\$}
+alone is the end anchor), one or more digits, then an optional group made of a literal
+dot and two digits. On ``\$3.5'' the optional group cannot match (only one digit after the
+dot), so the regex returns just \emph{\$3}: a false positive of a wrong length.
+\emph{Lesson}: a pattern can match only part of what you intended; add
+\re{\textbackslash b} or a negative condition after the price if partial matches matter.
+\end{nbsolution}
+
+\begin{nbexercise}{2}{reading patterns}
+Describe in words what each pattern matches: (a) \re{\textasciicircum[A-Z][a-z]*\textbackslash.\$};
+(b) \re{[0-9]+(st|nd|rd|th)}; (c) \re{\textbackslash bcolou?rs?\textbackslash b}.
+\end{nbexercise}
+\begin{nbsolution}
+(a) A whole line made of one capitalised word followed by a full stop (``Stop.'' but not
+``Stop now.''). (b) An ordinal written with digits: \emph{1st}, \emph{22nd},
+\emph{3rd}, \emph{100th} (and also the wrong \emph{1th}: a regex checks form, not
+meaning). (c) The whole words \emph{color}, \emph{colour}, \emph{colors},
+\emph{colours}, but not \emph{discolor}.
+\end{nbsolution}
+
+\begin{nbsummary}[regular expressions]
+\begin{itemize}[nosep]
+  \item \re{[abc]} one of; \re{[a-z]} range; \re{[\textasciicircum a]} not (caret first
+        in brackets); \re{x|y} one of two strings; \re{(\,)} grouping and capture.
+  \item \re{?} 0 or 1; \re{*} 0 or more (Kleene star); \re{+} 1 or more (Kleene plus);
+        \re{.} any character; \re{\textbackslash.} a literal dot.
+  \item Anchors \re{\textasciicircum} (start), \re{\$} (end), \re{\textbackslash b} (word
+        boundary).
+  \item Writing a pattern trades off \textbf{false positives} (lower precision) and
+        \textbf{false negatives} (lower recall).
+  \item ELIZA = a cascade of regex substitutions with capture groups
+        (\texttt{\textbackslash 1}, \texttt{\textbackslash 2}, \ldots).
+\end{itemize}
+\end{nbsummary}

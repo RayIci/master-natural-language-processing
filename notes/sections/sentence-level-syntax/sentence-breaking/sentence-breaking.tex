@@ -1,0 +1,46 @@
+\subsection{Sentence Breaking}
+\label{sec:sentence-breaking}
+\slidesrc{Syntax: sentence, rules: 2--4}
+
+\begin{nbdef}{Sentence boundary disambiguation}
+\textbf{Sentence boundary disambiguation} (SBD), also called \emph{sentence breaking}
+or \emph{sentence boundary detection}, is the problem of deciding where sentences begin
+and end.
+\end{nbdef}
+
+Many NLP tools need their input divided into sentences, but punctuation is ambiguous:
+\begin{itemize}[nosep]
+  \item a \textbf{period} may mark an abbreviation (\emph{Mr.}, \emph{etc.}), a decimal
+        point (\emph{3.14}), an ellipsis (\emph{\ldots}) or be part of an e-mail
+        address, rather than the end of a sentence. About \textbf{47\%} of the periods
+        in the Wall Street Journal corpus mark abbreviations;
+  \item \textbf{question and exclamation marks} appear in embedded quotations, emoticons,
+        computer code and slang.
+\end{itemize}
+Languages like Japanese and Chinese have unambiguous markers for the end of a sentence.
+
+\begin{nbfact}{The standard rule-based approach}
+To decide whether a token ends a sentence:
+\begin{enumerate}[label=(\alph*), nosep]
+  \item if it is a period, it ends a sentence;
+  \item but if the preceding token is in a hand-compiled list of
+        \textbf{abbreviations}, it does not;
+  \item and if the next token is \textbf{capitalised}, then it does end a sentence.
+\end{enumerate}
+This simple strategy gets about \textbf{95\%} of sentences right.
+\end{nbfact}
+
+\begin{nbexample}{where the rules break}
+\emph{Mr. Smith paid 3.14 dollars. He left at 5 p.m. Then he slept.}
+\begin{itemize}[nosep]
+  \item \emph{Mr.}: abbreviation, rule (b): not a boundary. Correct.
+  \item \emph{3.14}: the period is inside a token, not a token of its own. Correct.
+  \item \emph{p.m. Then}: \emph{p.m.} is an abbreviation (b says ``no boundary''), but
+        the next word is capitalised (c says ``boundary''). Here the sentence
+        \emph{does} end: the period of an abbreviation can also be the final period.
+\end{itemize}
+NLTK's pre-trained sentence splitter returns \emph{[``Mr. Smith paid 3.14 dollars.'',
+``He left at 5 p.m. Then he slept.'']}: it gets the first two cases right and misses
+exactly the third. The remaining 5\% of errors are cases like this one, which need more
+context (or a statistical model) to resolve.
+\end{nbexample}

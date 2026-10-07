@@ -1,0 +1,97 @@
+\subsection{Word Sense Disambiguation}
+\label{sec:word-sense-disambiguation}
+\slidesrc{Semantics (long version): 31--39}
+
+\begin{nbdef}{Word sense disambiguation (WSD)}
+\textbf{Word sense disambiguation} is the task of identifying which sense (meaning) of a
+word is used in a sentence, when the word has several meanings. It is an open problem of
+NLP and ontology engineering.
+\end{nbdef}
+
+Consider the senses of \emph{bass} (WordNet lists eight noun senses: the lowest part of
+the musical range, the lowest part in polyphonic music, an adult male singer with the
+lowest voice, the lean flesh of a saltwater fish, any of various North American
+freshwater fish, the member with the lowest range of a family of instruments, \ldots) and
+the two sentences
+\begin{itemize}[nosep]
+  \item I went fishing for some sea bass.
+  \item The bass line of the song is too weak.
+\end{itemize}
+To a human it is obvious that the first sentence uses \emph{bass} (fish) and the second
+\emph{bass} (sound/instrument). Replicating this ability with an algorithm is difficult,
+as shown even by the implicit equivocation between ``bass (sound)'' and ``bass (musical
+instrument)'': the senses themselves are not always clearly separated.
+
+\subsubsection{The Lesk algorithm}
+\slidesrc{Semantics (long version): 35--37}
+
+The \textbf{Lesk algorithm} (Michael Lesk, 1986, ``Automatic sense disambiguation using
+machine readable dictionaries: how to tell a pine cone from an ice cream cone'') is the
+classical WSD algorithm. It assumes that words in a given ``neighbourhood'' (a section of
+text) tend to share a common topic.
+
+\begin{nbdef}{Simplified Lesk}
+For every sense of the word to disambiguate, count the words that occur both in the
+\textbf{neighbourhood} of the word and in the \textbf{dictionary definition} (gloss) of
+that sense. Choose the sense with the largest count.
+\end{nbdef}
+
+\begin{nbexample}{pine cone}
+In the original version the glosses of \emph{two} ambiguous neighbouring words are
+compared with each other. Context: ``pine cone''. Dictionary definitions:
+\begin{center}
+\small
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{pine} 1 & kinds of \underline{evergreen} \underline{tree} with needle-shaped leaves \\
+\textbf{pine} 2 & waste away through sorrow or illness \\
+\midrule
+\textbf{cone} 1 & solid body which narrows to a point \\
+\textbf{cone} 2 & something of this shape whether solid or hollow \\
+\textbf{cone} 3 & fruit of certain \underline{evergreen} \underline{trees} \\
+\bottomrule
+\end{tabular}
+\end{center}
+The best intersection is pine 1 $\cap$ cone 3 $=$ \{evergreen, tree(s)\}, with 2 words:
+\emph{pine} is the tree and \emph{cone} is its fruit. All other pairs share no content
+word.
+\end{nbexample}
+
+\begin{nbwarning}[tree vs.\ trees]
+The overlap of 2 counts \emph{tree} and \emph{trees} as the same word. A literal string
+comparison would find only \emph{evergreen}. Lesk needs the normalisation of
+Section~\ref{sec:stemming-lemmatization} (and stop-word removal,
+Section~\ref{sec:stop-words-tfidf}, otherwise \emph{of} and \emph{which} would count as
+overlaps too).
+\end{nbwarning}
+
+\begin{nbexample}{simplified Lesk on ``I went fishing for some sea bass''}
+After removing stop words and stemming, the context is \{go, fish, sea\}. Glosses
+(with the synset members) of three senses of \emph{bass}:
+\begin{itemize}[nosep]
+  \item \emph{sea bass, bass}: the lean flesh of a saltwater fish of the family
+        Serranidae $\to$ overlap \{sea, fish\} $= 2$;
+  \item \emph{freshwater bass, bass}: any of various North American freshwater fish with
+        lean flesh $\to$ overlap \{fish\} $= 1$;
+  \item \emph{bass}: the lowest part of the musical range $\to$ overlap $0$.
+\end{itemize}
+Simplified Lesk chooses the sea bass. Note that it found \emph{sea} only thanks to the
+synset member \emph{sea bass}: \emph{saltwater} and \emph{sea} do not match as strings.
+\end{nbexample}
+
+\subsubsection{Extensions and limitations}
+\slidesrc{Semantics (long version): 38--39}
+
+\begin{itemize}
+  \item \textbf{Adapted Lesk} (Banerjee and Pedersen, 2002): uses WordNet, comparing
+        also the glosses of related synsets (hypernyms, hyponyms, \ldots), which gives
+        more words to overlap.
+  \item \textbf{Limitations}: Lesk is very sensitive to the exact wording of
+        definitions: the absence of a single word can change the result radically. And it
+        only looks at overlaps among the glosses of the senses considered, which are
+        short and do not provide enough vocabulary for fine-grained sense distinctions.
+  \item Many later variants use other resources (thesauri, synonym dictionaries,
+        morphological and syntactic models), and today distributional/contextual
+        representations (Section~\ref{sec:distributional-semantics}) are the standard
+        approach.
+\end{itemize}

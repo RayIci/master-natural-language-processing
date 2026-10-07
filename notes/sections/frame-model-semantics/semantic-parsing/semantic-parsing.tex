@@ -1,0 +1,153 @@
+\subsection{Model-Theoretic Semantics in Practice: Semantic Parsing}
+\label{sec:semantic-parsing}
+\slidesrc{Other semantics: 23--44; Semantics (long version): 10}
+
+\subsubsection{Executable semantic parsing}
+\slidesrc{Other semantics: 23--34}
+
+\begin{nbdef}{Executable semantic parsing}
+\textbf{Semantic parsing} maps a natural-language sentence to a \textbf{program}
+(logical form) in a formal language. The program is then \textbf{executed} in a
+context (a database, a calendar, a robot's world) to produce a behaviour: an answer, an
+action.
+\[
+  \text{[context]} \;+\; \text{[sentence]}
+  \;\xrightarrow{\text{semantic parsing}}\; \text{[program]}
+  \;\xrightarrow{\text{execute}}\; \text{[behaviour]}
+\]
+\end{nbdef}
+
+\begin{nbexample}{a question to a database}
+\emph{What is the largest city in Europe by population?} The program is built piece by
+piece:
+\begin{itemize}[nosep]
+  \item $\textit{Cities}$: the set of all cities;
+  \item $\textit{ContainedBy}(\textit{Europe})$: the set of things located in Europe;
+  \item $\textit{Cities} \cap \textit{ContainedBy}(\textit{Europe})$: cities in Europe;
+  \item the one with the largest population:
+\end{itemize}
+\[
+  \argmax\bigl(\textit{Cities} \cap \textit{ContainedBy}(\textit{Europe}),\ \textit{Population}\bigr).
+\]
+Executed on a geographical database it returns \textbf{Istanbul}.
+\end{nbexample}
+
+\begin{nbexample}{a command to a calendar}
+\emph{Remind me to buy milk after my last meeting on Monday.}
+\[
+  \textit{Add}\bigl(\textit{Buy}(\textit{Milk}),\ \argmax(\textit{Meetings} \cap
+  \textit{HasDate}(\text{2016-07-18}),\ \textit{EndTime})\bigr)
+\]
+``My last meeting on Monday'' becomes the meeting of that date with the largest end
+time; executing the program adds the reminder.
+\end{nbexample}
+
+Note the context: ``Monday'' became a precise date (2016-07-18) only because the system
+knows today's date; ``my meetings'' are the ones in \emph{this} user's calendar.
+
+\begin{nbwhy}
+This is exactly what ChatBDI does (Section~\ref{sec:chatbdi}): it turns a sentence into a
+term such as \texttt{tire\_pressure(front, \_)} that an agent can execute. It is also how
+voice assistants and ``text-to-SQL'' systems work, and how LLMs call tools (they generate
+a function call, which is then executed).
+\end{nbwhy}
+
+\subsubsection{A brief history of semantic parsing}
+\slidesrc{Other semantics: 35}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+GeoQuery & Zelle \& Mooney 1996 \\
+Inductive logic programming & Tang \& Mooney 2001 \\
+CCG & Zettlemoyer \& Collins 2005 \\
+String kernels & Kate \& Mooney 2006 \\
+Synchronous grammars; relaxed CCG & Wong \& Mooney 2007; Zettlemoyer \& Collins 2007 \\
+Learning from the world & Clarke et al.\ 2010 \\
+Higher-order unification; learning from answers & Kwiatkowski et al.\ 2011; Liang et al.\ 2011 \\
+Language + vision & Matuszek et al.\ 2012 \\
+Large-scale KBs; regular expressions; instruction following & 2013 (Berant et al., Kwiatkowski et al.; Kushman et al.; Artzi \& Zettlemoyer) \\
+Reduction to paraphrasing & Berant \& Liang 2014 \\
+Compositionality on tables; dataset from logical forms & Pasupat \& Liang 2015; Wang et al.\ 2015 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The trend: from small hand-annotated datasets (GeoQuery: questions about US geography,
+each paired with its logical form) to learning from weaker supervision (only the answers,
+or the effect in the world) and to large knowledge bases.
+
+\subsubsection{Compositional semantics}
+\slidesrc{Other semantics: 36--41}
+
+How do we get from the sentence to the program? The principle of
+\textbf{compositionality}, formalised by \textbf{Richard Montague}: the meaning of a
+phrase is a function of the meanings of its parts and of the way they are combined
+syntactically.
+
+\begin{nbexample}{cities in Europe}
+\begin{center}
+\begin{tikzpicture}[level distance=1.1cm,
+    level 1/.style={sibling distance=4.4cm},
+    level 2/.style={sibling distance=2.6cm},
+    every node/.style={font=\small, align=center}]
+  \node {$\textit{Cities} \cap \textit{ContainedBy}(\textit{Europe})$}
+    child {node {$\textit{Cities}$\\[-2pt]{\color{nbgray}\emph{cities}}}}
+    child {node {$\textit{ContainedBy}(\textit{Europe})$}
+      child {node {$\textit{ContainedBy}$\\[-2pt]{\color{nbgray}\emph{in}}}}
+      child {node {$\textit{Europe}$\\[-2pt]{\color{nbgray}\emph{Europe}}}}};
+\end{tikzpicture}
+\captionof{figure}{Bottom-up composition: each word gets a meaning from the lexicon
+(\emph{cities} $\mapsto$ \textit{Cities}, \emph{in} $\mapsto$ \textit{ContainedBy},
+\emph{Europe} $\mapsto$ \textit{Europe}), and each node of the tree combines the meanings
+of its children (function application, then intersection).}
+\end{center}
+\end{nbexample}
+
+The tree is the parse tree of Section~\ref{sec:grammars-parsing}, decorated with
+meanings: once again, syntax is the scaffolding of semantics.
+
+\subsubsection{Language variation}
+\slidesrc{Other semantics: 42--44}
+
+The same meaning,
+\[ \textit{Cities} \cap \textit{ContainedBy}(\textit{Europe}), \]
+can be expressed in many ways:
+\begin{itemize}[nosep]
+  \item cities in Europe
+  \item European cities
+  \item cities that are in Europe
+  \item cities located in Europe
+  \item cities on the European continent
+\end{itemize}
+Can we write composition rules for all of these by hand? The slides answer:
+\textbf{no!} \emph{European} is a single word that must produce
+$\textit{ContainedBy}(\textit{Europe})$; \emph{located in} and \emph{on the \ldots\
+continent} are other ways of saying \emph{in}; and natural language has endlessly many
+such variants. This is why modern semantic parsers \emph{learn} the mapping from data
+(and today LLMs do it from examples in the prompt), keeping the logical form as the
+target.
+
+\textbf{Tools}: for model-theoretic semantics the slides report ``\ldots not found\ldots'':
+there is no standard off-the-shelf tool comparable to FrameNet.
+
+\begin{nbsummary}[frame and model-theoretic semantics]
+\begin{itemize}[nosep]
+  \item Distributional vectors are monolithic. \textbf{Frame semantics}: a word evokes a
+        frame (stereotypical situation) with roles (\textsc{seller}, \textsc{buyer},
+        \textsc{goods}, \textsc{price}). Frames are \textbf{prototypical} (\emph{widow})
+        and words \textbf{profile} roles (\emph{sell}/\emph{buy}, \emph{rob}/\emph{steal}).
+  \item Many syntactic alternations, one frame: \textbf{semantic role labelling} maps
+        syntactic positions to roles (frame identification + argument identification).
+        Tool: FrameNet.
+  \item ``Every non-blue block is next to some blue block'': distributional (block
+        $\approx$ brick), frame (\emph{next to}(block, block)), model-theoretic (true or
+        false in a given world).
+  \item \textbf{Model-theoretic semantics}: meaning = truth conditions. Executable
+        semantic parsing: sentence $\to$ program $\to$ execution (database, calendar).
+  \item \textbf{Compositionality} (Montague): meaning of the whole from the meanings of
+        the parts along the parse tree. Language variation makes hand-written rules
+        impossible: the mapping is learnt.
+\end{itemize}
+\end{nbsummary}

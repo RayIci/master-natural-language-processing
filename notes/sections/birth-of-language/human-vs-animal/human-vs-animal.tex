@@ -1,0 +1,103 @@
+\subsection{Human Language vs.\ Animal Communication}
+\label{sec:human-vs-animal}
+\slidesrc{Intro: 5--8}
+
+Many animals communicate: birds sing to mark territory, vervet monkeys have different
+alarm calls for eagles, leopards and snakes, dogs growl and wag their tails. So what is
+special about \emph{human} language? The course poses this as an open question and
+gives two hints.
+
+\subsubsection{Hint 1: talking about what is not here and now}
+\slidesrc{Intro: 5--7}
+
+The first hint is given only through two pictures: a portrait of the Latin poet
+\textbf{Horace} and the poster of the film \textbf{\emph{Dead Poets Society}}. What links
+them is the phrase \emph{carpe diem} (``seize the day''): it comes from one of Horace's
+odes, and it is the motto that the teacher in the film gives his students.
+
+The most likely reading of the hint is this: \emph{carpe diem} is a sentence about
+\emph{time}. It urges you to act now because the future is uncertain and the past is
+gone. To say it at all, a language must be able to talk about things that are not in front
+of the speaker: the future, the past, possibilities, abstract ideas. Animal signals almost
+never do this: an alarm call means ``danger \emph{here}, \emph{now}''.
+
+\begin{nbdef}{Displacement}
+A communication system has \textbf{displacement} if its messages can refer to things
+that are \emph{removed in time or space} from the moment and place of communication:
+past and future events, distant places, hypothetical or imaginary entities, abstract
+concepts.
+\end{nbdef}
+
+Displacement is one of the ``design features'' of language listed by the linguist
+Charles Hockett (1960). Others worth knowing, because they will come back in this course,
+are:
+\begin{itemize}[nosep]
+  \item \textbf{productivity}: a finite set of words and rules generates an unbounded
+        number of new sentences, never heard before, that are still understood;
+  \item \textbf{duality of patterning}: meaningless units (sounds, letters) combine into
+        meaningful units (morphemes, words; see Section~\ref{sec:morphology}), which
+        combine into sentences;
+  \item \textbf{arbitrariness}: there is no natural link between a word and what it
+        means (\emph{dog}, \emph{cane}, \emph{Hund} all name the same animal);
+  \item \textbf{cultural transmission}: a language is learnt from the community, not
+        inherited genetically.
+\end{itemize}
+
+\subsubsection{Hint 2: the bees, an exception}
+\slidesrc{Intro: 8}
+
+The second hint says that the language of bees is an \emph{exception} to the most
+evident difference between human language and animal communication: bees convey a
+specific piece of information that no other animal conveys in the wild.
+
+That piece of information is \emph{the location of a distant food source}. When a
+forager bee comes back to the hive, it performs the \textbf{waggle dance} (decoded by Karl
+von Frisch, Nobel Prize 1973):
+\begin{itemize}[nosep]
+  \item the \textbf{angle} $\alpha$ of the straight ``waggle run'' with respect to the
+        vertical of the honeycomb equals the angle between the direction of the food and
+        the direction of the sun;
+  \item the \textbf{duration} of the waggle run encodes the \textbf{distance} to the food
+        (longer run, farther food).
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, scale=1.05]
+  % left panel: outside the hive
+  \begin{scope}
+    \node[font=\small\bfseries] at (1.5,4.3) {In the field};
+    \fill[nborange!80] (0,0) circle (0.12) node[below=3pt, black, font=\scriptsize] {hive};
+    \draw[->, thick, nbgray] (0,0) -- (0,3.4) node[pos=0.85, left, font=\scriptsize, black] {towards the sun};
+    \draw[nborange, fill=nborange!30] (0,3.75) circle (0.18);
+    \draw[->, very thick, nbred] (0,0) -- (2.2,2.6);
+    \node[nbred, font=\scriptsize, right] at (2.2,2.6) {food};
+    \draw (0,1.2) arc[start angle=90, end angle=49.8, radius=1.2];
+    \node at (0.42,1.45) {$\alpha$};
+  \end{scope}
+  % right panel: on the comb
+  \begin{scope}[xshift=7cm]
+    \node[font=\small\bfseries] at (0,4.3) {On the vertical comb};
+    \draw[->, thick, nbgray] (0,0.4) -- (0,3.5) node[above, font=\scriptsize, black] {``up'' = sun};
+    \draw[->, very thick, nbred] (-0.5,0.6) -- (1.3,2.7) node[above right, font=\scriptsize, align=left, xshift=2mm] {waggle run\\(duration $\propto$ distance)};
+    \draw[dashed, nbgray] (1.3,2.7) .. controls (2.6,2.2) and (1.5,0.2) .. (-0.5,0.6);
+    \draw[dashed, nbgray] (1.3,2.7) .. controls (-0.6,3.6) and (-1.8,1.4) .. (-0.5,0.6);
+    \draw (0,1.6) arc[start angle=90, end angle=49.4, radius=1.0];
+    \node at (0.35,1.95) {$\alpha$};
+  \end{scope}
+\end{tikzpicture}
+\captionof{figure}{The waggle dance. The same angle $\alpha$ appears twice: in the field
+it separates the sun from the food, on the comb it separates ``up'' from the waggle run.
+The dashed loops are the return paths the bee walks between two waggle runs.}
+\end{center}
+
+So bees can talk about something \emph{far away}: their communication has a (limited)
+form of spatial displacement. It is still very far from human language: it covers only
+one topic (food and nest sites), it is not productive (bees cannot combine dances into
+new messages about new topics) and it is innate, not learnt.
+
+\begin{nbintuition}[the answer in one line]
+Human language is (among other things) \emph{displaced}: it lets us talk about the
+past, the future, the absent and the imaginary. Animal communication is almost always
+about the here and now; the bees' dance is the classic exception, because it describes
+a place the bees are not currently in.
+\end{nbintuition}

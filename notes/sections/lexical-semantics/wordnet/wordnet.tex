@@ -1,0 +1,113 @@
+\subsection{Thesauri and WordNet}
+\label{sec:wordnet}
+\slidesrc{Semantics (long version): 22--30}
+
+\subsubsection{Structured lexicons and thesauri}
+\slidesrc{Semantics (long version): 22--23}
+
+A \textbf{thesaurus} (structured lexicon) is an alternative to the alphabetical
+dictionary: a list of words grouped by \emph{meaning}, with a \textbf{hierarchical}
+organisation, like the taxonomies of the natural sciences (children are ``types of'' the
+father and inherit its properties). For ordinary words the hierarchy is given by hyponymy
+and synonymy (Section~\ref{sec:lexical-relations}).
+\begin{itemize}[nosep]
+  \item It shows the structure of lexical knowledge, and is much used for technical
+        terminology.
+  \item It can be enriched with other relations: antonyms, part/member relations
+        (\emph{has-as-part}, \emph{has-as-member}), not just \emph{is-a-type-of}.
+  \item It can be explored in any direction (up, down, across), and obvious
+        \textbf{distance metrics} (e.g.\ the number of links between two words) measure
+        their similarity.
+\end{itemize}
+
+\subsubsection{WordNet}
+\slidesrc{Semantics (long version): 24--30}
+
+\textbf{WordNet} is a large lexical database of English, started in \textbf{1985} at
+Princeton University by a group of psychologists and linguists (led by George Miller,
+the author of the quotation in Section~\ref{sec:distributional-hypothesis}). Its
+theoretical basis is psycholinguistics: what are the properties of the \emph{mental
+lexicon}? Global organisation: \textbf{nouns} are organised as topical hierarchies,
+\textbf{verbs} by entailment relations.
+
+\begin{nbdef}{Synset}
+In WordNet the basic unit is the \textbf{synset} (synonym set). A word meaning is
+represented simply by listing the word forms that can express it. Synsets are
+unambiguous designators: the two main senses of \emph{board} are
+\begin{center}
+\{board, plank, \ldots\} \quad (a piece of lumber) \qquad vs.\qquad \{board, committee, \ldots\}
+\quad (a group of people assembled for some purpose).
+\end{center}
+\end{nbdef}
+
+\begin{itemize}[nosep]
+  \item Members of a synset are rarely true synonyms: WordNet does not try to capture
+        subtle distinctions (connotation, collocation) among them.
+  \item Synsets are often enough to \emph{differentiate} senses. If no suitable synonym
+        exists, a short \textbf{gloss} is used, e.g.\ \{board, (a person's meals,
+        provided regularly for money)\}. WordNet gives a gloss for every meaning, and
+        often an example sentence.
+\end{itemize}
+
+\begin{nbexample}{the noun senses of \emph{board} in WordNet (excerpt)}
+\small
+\begin{itemize}[nosep]
+  \item board (a committee having supervisory powers) ``\emph{the board has seven
+        members}'';
+  \item board, plank (a stout length of sawn timber; made in a wide variety of sizes
+        and used for many purposes);
+  \item board (a flat piece of material designed for a special purpose) ``\emph{he
+        nailed boards across the windows}'';
+  \item board, table (food or meals in general) ``\emph{she sets a fine table}'';
+  \item display panel, display board, board (a vertical surface on which information
+        can be displayed to public view);
+  \item dining table, board (a table at which meals are served);
+  \item control panel, instrument panel, control board, board, panel (electrical device
+        consisting of a flat insulated surface that contains switches and dials).
+\end{itemize}
+For the first sense WordNet also lists its relations: its members (\emph{director},
+\emph{board member}: meronyms), its hypernym (\emph{committee}), its sister terms.
+\end{nbexample}
+
+\paragraph{Size.} WordNet 3.0:
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l rrr @{\hspace{0.6cm}} rrr@{}}
+\toprule
+ & \textbf{Words} & \textbf{Synsets} & \textbf{Word--sense} & \textbf{Monos.} & \textbf{Polys.} & \textbf{Polys.} \\
+ &  &  & \textbf{pairs} & \textbf{words} & \textbf{words} & \textbf{senses} \\
+\midrule
+Noun      & 117\,798 & 82\,115  & 146\,312 & 101\,863 & 15\,935 & 44\,449 \\
+Verb      & 11\,529  & 13\,767  & 25\,047  & 6\,277   & 5\,252  & 18\,770 \\
+Adjective & 21\,479  & 18\,156  & 30\,002  & 16\,503  & 4\,976  & 14\,399 \\
+Adverb    & 4\,481   & 3\,621   & 5\,580   & 3\,748   & 733     & 1\,832 \\
+\midrule
+Total     & 155\,287 & 117\,659 & 206\,941 & 128\,391 & 26\,896 & 79\,450 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Most words have a single sense (128\,391 of 155\,287), but the polysemous ones are the
+frequent ones: verbs in particular have on average $18\,770/5\,252 \approx 3.6$ senses
+each.
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}l >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{POS} & \textbf{Lexical relations in WordNet} \\
+\midrule
+Nouns & synonym $\sim$ antonym (opposite of); hypernym (is a kind of) $\sim$ hyponym (for
+  example); coordinate (sister) terms: share the same hypernym; holonym (is part of)
+  $\sim$ meronym (has as part) \\
+Verbs & synonym $\sim$ antonym; hypernym $\sim$ troponym (\emph{lisp} -- \emph{talk});
+  entailment (\emph{snore} -- \emph{sleep}: if you snore you sleep); coordinate terms \\
+Adjectives, adverbs & the above, plus related nouns, verb participles, derivational
+  information \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+WordNet is available in NLTK (Section~\ref{sec:word-segmentation}) and online
+(``WordNet Search''); for Italian and many other languages, multilingual resources such as
+BabelNet extend it.

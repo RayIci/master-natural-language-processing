@@ -1,0 +1,162 @@
+\subsection{The Syntax of Regular Expressions}
+\label{sec:regex-syntax}
+\slidesrc{Syntax: RE \& word: 3--8, 10}
+
+\begin{nbdef}{Regular expression}
+A \textbf{regular expression} (RE, regex) is a formal language for specifying text
+strings. A regex is a \emph{pattern}; searching a text with it returns the substrings
+that the pattern \emph{matches}.
+\end{nbdef}
+
+The motivating question: how can we search for any of \emph{woodchuck},
+\emph{woodchucks}, \emph{Woodchuck}, \emph{Woodchucks} with a single query? A plain string
+search for ``woodchuck'' misses the capitalised forms; we need a way to say ``either
+\texttt{w} or \texttt{W}'' and ``an optional \texttt{s}''.
+
+\subsubsection{Disjunction: square brackets and the pipe}
+\slidesrc{Syntax: RE \& word: 4, 6}
+
+Letters inside square brackets mean \textbf{one character among these}:
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Pattern} & \textbf{Matches} & \textbf{Example} \\
+\midrule
+\re{[wW]oodchuck}   & \emph{Woodchuck} or \emph{woodchuck} & \\
+\re{[1234567890]}   & any digit & \\
+\re{[A-Z]}          & an upper-case letter (a \textbf{range}) & \underline{D}renched Blossoms \\
+\re{[a-z]}          & a lower-case letter & \underline{m}y beans were impatient \\
+\re{[0-9]}          & a single digit & Chapter \underline{1}: Down the Rabbit Hole \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Brackets choose among single \emph{characters}. To choose among longer strings use the
+\textbf{pipe} \re{|}:
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{Pattern} & \textbf{Matches} \\
+\midrule
+\re{groundhog|woodchuck} & \emph{groundhog} or \emph{woodchuck} (they are the same animal!) \\
+\re{yours|mine} & \emph{yours} or \emph{mine} \\
+\re{a|b|c} & the same as \re{[abc]} \\
+\re{[gG]roundhog|[Ww]oodchuck} & both animals, capitalised or not \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Negation inside brackets}
+\slidesrc{Syntax: RE \& word: 5}
+
+A caret \re{\textasciicircum} right after the opening bracket negates the set: \re{[\textasciicircum
+Ss]} means ``any character that is \emph{neither} \texttt{S} nor \texttt{s}''.
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Pattern} & \textbf{Matches} & \textbf{Example} \\
+\midrule
+\re{[\textasciicircum A-Z]} & not an upper-case letter & O\underline{y}fn pripetchik \\
+\re{[\textasciicircum Ss]}  & neither \texttt{S} nor \texttt{s} & \underline{I} have no exquisite reason \\
+\re{[\textasciicircum e\textasciicircum]} & neither \texttt{e} nor \texttt{\textasciicircum} & \underline{L}ook here \\
+\re{a\textasciicircum b}    & the literal string \texttt{a\textasciicircum b} & Look up \underline{a\textasciicircum b} now \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{nbwarning}[the caret has three meanings]
+\re{\textasciicircum} means \emph{negation} only when it is the \emph{first} character inside
+\re{[\,]}. In \re{[e\textasciicircum]} it is an ordinary character, in \re{a\textasciicircum b}
+it is an ordinary character, and at the start of a pattern (\re{\textasciicircum[A-Z]}) it
+is an \emph{anchor} (see below).
+\end{nbwarning}
+
+\subsubsection{Repetition: \texttt{?}, \texttt{*}, \texttt{+} and the wildcard \texttt{.}}
+\slidesrc{Syntax: RE \& word: 7}
+
+These operators apply to the character (or group) right before them:
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Pattern} & \textbf{Meaning} & \textbf{Matches} \\
+\midrule
+\re{colou?r} & previous character optional (0 or 1) & \emph{color}, \emph{colour} \\
+\re{oo*h!}   & 0 or more of the previous character & \emph{oh!}, \emph{ooh!}, \emph{oooh!}, \ldots \\
+\re{o+h!}    & 1 or more of the previous character & \emph{oh!}, \emph{ooh!}, \emph{oooh!}, \ldots \\
+\re{baa+}    & \texttt{ba} followed by one or more \texttt{a} & \emph{baa}, \emph{baaa}, \emph{baaaa}, \ldots \\
+\re{beg.n}   & \texttt{.} is any single character & \emph{begin}, \emph{begun}, \emph{beg3n} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The star \re{*} and the plus \re{+} are called the \textbf{Kleene star} and
+\textbf{Kleene plus}, after the mathematician Stephen C.~Kleene who introduced regular
+expressions. Note that \re{oo*h!} and \re{o+h!} describe exactly the same set of strings:
+$x^{+}$ is just $x x^{*}$.
+
+\subsubsection{Anchors: \texttt{\textasciicircum} and \texttt{\$}}
+\slidesrc{Syntax: RE \& word: 8}
+
+Anchors do not match a character but a \emph{position}: \re{\textasciicircum} the start
+of the line, \re{\$} the end.
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Pattern} & \textbf{Matches} & \textbf{Example} \\
+\midrule
+\re{\textasciicircum[A-Z]} & an upper-case letter at the start of a line & \underline{P}alo Alto \\
+\re{\textasciicircum[\textasciicircum A-Za-z]} & a non-letter at the start of a line & \underline{1}\quad \underline{``}Hello'' \\
+\re{\textbackslash.\$} & a full stop at the end of a line & The end\underline{.} \\
+\re{.\$} & any character at the end of a line & The end\underline{?}\quad The end\underline{!} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In \re{\textbackslash.\$} the backslash \textbf{escapes} the dot: \re{\textbackslash.}
+is a literal full stop, while \re{.} alone is the wildcard.
+
+\subsubsection{Summary of the operators}
+\slidesrc{Syntax: RE \& word: 10}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}l l l X@{}}
+\toprule
+\textbf{Operator} & \textbf{Meaning} & \textbf{Example} & \textbf{Example meaning} \\
+\midrule
+\re{+}     & one or more   & \re{a+}    & 1 or more \texttt{a} characters \\
+\re{*}     & zero or more  & \re{a*}    & 0 or more \texttt{a} characters \\
+\re{?}     & optional      & \re{a?}    & 0 or 1 \texttt{a} characters \\
+\re{[\,]}  & choose 1      & \re{[abc]} & \texttt{a} or \texttt{b} or \texttt{c} \\
+\re{[-]}   & range         & \re{[a-z]} & any character between \texttt{a} and \texttt{z} \\
+\re{[\textasciicircum]} & not & \re{[\textasciicircum a]} & any character that is not \texttt{a} \\
+\re{(\,)}  & grouping      & \re{([a-z])+} & one or more characters between \texttt{a} and \texttt{z} \\
+\re{(|)}   & or            & \re{(ey|ax)} & the string \texttt{ey} or the string \texttt{ax} \\
+\re{ab}    & follow        & \re{ab}    & \texttt{a} followed by \texttt{b} \\
+\re{\textasciicircum} & start & \re{\textasciicircum a} & \texttt{a} at the start of the string/line \\
+\re{\$}    & end           & \re{a\$}   & \texttt{a} at the end of the string/line \\
+\re{\textbackslash s} & whitespace & \re{\textbackslash sa} & a whitespace followed by \texttt{a} \\
+\re{.}     & any character & \re{a.b}   & \texttt{a}, any character, \texttt{b} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{nbwarning}[a typo in the summary slide]
+The slide gives \re{(a-z)+} as the grouping example. Inside round brackets the hyphen is
+\emph{not} a range: \re{(a-z)+} matches the literal three-character string
+\texttt{a-z} (repeated). The range needs square brackets: \re{([a-z])+} or simply
+\re{[a-z]+}.
+\end{nbwarning}
+
+Tools to experiment: \url{https://regex101.com/} shows step by step what a pattern
+matches and explains each part of it.

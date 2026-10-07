@@ -1,0 +1,26 @@
+\section{Syntax at the Sentence Level}
+\label{sec:sentence-level-syntax}
+\slidesrc{Syntax: sentence, rules: 1--17; Syntax: sentence, HMM: 1--20}
+
+Once a text is split into words, the next questions concern whole sentences: where does a
+sentence end, what grammatical category does each word have in context, and how do the
+words group into a structure? This section covers the sentence-level tasks of the
+syntactic level (Section~\ref{sec:course-map}):
+\begin{enumerate}[nosep]
+  \item \textbf{sentence breaking} (Section~\ref{sec:sentence-breaking});
+  \item \textbf{part-of-speech tagging} and the Penn Treebank tagset
+        (Section~\ref{sec:pos-tagging});
+  \item \textbf{grammars and parsing}: Chomsky's generative grammar, the Chomsky
+        hierarchy, a small grammar for English, Definite Clause Grammars
+        (Section~\ref{sec:grammars-parsing});
+  \item \textbf{statistical POS tagging} with Hidden Markov Models and the Viterbi
+        algorithm (Section~\ref{sec:hmm-pos-tagging}).
+\end{enumerate}
+The first three are \emph{rule-based} (deductive) approaches, the last one is
+\emph{statistical} (inductive): two eras of NLP (Section~\ref{sec:nlp-history}) side by
+side.
+
+\input{sections/sentence-level-syntax/sentence-breaking/sentence-breaking}
+\input{sections/sentence-level-syntax/pos-tagging/pos-tagging}
+\input{sections/sentence-level-syntax/grammars-parsing/grammars-parsing}
+\input{sections/sentence-level-syntax/hmm-pos-tagging/hmm-pos-tagging}

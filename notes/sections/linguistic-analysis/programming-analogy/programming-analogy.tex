@@ -1,0 +1,40 @@
+\subsection{Analogy with Programming Languages}
+\label{sec:programming-analogy}
+\slidesrc{Terminology introduction: 25--26}
+
+The three levels have a natural counterpart in programs:
+
+\begin{center}
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{Level} & \textbf{A program is correct at this level if\ldots} \\
+\midrule
+\textcolor{nbred}{Syntax}      & there are no compiler errors \\
+\textcolor{nbblue}{Semantics}  & there are no implementation bugs \\
+\textcolor{nbgreen}{Pragmatics} & it implements the right algorithm (for the purpose) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Three examples show that the levels are independent of each other:
+
+\begin{itemize}
+  \item \textbf{Different \textcolor{nbred}{syntax}, same \textcolor{nbblue}{semantics}}
+        (both mean 5):
+        \[ 2 + 3 \quad\Longleftrightarrow\quad 3 + 2 \]
+  \item \textbf{Same \textcolor{nbred}{syntax}, different \textcolor{nbblue}{semantics}}
+        (1 and 1.5): the expression \texttt{3 / 2} is \texttt{1} in Python~2.7 (integer
+        division between integers) but \texttt{1.5} in Python~3 (true division):
+        \[ \texttt{3 / 2}\ \text{(Python 2.7)} \quad\not\Longleftrightarrow\quad
+           \texttt{3 / 2}\ \text{(Python 3)} \]
+  \item \textbf{Good \textcolor{nbblue}{semantics}, bad \textcolor{nbgreen}{pragmatics}}:
+        a correct, bug-free implementation of a deep neural network for estimating the
+        probability of a coin flip. It works, but it is absurd for the purpose: counting
+        heads and dividing by the number of flips does the job.
+\end{itemize}
+
+\begin{nbintuition}
+Syntax is about the \emph{form}, semantics about the \emph{content}, pragmatics about
+the \emph{use}. Each level can be right while the one above is wrong: a sentence (or a
+program) can be well formed and meaningless, or meaningful and pointless.
+\end{nbintuition}

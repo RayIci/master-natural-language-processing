@@ -1,0 +1,35 @@
+\subsection{Definition of NLP}
+\label{sec:nlp-definition}
+\slidesrc{Terminology introduction: 3}
+
+\begin{nbdef}{Natural Language Processing (NLP)}
+\textbf{Natural language processing} is a subfield of linguistics, computer science and
+artificial intelligence concerned with the interactions between computers and human
+language. In particular, it studies how to program computers to
+\begin{itemize}[nosep]
+  \item process and analyse large amounts of natural language data;
+  \item \textbf{understand} text: \textbf{Natural Language Understanding (NLU)};
+  \item \textbf{produce} understandable text in human languages from some underlying
+        non-linguistic representation of information: \textbf{Natural Language
+        Generation (NLG)}.
+\end{itemize}
+\end{nbdef}
+
+A ``natural'' language is one that evolved naturally among humans (English, Italian,
+Chinese, sign languages), as opposed to \emph{formal} languages designed on purpose
+(Python, logic, arithmetic). Natural languages are ambiguous, redundant, constantly
+changing and full of exceptions; formal languages are designed to avoid all of that.
+This is exactly why processing them with a computer is hard.
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, node distance=1.2cm and 2.4cm,
+    box/.style={draw, rounded corners, thick, align=center, minimum height=1.1cm,
+                minimum width=3.3cm, font=\small}]
+  \node[box, fill=nbblue!8, draw=nbblue] (text) {Natural language\\{\scriptsize ``The fridge is empty''}};
+  \node[box, fill=nbgreen!8, draw=nbgreen, right=of text] (rep) {Non-linguistic\\representation\\{\scriptsize\ttfamily contains(fridge, nothing)}};
+  \draw[->, very thick, nbblue] ([yshift=3mm]text.east) -- node[above, font=\small] {NLU} ([yshift=3mm]rep.west);
+  \draw[->, very thick, nbgreen] ([yshift=-3mm]rep.west) -- node[below, font=\small] {NLG} ([yshift=-3mm]text.east);
+\end{tikzpicture}
+\captionof{figure}{NLU and NLG go in opposite directions between text and an internal
+representation (here a logical fact a program can use).}
+\end{center}

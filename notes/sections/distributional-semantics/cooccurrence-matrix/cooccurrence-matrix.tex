@@ -1,0 +1,78 @@
+\subsection{The Co-occurrence Matrix}
+\label{sec:cooccurrence-matrix}
+\slidesrc{Distributional semantics: 17--21}
+
+\subsubsection{A thought experiment: deciphering hieroglyphs}
+\slidesrc{Distributional semantics: 17--20}
+
+Imagine an unknown language. We know the meaning of some nouns (in brackets) but not of
+\emph{dog}, and we do not know any of the verbs. For each noun we count how often it
+appears as the \emph{object} of each verb in a large corpus:
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l rrrrrr@{}}
+\toprule
+ & & \textbf{get} & \textbf{sij} & \textbf{ius} & \textbf{hir} & \textbf{iit} & \textbf{kil} \\
+\midrule
+(knife)  & naif  & 51  & 20 & 84 & 0  & 3  & 0  \\
+(cat)    & ket   & 52  & 58 & 4  & 4  & 6  & 26 \\
+???      & dog   & 115 & 83 & 10 & 42 & 33 & 17 \\
+(boat)   & beut  & 59  & 39 & 23 & 4  & 0  & 0  \\
+(cup)    & kap   & 98  & 14 & 6  & 2  & 1  & 0  \\
+(pig)    & pigij & 12  & 17 & 3  & 2  & 9  & 27 \\
+(banana) & nana  & 11  & 2  & 2  & 0  & 18 & 0  \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Which known word is \emph{dog} most similar to? Comparing rows (the similarity measure is
+explained in Section~\ref{sec:geometric-interpretation}):
+\[
+  \text{sim}(\text{dog}, \text{naif}) = 0.770, \qquad
+  \text{sim}(\text{dog}, \text{pigij}) = 0.939, \qquad
+  \text{sim}(\text{dog}, \text{ket}) = 0.961.
+\]
+\emph{Dog} behaves most like \emph{cat}, then \emph{pig}, and much less like \emph{knife}:
+it is probably an animal, a pet. We concluded this without understanding a single verb.
+
+\subsubsection{English as seen by the computer}
+\slidesrc{Distributional semantics: 21}
+
+The ``unknown language'' was English with scrambled spelling: the verbs are
+\textbf{get, see, use, hear, eat, kill}, and the counts are real verb--object
+co-occurrence counts from the British National Corpus. For a computer, every language
+looks like hieroglyphs: it only has the counts.
+
+\begin{nbdef}{Co-occurrence matrix and distributional semantic model}
+A \textbf{co-occurrence matrix} $M$ has one row per \textbf{target word} and one column
+per \textbf{context} (here: verbs taking the word as object; in general: nearby words,
+syntactic relations, documents, \ldots). The cell $M_{w,c}$ counts how often $w$ occurs
+with context $c$. The row $\mathbf{x}_w$ is the \textbf{distributional vector} of $w$.
+A \textbf{distributional semantic model} (DSM) represents the meaning of each word by
+such a vector.
+\end{nbdef}
+
+\begin{nbwarning}[how the similarity values were computed]
+The slides do not say which similarity gives 0.770, 0.939 and 0.961. They are the
+\textbf{cosine similarity} (Section~\ref{sec:geometric-interpretation}) of the rows after
+replacing each count $f$ by $\log(1+f)$. On the raw counts the cosine gives different
+values:
+\begin{center}
+\small
+\begin{tabular}{@{}l cccccc@{}}
+\toprule
+similarity to \emph{dog} & knife & cat & boat & cup & pig & banana \\
+\midrule
+cosine, raw counts          & 0.552 & \textbf{0.923} & 0.915 & 0.832 & 0.676 & 0.629 \\
+cosine, $\log(1+f)$         & 0.770 & \textbf{0.961} & 0.828 & 0.850 & 0.939 & 0.785 \\
+\bottomrule
+\end{tabular}
+\end{center}
+With raw counts \emph{boat} is almost as close to \emph{dog} as \emph{cat}, and
+\emph{pig} is far: the large counts of the very frequent verb \emph{get} dominate
+everything. The logarithm dampens large counts, so the rarer but more telling contexts
+(\emph{hear}, \emph{eat}, \emph{kill}) matter too, and the two animals come out on top.
+Real DSMs always apply such a weighting (log, TF-IDF-like association scores) before
+comparing vectors.
+\end{nbwarning}

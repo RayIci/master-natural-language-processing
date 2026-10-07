@@ -1,0 +1,60 @@
+\subsection{The Distributional Hypothesis}
+\label{sec:distributional-hypothesis}
+\slidesrc{Distributional semantics: 3--16; Semantics (long version): 3--5}
+
+\subsubsection{Meaning and distribution}
+\slidesrc{Distributional semantics: 4--7}
+
+Four famous quotations, each followed by what it means for us:
+
+\begin{itemize}
+  \item ``\emph{Die Bedeutung eines Wortes liegt in seinem Gebrauch}'' (``the meaning of
+        a word is its use'', Ludwig Wittgenstein).\\
+        $\Rightarrow$ \textbf{meaning = use = distribution in language}.
+  \item ``\emph{You shall know a word by the company it keeps!}'' (J.\,R.~Firth, 1957).\\
+        $\Rightarrow$ \textbf{distribution = collocations} = habitual word combinations
+        (Section~\ref{sec:corpora}).
+  \item \textbf{Distributional hypothesis}: difference of meaning correlates with
+        difference of distribution (Zellig Harris, 1954).\\
+        $\Rightarrow$ we can measure a \textbf{semantic distance} between words.
+  \item ``\emph{What people know when they say that they know a word is not how to recite
+        its dictionary definition -- they know how to use it [\ldots] in everyday
+        discourse}'' (George Miller, 1986).
+\end{itemize}
+
+\begin{nbdef}{Distributional hypothesis}
+Words that occur in similar contexts tend to have similar meanings. Conversely, the more
+the contexts of two words differ, the more their meanings differ.
+\end{nbdef}
+
+\subsubsection{What is the meaning of ``bardiwac''?}
+\slidesrc{Distributional semantics: 8--16}
+
+You have never seen the word \emph{bardiwac}. Read these sentences, one at a time:
+\begin{itemize}[nosep]
+  \item He handed her her glass of bardiwac.
+  \item Beef dishes are made to complement the bardiwacs.
+  \item Nigel staggered to his feet, face flushed from too much bardiwac.
+  \item Malbec, one of the lesser-known bardiwac grapes, responds well to Australia's
+        sunshine.
+  \item I dined off bread and cheese and this excellent bardiwac.
+  \item The drinks were delicious: blood-red bardiwac as well as light, sweet Rhenish.
+\end{itemize}
+
+\begin{nbintuition}[what you just did]
+After a few sentences you know that \textbf{bardiwac is a heavy red alcoholic beverage
+made from grapes}, i.e.\ a red wine (the word is invented; it stands for
+\emph{claret}). Nobody gave you a definition: you inferred it from the
+\emph{company the word keeps}: \emph{glass of}, \emph{too much}, \emph{grapes},
+\emph{drinks}, \emph{blood-red}, \emph{beef dishes}. That is the distributional hypothesis
+in action, and it is how we learn most of our vocabulary.
+\end{nbintuition}
+
+The examples are hand-picked and edited, of course. But in a corpus like the British
+National Corpus (BNC) there is at least as much relevant information. The slides show a
+\emph{word sketch} of the real word (BNC frequency 230): grouped by grammatical relation,
+its most typical companions are verbs like \emph{uncork}, \emph{gulp}, \emph{sip},
+\emph{drink}, \emph{swig}; coordinated nouns like \emph{burgundy}, \emph{Sancerre},
+\emph{scampi}, \emph{ruby}; containers like \emph{bottle}, \emph{glass}, \emph{jug},
+\emph{goblet}; modifiers like \emph{full-bodied}, \emph{blood-red}, \emph{ready-to-drink}.
+A computer can collect these statistics automatically.

@@ -1,0 +1,97 @@
+\subsection{Word Segmentation}
+\label{sec:word-segmentation}
+\slidesrc{Syntax: RE \& word: 16--20}
+
+\begin{nbdef}{Word segmentation}
+\textbf{Word segmentation} (also \emph{tokenisation}) is the problem of dividing a string
+of written language into its component words.
+\end{nbdef}
+
+\subsubsection{Why it is not trivial}
+\slidesrc{Syntax: RE \& word: 17}
+
+In English and in many other languages written with the Latin alphabet, the
+\textbf{space} is a good approximation of a word divider (word delimiter). It is only an
+approximation, because languages vary in how they treat collocations and compounds
+(Section~\ref{sec:morphology}): many English compound nouns are written in several ways,
+e.g.\ \emph{multi-agent} = \emph{multiagent} = \emph{multi agent}, and speakers differ on
+whether they think of them as one noun or as a noun phrase. Punctuation adds more cases
+(\emph{don't}, \emph{U.S.A.}, \emph{3.14}, \emph{e-mail}).
+
+Many scripts have no word space at all, and there word segmentation is a hard problem:
+\begin{itemize}[nosep]
+  \item \textbf{Chinese} and \textbf{Japanese}: sentences are delimited, words are not;
+  \item \textbf{Thai} and \textbf{Lao}: phrases and sentences are delimited, words are not;
+  \item \textbf{Vietnamese}: syllables are delimited, words are not.
+\end{itemize}
+
+\subsubsection{The MaxMatch algorithm}
+\slidesrc{Syntax: RE \& word: 18}
+
+A simple baseline for Chinese is the greedy \textbf{maximum matching} algorithm. It needs
+a \textbf{dictionary} (word list) of the language.
+
+\begin{nbdef}{MaxMatch}
+\begin{enumerate}[nosep]
+  \item Put a pointer at the beginning of the string.
+  \item Choose the \textbf{longest} dictionary word that matches the input starting at
+        the pointer, and move the pointer to the end of that word.
+  \item If no word matches, move the pointer one character forward instead (creating a
+        one-character ``word'').
+  \item Repeat from the new pointer position until the end of the string.
+\end{enumerate}
+\end{nbdef}
+
+\begin{nbexample}{MaxMatch on English without spaces}
+Input: \texttt{wecanonlyseeashortdistanceahead} (``we can only see a short distance
+ahead'').
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Remaining input} & \textbf{Longest word} & \textbf{Why} \\
+\midrule
+\texttt{wecanonly\ldots}  & \emph{we}       & \\
+\texttt{canonlysee\ldots} & \emph{canon}    & longer than \emph{can} \\
+\texttt{lyseea\ldots}     & \emph{l}        & no word starts here: one character \\
+\texttt{yseea\ldots}      & \emph{y}        & same \\
+\texttt{seeashort\ldots}  & \emph{see}      & \\
+\texttt{ashort\ldots}     & \emph{ash}      & longer than \emph{a} and \emph{as} \\
+\texttt{ort\ldots}        & \emph{o}, \emph{r}, \emph{t} & three single characters \\
+\texttt{distanceahead}    & \emph{distance}, \emph{ahead} & \\
+\bottomrule
+\end{tabular}
+\end{center}
+Output: \emph{we canon l y see ash o r t distance ahead}.
+\end{nbexample}
+
+\begin{nbintuition}[why greedy fails here and works for Chinese]
+Greedy choices are never undone: once \emph{canon} is taken, the correct \emph{can only}
+is impossible. In English, words are long and many short words hide inside longer ones,
+so this happens constantly. Chinese words are mostly one or two characters long, so the
+longest match is usually right, and MaxMatch is a surprisingly strong baseline there.
+Better segmenters score \emph{whole} segmentations (e.g.\ with word probabilities)
+instead of committing greedily.
+\end{nbintuition}
+
+\subsubsection{NLTK}
+\slidesrc{Syntax: RE \& word: 19--20}
+
+The course uses \textbf{NLTK} (Natural Language Toolkit, \url{https://www.nltk.org/})
+to show some problems and some of their possible solutions. NLTK is a Python platform
+for working with human language data: it provides interfaces to over 50 corpora and
+lexical resources such as WordNet (Section~\ref{sec:wordnet}), and libraries for
+classification, tokenisation, stemming, tagging, parsing and semantic reasoning. The
+course also uses less known, but elegant, tools.
+
+\begin{minted}{python}
+import nltk
+# nltk.download()   # only once, to download corpora and models
+from nltk.tokenize import word_tokenize
+print(word_tokenize("Don't segment U.S.A. badly, Mr. Smith!"))
+# ['Do', "n't", 'segment', 'U.S.A.', 'badly', ',', 'Mr.', 'Smith', '!']
+\end{minted}
+
+Note how the tokeniser splits \emph{don't} into \emph{Do} + \emph{n't} (two
+morphemes, Section~\ref{sec:morphology}) but keeps \emph{U.S.A.} and \emph{Mr.}
+together: the full stop is not always a word boundary.

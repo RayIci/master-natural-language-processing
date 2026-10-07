@@ -1,0 +1,57 @@
+\subsection{Named Entity Recognition}
+\label{sec:named-entity-recognition}
+\slidesrc{Semantics (long version): 40--43}
+
+\begin{nbdef}{Named entity recognition (NER)}
+\textbf{Named entity recognition} locates and classifies the \textbf{named entities} of a
+text into predefined categories: names of persons, organisations, locations, expressions
+of times, quantities, monetary values, percentages, etc.
+\end{nbdef}
+
+Most NER systems take an unannotated block of text and produce an annotated one:
+\begin{center}
+Jim bought 300 shares of Acme Corp.\ in 2006.\\[3pt]
+$\downarrow$\\[3pt]
+[Jim]$_{\textsc{person}}$ bought 300 shares of [Acme Corp.]$_{\textsc{organization}}$ in
+[2006]$_{\textsc{time}}$.
+\end{center}
+
+Online demos: Stanford NER (\url{http://nlp.stanford.edu:8080/ner/process}), spaCy NER;
+for Italian (not only NER): \url{http://www.italianlp.it/},
+\url{http://parli.di.unito.it/link_it.html}.
+
+\paragraph{Approaches.}
+\begin{itemize}[nosep]
+  \item \textbf{Grammar-based} (hand-crafted rules by linguists): typically better
+        \textbf{precision}, but lower \textbf{recall} and months of work by experienced
+        computational linguists.
+  \item \textbf{Statistical} (machine learning): need a large amount of manually
+        annotated training data.
+  \item \textbf{Semi-supervised} approaches avoid part of the annotation effort.
+\end{itemize}
+
+\begin{nbintuition}[why NER is not a dictionary lookup]
+A list of names is not enough: \emph{Washington} can be a person, a city, a state or a
+government (``Washington announced\ldots''); \emph{Apple} can be a fruit or a company;
+new names appear every day. NER needs context, like POS tagging and WSD: in fact it is
+often solved with the same sequence models (HMMs, MEMMs and their successors,
+Section~\ref{sec:hmm-pos-tagging}), with tags such as B-PER, I-PER, O marking the
+beginning and inside of each entity.
+\end{nbintuition}
+
+\begin{nbsummary}[lexical semantics, WSD, NER]
+\begin{itemize}[nosep]
+  \item Language = lexicon + grammar. Lexical relations: \textbf{synonymy} (substitution
+        without changing truth, usually only in context), \textbf{antonymy} (between word
+        forms), \textbf{hyponymy/hypernymy} (IS-A; troponymy for verbs),
+        \textbf{meronymy/holonymy} (HAS-AS-PART; transitive only with caution),
+        homonyms/homophones/homographs.
+  \item Thesauri organise words by meaning in hierarchies. \textbf{WordNet}: synsets +
+        glosses + relations; nouns in IS-A hierarchies, verbs by entailment.
+  \item \textbf{WSD}: choose the sense in context. \textbf{Lesk}: the sense whose gloss
+        overlaps most with the context (or with the glosses of neighbouring words);
+        sensitive to wording, needs normalisation.
+  \item \textbf{NER}: find and classify names, times, quantities; rules (precision) vs.\
+        statistical (needs annotated data) vs.\ semi-supervised.
+\end{itemize}
+\end{nbsummary}

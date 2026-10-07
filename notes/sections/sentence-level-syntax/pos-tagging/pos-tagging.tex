@@ -1,0 +1,85 @@
+\subsection{Part-of-Speech Tagging}
+\label{sec:pos-tagging}
+\slidesrc{Syntax: sentence, rules: 5--6}
+
+\begin{nbdef}{Part-of-speech tagging}
+\textbf{Part-of-speech tagging} (POS tagging, POST), also called \emph{grammatical
+tagging} or \emph{word-category disambiguation}, is the process of marking each word of
+a text with its part of speech, based on both its \textbf{definition} and its
+\textbf{context}, i.e.\ its relationship with adjacent and related words in a phrase,
+sentence or paragraph.
+\end{nbdef}
+
+(If the categories themselves are fuzzy, see the recap with the Italian equivalents in
+Section~\ref{sec:parts-of-speech}.) The word ``context'' is the whole point: many words have several possible tags, and only
+the sentence tells which one is right.
+
+\begin{nbexample}{the same word, different tags}
+\begin{itemize}[nosep]
+  \item \emph{I \underline{book}/VB a flight} \quad vs.\quad \emph{I read a
+        \underline{book}/NN}.
+  \item \emph{\underline{Time}/NN \underline{flies}/VBZ \underline{like}/IN an arrow}
+        (time passes quickly) \quad vs.\quad \emph{\underline{Time}/VB
+        \underline{flies}/NNS \underline{like}/IN an arrow} (measure the speed of flies as
+        you would an arrow) \quad vs.\quad \emph{Time/NN \underline{flies}/NNS
+        \underline{like}/VBP an arrow} (``time flies'', a kind of fly, are fond of an
+        arrow).
+\end{itemize}
+\end{nbexample}
+
+\subsubsection{The Penn Treebank tagset}
+\slidesrc{Syntax: sentence, rules: 6}
+
+The most widely used set of tags for English is the \textbf{Penn Treebank} tagset, with
+36 word tags:
+
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}r l l @{\hspace{1.2cm}} r l l@{}}
+\toprule
+ & \textbf{Tag} & \textbf{Description} & & \textbf{Tag} & \textbf{Description} \\
+\midrule
+1  & CC   & coordinating conjunction       & 19 & PRP\$ & possessive pronoun \\
+2  & CD   & cardinal number                & 20 & RB    & adverb \\
+3  & DT   & determiner                     & 21 & RBR   & adverb, comparative \\
+4  & EX   & existential \emph{there}       & 22 & RBS   & adverb, superlative \\
+5  & FW   & foreign word                   & 23 & RP    & particle \\
+6  & IN   & preposition / subord.\ conj.   & 24 & SYM   & symbol \\
+7  & JJ   & adjective                      & 25 & TO    & \emph{to} \\
+8  & JJR  & adjective, comparative         & 26 & UH    & interjection \\
+9  & JJS  & adjective, superlative         & 27 & VB    & verb, base form \\
+10 & LS   & list item marker               & 28 & VBD   & verb, past tense \\
+11 & MD   & modal                          & 29 & VBG   & verb, gerund / present participle \\
+12 & NN   & noun, singular or mass         & 30 & VBN   & verb, past participle \\
+13 & NNS  & noun, plural                   & 31 & VBP   & verb, non-3rd person sing.\ present \\
+14 & NNP  & proper noun, singular          & 32 & VBZ   & verb, 3rd person sing.\ present \\
+15 & NNPS & proper noun, plural            & 33 & WDT   & \emph{wh}-determiner \\
+16 & PDT  & predeterminer                  & 34 & WP    & \emph{wh}-pronoun \\
+17 & POS  & possessive ending              & 35 & WP\$  & possessive \emph{wh}-pronoun \\
+18 & PRP  & personal pronoun               & 36 & WRB   & \emph{wh}-adverb \\
+\bottomrule
+\end{tabular}
+\captionof{table}{The Penn Treebank POS tagset.}
+\end{center}
+
+\begin{nbintuition}[reading the tags]
+The tags encode morphology (Section~\ref{sec:morphology}): NN/NNS differ by the plural
+inflection, VB/VBD/VBG/VBN/VBP/VBZ by the verb's inflection, JJ/JJR/JJS by comparison.
+So a tagger is also, partly, a morphological analyser, and the tag is what a lemmatiser
+needs to choose the right lemma (Section~\ref{sec:stemming-lemmatization}).
+\end{nbintuition}
+
+\begin{nbexample}{a tagged sentence}
+\emph{The/DT boy/NN 's/POS cars/NNS are/VBP different/JJ colors/NNS ./.}
+\end{nbexample}
+
+Online taggers to try: \url{http://parts-of-speech.info/} and Stanford CoreNLP,
+\url{https://corenlp.run/}.
+
+There are two families of approaches, both covered in this course:
+\begin{itemize}[nosep]
+  \item \textbf{rule-based} (deductive): a grammar and a parser decide the tags as a
+        by-product of the structure of the sentence (Section~\ref{sec:grammars-parsing});
+  \item \textbf{statistical} (inductive): a model learnt from a tagged corpus picks the
+        most probable sequence of tags (Section~\ref{sec:hmm-pos-tagging}).
+\end{itemize}

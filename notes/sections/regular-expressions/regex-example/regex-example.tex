@@ -1,0 +1,46 @@
+\subsection{Worked Example: Finding ``the''}
+\label{sec:regex-example}
+\slidesrc{Syntax: RE \& word: 9}
+
+\textbf{Task}: find all instances of the word ``the'' in a text. Writing the right pattern
+takes a few attempts, and each attempt fixes one kind of error. We test them on
+\begin{center}
+\emph{The other day the theology student said: the end.}
+\end{center}
+
+\begin{nbexample}{three attempts}
+\begin{enumerate}
+  \item \re{the}: matches \emph{the} three times, but also the \emph{the} inside
+        \emph{o\underline{the}r} and \emph{\underline{the}ology}, and it
+        \textbf{misses} the capitalised \emph{The} at the start.
+  \item \re{[tT]he}: now \emph{The} is found, but it still \textbf{incorrectly returns}
+        the \emph{the} inside \emph{other} and \emph{theology}.
+  \item \re{[\textasciicircum a-zA-Z][tT]he[\textasciicircum a-zA-Z]}: ``the'' must be
+        surrounded by non-letters, so \emph{other} and \emph{theology} are excluded.
+\end{enumerate}
+\end{nbexample}
+
+Two kinds of errors appeared, and they are exactly the two denominators of precision and
+recall (Section~\ref{sec:precision-recall}):
+\begin{itemize}[nosep]
+  \item \textbf{false positives}: matching strings we should not have matched
+        (\emph{other}, \emph{theology}). Reducing them increases \textbf{precision};
+  \item \textbf{false negatives}: not matching strings we should have matched
+        (\emph{The}). Reducing them increases \textbf{recall}.
+\end{itemize}
+Fixing one kind of error often introduces the other, so building a pattern is a
+continuous trade-off between the two.
+
+\begin{nbwarning}[attempt 3 is still not perfect]
+\re{[\textasciicircum a-zA-Z][tT]he[\textasciicircum a-zA-Z]} requires a character
+\emph{before} and \emph{after} the word, so it misses ``The'' at the very beginning of a
+line (there is no character before it) and a ``the'' at the very end. It also includes
+the surrounding spaces in the match. Two common fixes:
+\begin{itemize}[nosep]
+  \item allow the start/end of the line as alternatives:
+        \re{(\textasciicircum|[\textasciicircum a-zA-Z])[tT]he([\textasciicircum a-zA-Z]|\$)};
+  \item use the \emph{word boundary} anchor \re{\textbackslash b} (available in Python
+        and most regex engines): \re{\textbackslash b[tT]he\textbackslash b} matches
+        \emph{The}, \emph{the}, \emph{the} and nothing else in the test sentence.
+\end{itemize}
+\end{nbwarning}

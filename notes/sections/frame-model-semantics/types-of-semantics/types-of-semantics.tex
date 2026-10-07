@@ -1,0 +1,77 @@
+\subsection{Three Types of Semantics}
+\label{sec:types-of-semantics}
+\slidesrc{Other semantics: 19--22}
+
+One sentence, three views:
+\begin{center}
+\emph{\textbf{Every} non-blue block is next to \textbf{some} blue block.}
+\end{center}
+
+\begin{itemize}
+  \item \textbf{Distributional semantics}: \emph{block} is like \emph{brick},
+        \emph{some} is like \emph{every}. True as far as usage goes (they appear in
+        similar contexts), and fatal for meaning: swapping \emph{every} and \emph{some}
+        changes what the sentence says completely.
+  \item \textbf{Frame semantics}: \emph{is next to} has two arguments, \emph{block} and
+        \emph{block}. It identifies the structure, but not the truth.
+  \item \textbf{Model-theoretic semantics}: tells the difference between these two
+        situations (``models''):
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[blk/.style={draw, minimum size=0.7cm, font=\small\bfseries, text=white}]
+  \node[blk, fill=nbred]   at (0,0)   {1};
+  \node[blk, fill=nbblue]  at (0.75,0) {2};
+  \node[blk, fill=nbgreen] at (2.0,0) {3};
+  \node[blk, fill=nbblue]  at (2.75,0) {4};
+  \node[font=\small] at (1.4,-0.8) {world A: the sentence is \textbf{true}};
+  \begin{scope}[xshift=6cm]
+  \node[blk, fill=nbred]   at (0,0)   {1};
+  \node[blk, fill=nbred]   at (0.75,0) {2};
+  \node[blk, fill=nbgreen] at (2.0,0) {3};
+  \node[blk, fill=nbblue]  at (2.75,0) {4};
+  \node[font=\small] at (1.4,-0.8) {world B: the sentence is \textbf{false}};
+  \end{scope}
+\end{tikzpicture}
+\captionof{figure}{Two worlds; blocks 1--2 and 3--4 are next to each other.}
+\end{center}
+
+\begin{nbexample}{evaluating the sentence in each world}
+In logic the sentence is
+\[
+  \forall x\, \bigl(\neg\mathit{blue}(x) \rightarrow \exists y\, (\mathit{blue}(y) \wedge
+  \mathit{nextTo}(x, y))\bigr).
+\]
+The non-blue blocks are 1 and 3 in world A, 1, 2 and 3 in world B.
+\begin{itemize}[nosep]
+  \item World A: block 1 is next to 2 (blue), block 3 is next to 4 (blue): every
+        non-blue block has a blue neighbour. \textbf{True}.
+  \item World B: block 1 is next to 2, which is red, and to nothing else. \textbf{False}
+        (one counterexample is enough for $\forall$).
+\end{itemize}
+\end{nbexample}
+
+\begin{nbdef}{Model-theoretic semantics}
+The meaning of a sentence is given by its \textbf{truth conditions}: the set of
+situations (\emph{models} of the world) in which it is true. Understanding a sentence
+means being able to decide, given a model, whether it is true; more generally, to map
+the sentence to a formal representation (a logical form, a query, a program) that can be
+\emph{evaluated} against the world.
+\end{nbdef}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Type} & \textbf{Represents a meaning as\ldots} & \textbf{Good at / misses} \\
+\midrule
+Distributional & a vector of contexts (Section~\ref{sec:distributional-semantics}) &
+  similarity, learnt automatically / no structure, no truth \\
+Frame & a frame with roles (Section~\ref{sec:frame-semantics}) &
+  who did what to whom / no logic (\emph{every}, \emph{not}) \\
+Model-theoretic & truth conditions, a logical form or program &
+  precise reasoning, answers / hard to obtain from free text \\
+\bottomrule
+\end{tabularx}
+\captionof{table}{The three types of semantics compared.}
+\end{center}

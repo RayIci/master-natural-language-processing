@@ -1,0 +1,283 @@
+\subsection{Stemming and Lemmatisation}
+\label{sec:stemming-lemmatization}
+\slidesrc{Syntax: RE \& word: 48--65}
+
+\subsubsection{The goal: one form for many}
+\slidesrc{Syntax: RE \& word: 48}
+
+Documents use different forms of a word: \emph{organize}, \emph{organizes},
+\emph{organizing} (inflectional morphemes, Section~\ref{sec:morphology}); and there are
+families of derivationally related words with similar meanings: \emph{democratic},
+\emph{democratization} (derivational morphemes). For a search, it is often useful that
+a query for one of these words also returns documents containing another word of the
+same set.
+
+The goal of both stemming and lemmatisation is to \textbf{reduce inflectional forms, and
+sometimes derivationally related forms, of a word to a common base form}:
+\begin{align*}
+  \text{am, are, is} &\;\to\; \text{be}\\
+  \text{car, cars, car's, cars'} &\;\to\; \text{car}\\
+  \text{the boy's cars are different colors} &\;\to\; \text{the boy car be differ color}
+\end{align*}
+
+\subsubsection{Stemming vs.\ lemmatisation}
+\slidesrc{Syntax: RE \& word: 49}
+
+\begin{nbdef}{Stemming and lemmatisation}
+\begin{itemize}[nosep]
+  \item \textbf{Stemming} is a \emph{crude heuristic} process that chops off the ends of
+        words, hoping to get it right most of the time. It often removes derivational
+        affixes too. The result, the \emph{stem}, need not be a real word.
+  \item \textbf{Lemmatisation} does things properly, with a \emph{vocabulary} and a
+        \emph{morphological analysis} of words. It normally removes inflectional endings
+        only and returns the base or dictionary form of the word, the \textbf{lemma}.
+\end{itemize}
+Stemming most commonly collapses derivationally related words; lemmatisation commonly
+collapses only the different inflectional forms of a lemma.
+\end{nbdef}
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Word} & \textbf{Porter stem} & \textbf{Lemma} \\
+\midrule
+are          & ar       & be \\
+theses       & these    & thesis \\
+universal    & univers  & universal \\
+university   & univers  & university \\
+generalizations & gener & generalization \\
+\bottomrule
+\end{tabular}
+\captionof{table}{A stemmer chops, a lemmatiser looks words up. Stems are not words, and
+unrelated words can end up with the same stem.}
+\end{center}
+
+\subsubsection{The Porter stemmer}
+\slidesrc{Syntax: RE \& word: 50--52}
+
+The \textbf{Porter stemmer} (Martin Porter, 1980) is the classic stemming algorithm for
+English. It is a simple \textbf{rule-based} and \textbf{heuristic} method: a cascade of
+suffix-rewriting rules such as \textsc{ational} $\to$ \textsc{ate}
+(\emph{relational} $\to$ \emph{relate}), applied in sets, in order. The slides present
+it in seven steps.
+
+\paragraph{Consonants, vowels and the measure.}
+\begin{itemize}[nosep]
+  \item A \textbf{consonant} is a letter other than \texttt{a}, \texttt{e}, \texttt{i},
+        \texttt{o}, \texttt{u}, and other than \texttt{y} when preceded by a consonant.
+        A \textbf{vowel} is any other letter. (So the \texttt{y} of \emph{toy} is a
+        consonant, the \texttt{y} of \emph{happy} is a vowel.)
+  \item Write $C$ for a sequence of one or more consonants and $V$ for a sequence of one
+        or more vowels. Then \emph{every} word has the form
+        \[ [C]\,(VC)^{m}\,[V] \]
+        where the square brackets mean ``optional''. The number $m$ is the
+        \textbf{measure} of the word (or stem): roughly, its number of syllables.
+\end{itemize}
+
+\begin{nbexample}{measures}
+\begin{center}
+\small
+\begin{tabular}{@{}l l l c@{}}
+\toprule
+\textbf{Word} & \textbf{Letters as C/V} & \textbf{Form} & $m$ \\
+\midrule
+tree     & tr$\cdot$ee                        & $C\,V$                & 0 \\
+trouble  & tr$\cdot$ou$\cdot$bl$\cdot$e       & $C\,(VC)\,V$          & 1 \\
+troubles & tr$\cdot$ou$\cdot$bl$\cdot$e$\cdot$s & $C\,(VC)(VC)$       & 2 \\
+oaten    & oa$\cdot$t$\cdot$e$\cdot$n         & $(VC)(VC)$            & 2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The slides write \emph{troubles} as ``C V CVC'': grouping it as $C\,(VC)(VC)$ gives
+$m = 2$.
+\end{nbexample}
+
+\paragraph{Rule format.} Each rule has the form \quad(\emph{condition})\; $S_1 \to S_2$
+\quad: if the word ends with suffix $S_1$ and the \emph{stem} (what is left after
+removing $S_1$) satisfies the condition, $S_1$ is replaced by $S_2$. The conditions are:
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{Condition} & \textbf{Meaning} \\
+\midrule
+$m > k$, $m = k$ & the measure of the stem \\
+\texttt{*S}  & the stem ends with the letter \texttt{S} (similarly \texttt{*L}, \texttt{*Z}) \\
+\texttt{*v*} & the stem contains a vowel \\
+\texttt{*d}  & the stem ends with a double consonant (e.g.\ \texttt{-tt}, \texttt{-ss}) \\
+\texttt{*o}  & the stem ends with $cvc$, where the second $c$ is not \texttt{w}, \texttt{x}, \texttt{y} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The measure condition is what makes the stemmer safe on short words: (\emph{m}$>$0)
+\textsc{ness} $\to \varepsilon$ turns \emph{goodness} into \emph{good}, but it would not
+touch a hypothetical word whose stem would be empty.
+
+\subsubsection{The seven steps}
+\slidesrc{Syntax: RE \& word: 53--58}
+
+In the rules, $\varepsilon$ is the empty string (the suffix is deleted).
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{1.9cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Step} & \textbf{Rules} & \textbf{Examples} \\
+\midrule
+1 (plurals) & \textsc{sses}$\to$\textsc{ss};\; \textsc{ies}$\to$\textsc{i};\;
+  \textsc{ss}$\to$\textsc{ss};\; \textsc{s}$\to\varepsilon$ &
+  caresses$\to$caress, ponies$\to$poni, ties$\to$ti, caress$\to$caress, cats$\to$cat \\
+\addlinespace
+2a (\emph{-ed}, \emph{-ing}) & ($m{>}0$) \textsc{eed}$\to$\textsc{ee};\;
+  (\texttt{*v*}) \textsc{ed}$\to\varepsilon$;\; (\texttt{*v*}) \textsc{ing}$\to\varepsilon$ &
+  agreed$\to$agree, feed$\to$feed; plastered$\to$plaster, bled$\to$bled;
+  motoring$\to$motor, sing$\to$sing \\
+\addlinespace
+2b (clean-up, only if the 2nd or 3rd rule of 2a fired) &
+  \textsc{at}$\to$\textsc{ate};\; \textsc{bl}$\to$\textsc{ble};\;
+  (\texttt{*d} and not \texttt{*L}, \texttt{*S}, \texttt{*Z}) $\to$ single letter;\;
+  ($m{=}1$ and \texttt{*o}) $\to$ \textsc{e} &
+  conflat(ed)$\to$conflate, troubl(ing)$\to$trouble, hopp(ing)$\to$hop,
+  tann(ed)$\to$tan, fall(ing)$\to$fall, fil(ing)$\to$file, fail$\to$fail \\
+\addlinespace
+3 (\emph{y}) & (\texttt{*v*}) \textsc{y}$\to$\textsc{i} & happy$\to$happi, sky$\to$sky \\
+\addlinespace
+4 (derivational I) & ($m{>}0$) \textsc{ational}$\to$\textsc{ate};\;
+  \textsc{ization}$\to$\textsc{ize};\; \textsc{biliti}$\to$\textsc{ble};\; \ldots &
+  relational$\to$relate, generalization$\to$generalize, sensibiliti$\to$sensible \\
+\addlinespace
+5 (derivational II) & ($m{>}0$) \textsc{icate}$\to$\textsc{ic};\;
+  \textsc{ful}$\to\varepsilon$;\; \textsc{ness}$\to\varepsilon$;\; \ldots &
+  triplicate$\to$triplic, hopeful$\to$hope, goodness$\to$good \\
+\addlinespace
+6 (derivational III) & ($m{>}1$) \textsc{ance}, \textsc{ent}, \textsc{ive},
+  \textsc{er}, \textsc{al}, \textsc{ant}, \ldots $\to\varepsilon$ &
+  allowance$\to$allow, dependent$\to$depend, effective$\to$effect \\
+\addlinespace
+7a (final \emph{e}) & ($m{>}1$) \textsc{e}$\to\varepsilon$;\;
+  ($m{=}1$ and not \texttt{*o}) \textsc{e}$\to\varepsilon$ & probate$\to$probat,
+  cease$\to$ceas \\
+\addlinespace
+7b (double \emph{l}) & ($m{>}1$ and \texttt{*d} and \texttt{*L}) $\to$ single letter &
+  controll$\to$control, roll$\to$roll \\
+\bottomrule
+\end{tabularx}
+\captionof{table}{The Porter stemmer as presented in the slides (in Porter's paper the
+same rules are numbered 1a, 1b, 1c, 2, 3, 4, 5a, 5b).}
+\end{center}
+
+\begin{nbwarning}[corrections to the Porter slides]
+\begin{itemize}[nosep]
+  \item \textbf{Consonant definition}: the slide reads ``a letter other than A, E, I, O,
+        U, and Y preceded by consonant''. Porter's definition is ``other than A, E, I, O,
+        U, \emph{and other than} Y preceded by a consonant'': a Y after a consonant is a
+        vowel (\emph{happy}), otherwise a consonant (\emph{toy}).
+  \item \textbf{Step 2a}: the slide writes the condition of \textsc{eed} as $m>1$, then
+        uses \emph{agreed} $\to$ \emph{agree} as an example, but \emph{agr} has $m=1$.
+        Porter's rule is $(m>0)$ \textsc{eed} $\to$ \textsc{ee}, as in the table above.
+  \item \textbf{Step 7a}: the slide's second rule is ``($m{=}1$ and not \texttt{*o})
+        \textsc{ness} $\to \varepsilon$'' with \emph{goodness} as the example (copied
+        from step 5). In Porter's algorithm this rule removes a final \textsc{e}:
+        \emph{cease} $\to$ \emph{ceas}.
+\end{itemize}
+\end{nbwarning}
+
+\subsubsection{Examples and problems}
+\slidesrc{Syntax: RE \& word: 59--62}
+
+\begin{nbexample}{running the steps}
+\begin{itemize}[nosep]
+  \item \emph{controlling} $\xrightarrow{\text{2a: } -\textsc{ing}}$ \emph{controll}
+        $\xrightarrow{\text{7b}}$ \emph{control}.
+  \item \emph{singing} $\xrightarrow{\text{2a: } -\textsc{ing}}$ \emph{sing} (no further
+        rule applies).
+  \item \emph{computers} $\xrightarrow{\text{1: } -\textsc{s}}$ \emph{computer}
+        $\xrightarrow{\text{6: } -\textsc{er}}$ \emph{comput}.
+  \item \emph{generalizations} $\xrightarrow{\text{1}}$ \emph{generalization}
+        $\xrightarrow{\text{4: \textsc{ization}}\to\textsc{ize}}$ \emph{generalize}
+        $\xrightarrow{\text{5: \textsc{alize}}\to\textsc{al}}$ \emph{general}
+        $\xrightarrow{\text{6: } -\textsc{al}}$ \emph{gener}.
+\end{itemize}
+\end{nbexample}
+
+\begin{nbwarning}[the examples slide]
+On the slide, \emph{singing} ends with ``Step 6, Rule 4 $\to$ compute'', a line copied
+from the \emph{computers} example: \emph{singing} simply becomes \emph{sing}. The slide
+also stops \emph{computers} at \emph{compute} and \emph{generalizations} at
+\emph{general}. Running the complete algorithm (e.g.\ NLTK's implementation) gives
+\emph{comput} and \emph{gener}: stems are not required to be words, and Porter's
+algorithm removes \textsc{er} and \textsc{al} in its last derivational step.
+\end{nbwarning}
+
+\paragraph{Problems.} Being heuristic, the stemmer makes two kinds of errors:
+\begin{itemize}[nosep]
+  \item \textbf{over-stemming}: unrelated words get the same stem. \emph{elephants}
+        $\to$ \emph{elephant} (step 1) $\to$ \emph{eleph} (step 6 removes \textsc{ant} as
+        if it were a suffix); \emph{university} and \emph{universal} both become
+        \emph{univers};
+  \item \textbf{under-stemming}: forms of the same word get different stems.
+        \emph{thesis} $\to$ \emph{thesi} but \emph{theses} $\to$ \emph{these}.
+\end{itemize}
+The slides also list \emph{doing} $\to$ \emph{doe} as a problem; the standard algorithm
+actually returns \emph{do} for \emph{doing} (the \textsc{e} of step 2b is added only when
+$m=1$, and \emph{do} has $m=0$).
+
+References: Porter, M.\,F.\ (1980), \emph{An algorithm for suffix stripping},
+Program 14(3):130--137; the Porter stemmer home page
+\url{https://tartarus.org/martin/PorterStemmer/}; Jurafsky and Martin, Section~3.4.
+Online demos: \url{https://9ol.es/porter_js_demo.html}; stemmers for other languages:
+\url{http://text-processing.com/demo/stem/}.
+
+\subsubsection{Two texts to test a stemmer}
+\slidesrc{Syntax: RE \& word: 63--65}
+
+The slides propose two short texts full of traps. Here is what a real stemmer does with
+them.
+
+\begin{nbexample}{Italian: a Snowball stemmer}
+\emph{Sono stato in uno stato il cui statuto prevede che la biscia non possa entrare in
+una bisca. Una messe di polemiche è piovuta sullo statuto, per le limitazioni messe
+alla biscia, che è andata a messa insieme al console per consolarsi.}
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Words} & \textbf{Meanings} & \textbf{Stem} \\
+\midrule
+stato, stato, statuto & ``been'', ``state'', ``statute'' & \emph{stat} \\
+biscia, bisca & ``grass snake'', ``gambling den'' & \emph{bisc} \\
+messe, messe, messa & ``harvest'', ``put'' (participle), ``mass'' & \emph{mess} \\
+console, consolarsi & ``consul'', ``to console oneself'' & \emph{consol} \\
+\bottomrule
+\end{tabular}
+\end{center}
+Every group is over-stemmed: completely unrelated words collapse. Even a lemmatiser
+needs context here: the two \emph{stato} have different lemmas (\emph{essere}, the verb;
+\emph{stato}, the noun), and only the part of speech tells them apart
+(Section~\ref{sec:pos-tagging}).
+\end{nbexample}
+
+\begin{nbexample}{English: Miss Marple}
+\emph{Once Miss Marple had a cold and she went to the doctor: ``I go!'', she said, and she
+read the doctor's doctoral thesis. ``These are good theses!'', and -- although she missed
+her train -- Miss Marple understood that University has a universal mission.}
+
+Porter gives: \emph{Miss}, \emph{missed} $\to$ \emph{miss} (a title and a verb merged);
+\emph{doctor}, \emph{doctoral} $\to$ \emph{doctor}; \emph{University}, \emph{universal}
+$\to$ \emph{univers}; \emph{theses} $\to$ \emph{these}, the same as the pronoun
+\emph{These}, while \emph{thesis} $\to$ \emph{thesi}; \emph{has} $\to$ \emph{ha};
+\emph{are} $\to$ \emph{ar}. A lemmatiser instead returns \emph{thesis} for
+\emph{theses}, \emph{be} for \emph{are}, \emph{have} for \emph{has}, and keeps
+\emph{university} and \emph{universal} apart.
+\end{nbexample}
+
+\begin{nbintuition}[which one to use]
+Stemming is fast, needs no dictionary and increases \emph{recall} in search (more forms
+of a word are found), at the price of \emph{precision} (unrelated words are merged).
+Lemmatisation is slower and needs a vocabulary and often the part of speech, but its
+output is made of real words. Choose according to which kind of error hurts your
+application more.
+\end{nbintuition}

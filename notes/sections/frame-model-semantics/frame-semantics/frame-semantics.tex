@@ -1,0 +1,112 @@
+\subsection{Frame Semantics}
+\label{sec:frame-semantics}
+\slidesrc{Other semantics: 2--18; Semantics (long version): 10}
+
+\subsubsection{Word meaning revisited}
+\slidesrc{Other semantics: 2--6}
+
+What is the meaning of \emph{sold}?
+\begin{itemize}
+  \item \textbf{Distributional semantics}: all the contexts in which \emph{sold} occurs
+        (\emph{\ldots was sold by\ldots}, \emph{\ldots sold me that piece of\ldots}). It can
+        find similar words and contexts and generalise (e.g.\ with dimensionality
+        reduction), but the representation is \textbf{monolithic}: a word vector has no
+        internal structure, nothing in it says ``there is a seller and a buyer''.
+  \item \textbf{Frame semantics}: the meaning is given by a \textbf{frame}, a
+        stereotypical situation with \textbf{roles} (slots) to be filled.
+\end{itemize}
+
+\begin{nbdef}{Frame}
+A \textbf{frame} is a structured representation of a stereotypical situation, made of
+named \textbf{roles} (frame elements). A word \emph{evokes} the frame, and the sentence
+fills its roles.
+\end{nbdef}
+
+\begin{nbexample}{a commercial transaction}
+\emph{Cynthia sold the bike for \$200.}
+\begin{center}
+\begin{tabular}{@{}l l@{}}
+\multicolumn{2}{@{}l}{\textbf{Commercial transaction}}\\
+\midrule
+\textsc{seller} & Cynthia \\
+\textsc{buyer}  & ? \\
+\textsc{goods}  & the bike \\
+\textsc{price}  & \$200 \\
+\end{tabular}
+\end{center}
+The \textsc{buyer} role stays empty: the sentence does not say who bought the bike, but
+the frame tells us that \emph{someone} did.
+\end{nbexample}
+
+\subsubsection{Two properties of frames}
+\slidesrc{Other semantics: 7--11}
+
+Following Fillmore (1977) and Langacker (1987):
+
+\begin{itemize}
+  \item \textbf{Prototypical}: a frame does not need to handle all the cases. The frame
+        of \emph{widow} is ``a woman marries one man, and the man dies''. What if a woman
+        had three husbands, two of whom died? The frame does not say, and it does not
+        need to: it describes the typical situation.
+  \item \textbf{Profiling}: words evoking the same frame can \emph{highlight} different
+        aspects of it.
+        \begin{itemize}[nosep]
+          \item \emph{sell} is seller-centric, \emph{buy} is buyer-centric:
+                \emph{Cynthia sold the bike (to Bob)} vs.\ \emph{Bob bought the bike
+                (from Cynthia)};
+          \item \emph{rob} highlights the person, \emph{steal} the goods:
+                \emph{Cynthia robbed Bob (of the bike)} vs.\ \emph{Cynthia stole the bike
+                (from Bob)}.
+        \end{itemize}
+        The profiled role becomes the subject or object; the others are optional (in
+        brackets).
+\end{itemize}
+
+\subsubsection{From syntax to semantics}
+\slidesrc{Other semantics: 12--15}
+
+The same situation, with \textsc{seller} Cynthia, \textsc{buyer} Bob, \textsc{goods} the
+bike, \textsc{price} \$200, can be expressed by many \textbf{syntactic alternations},
+with different verbs and different arguments in different positions:
+\begin{itemize}[nosep]
+  \item Cynthia sold the bike to Bob for \$200.
+  \item The bike sold for \$200.
+  \item Bob bought the bike from Cynthia.
+  \item The bike was bought by Bob.
+  \item The bike was bought for \$200.
+  \item The bike was bought for \$200 by Bob.
+\end{itemize}
+The subject is the seller in the first sentence, the goods in the second, the buyer in
+the third. \textbf{Goal}: map \emph{syntactic positions} to \emph{semantic roles}.
+
+\subsubsection{Semantic role labelling}
+\slidesrc{Other semantics: 16--18}
+
+\begin{nbdef}{Semantic role labelling (SRL)}
+Given a sentence, label each relevant phrase with its semantic role in the frame evoked
+by the predicate:
+\begin{center}
+\begin{tabular}{@{}l ccccc@{}}
+\textbf{Input:}  & Cynthia & sold & the bike & to Bob & for \$200 \\
+\textbf{Output:} & \textsc{seller} & \textsc{predicate} & \textsc{goods} & \textsc{buyer} & \textsc{price}
+\end{tabular}
+\end{center}
+Subtasks:
+\begin{enumerate}[nosep]
+  \item \textbf{frame identification}: find the \textsc{predicate} and the frame it
+        evokes;
+  \item \textbf{argument identification}: find the phrases filling \textsc{seller},
+        \textsc{goods}, etc.
+\end{enumerate}
+\end{nbdef}
+
+\begin{nbintuition}[SRL needs syntax]
+\emph{Bob} is the \textsc{buyer} in ``Cynthia sold the bike \emph{to Bob}'' and in
+``\emph{Bob} bought the bike'', but in different syntactic positions. SRL systems
+therefore use the output of POS tagging and parsing
+(Section~\ref{sec:sentence-level-syntax}): syntax is the input of semantics.
+\end{nbintuition}
+
+\textbf{Tools}: \textbf{FrameNet} (\url{https://framenet.icsi.berkeley.edu/}) is a
+lexical database of English frames, with their roles and annotated example sentences;
+see for example the frame \emph{Commerce\_buy}.
