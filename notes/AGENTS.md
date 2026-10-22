@@ -28,6 +28,7 @@
   | `6) distributional-semantics-SHORTENED-VERSION.pdf`           | `Distributional semantics`    |
   | `6) semantics-long-version-not-covered.pdf`                   | `Semantics (long version)`    |
   | `7) other-semantics-simons-nlp-tutorial-SHORTENED-VERSION.pdf`| `Other semantics`             |
+  | `8) NLP-ontologies.pdf`                                       | `Ontologies`                  |
 
   When a deck has a SHORTENED and a long version, the shortened one is what was shown in
   class and is the main source; material taken only from the long version must say so in

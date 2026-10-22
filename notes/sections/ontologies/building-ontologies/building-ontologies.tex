@@ -1,0 +1,64 @@
+\subsection{Building Ontologies: Methodology and Tools}
+\label{sec:building-ontologies}
+\slidesrc{Ontologies: 22--23, 38}
+
+\subsubsection{Ontology Development 101}
+\slidesrc{Ontologies: 22--23}
+
+A widely used methodology is the one of Natalya F.\ Noy and Deborah L.\ McGuinness,
+\emph{Ontology Development 101: A Guide to Creating Your First Ontology} (Stanford
+Knowledge Systems Laboratory, 2001). It has seven steps:
+\begin{enumerate}[nosep]
+  \item determine the \textbf{domain and scope} of the ontology;
+  \item consider \textbf{reusing} existing ontologies;
+  \item enumerate the important \textbf{terms} in the ontology;
+  \item define the \textbf{classes} and the \textbf{class hierarchy};
+  \item define the \textbf{properties} of classes (\emph{slots});
+  \item define the \textbf{facets} of the slots;
+  \item create \textbf{instances}.
+\end{enumerate}
+
+\begin{nbexample}{the seven steps on the wine ontology}
+The guide itself uses wines and foods as its running example, the same domain as
+Figure~\ref{fig:wine-ontology}.
+\begin{enumerate}[nosep]
+  \item \emph{Domain and scope}: wines and foods, to recommend a wine for a meal. Useful
+        \emph{competency questions}: ``which wine goes well with fish?'', ``is
+        Chardonnay a white wine?''.
+  \item \emph{Reuse}: is there already a food or geography ontology we can import?
+  \item \emph{Terms}: wine, white wine, Riesling, producer, colour, sugar, region,
+        fish, red meat, \ldots
+  \item \emph{Classes and hierarchy}: \emph{Riesling} is a subclass of \emph{White
+        wine}, which is a subclass of \emph{Wine}.
+  \item \emph{Slots}: a wine has a \emph{colour}, a \emph{sugar} level, a \emph{maker}
+        (a \emph{Producer}), and \emph{goes well with} some \emph{Food}.
+  \item \emph{Facets} (constraints on slots): \emph{colour} takes one value among
+        \{red, white, rosé\}; \emph{maker} has exactly one value, of class
+        \emph{Producer}.
+  \item \emph{Instances}: a specific bottle, e.g.\ a given producer's Riesling of a
+        given year, as an individual of class \emph{Riesling}.
+\end{enumerate}
+\end{nbexample}
+
+\begin{nbintuition}[terms first, classes later]
+Steps 3--4 mirror what we did with words in lexical semantics: first collect the
+vocabulary of the domain, then decide which terms denote classes, which ones denote
+properties, and arrange the classes in an IS-A hierarchy (the hyponymy relation of
+Section~\ref{sec:lexical-relations}). The process is iterative: the first version of an
+ontology is almost never the final one.
+\end{nbintuition}
+
+\subsubsection{Tools: Protégé}
+\slidesrc{Ontologies: 38}
+
+\textbf{Protégé} (\url{https://protege.stanford.edu/}) is a free, open source ontology
+editor and knowledge-base framework developed at Stanford University. It is written in
+Java, is extensible, and provides a plug-and-play environment that makes it a flexible
+base for rapid prototyping and application development. It supports two main ways of
+modelling ontologies:
+\begin{itemize}[nosep]
+  \item the \textbf{Protégé-Frames} editor, to build and populate \emph{frame-based}
+        ontologies (classes with slots and facets, as in the methodology above);
+  \item the \textbf{Protégé-OWL} editor, to build ontologies for the Semantic Web, in
+        the W3C's OWL language (Section~\ref{sec:ontology-languages}).
+\end{itemize}

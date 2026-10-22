@@ -1,0 +1,206 @@
+\subsection{The Semantic Web}
+\label{sec:semantic-web}
+\slidesrc{Ontologies: 8, 39--48}
+
+\subsubsection{The vision}
+\slidesrc{Ontologies: 8, 40--41}
+
+\begin{nbdef}{Semantic Web}
+``The \textbf{Semantic Web} is not a separate Web but an extension of the current one,
+in which information is given a well-defined meaning, better enabling computers and
+people to work in cooperation.'' (Tim Berners-Lee, James Hendler and Ora Lassila,
+\emph{Scientific American}, May 2001.)
+\end{nbdef}
+
+The same article continues: the Semantic Web will bring structure to the meaningful
+content of Web pages, creating an environment where \textbf{software agents} roaming
+from page to page can readily carry out sophisticated tasks for users. The goals are
+\begin{itemize}[nosep]
+  \item automatic \textbf{discovery} of Web resources and Web services;
+  \item automatic \textbf{composition} of Web resources and Web services;
+  \item automatic \textbf{execution and monitoring} of Web services.
+\end{itemize}
+
+\begin{nbintuition}[why the Web needs ontologies]
+A page saying ``Dr.\ Rossi, Tuesday 10--12, room 506'' is perfectly clear to a human
+and opaque to a program: is it an office hour, a lecture, an appointment? If the page
+also states, in RDF, that this is an instance of \emph{OfficeHour} with properties
+\emph{teacher}, \emph{day} and \emph{room}, defined in a shared ontology, an agent can
+find all office hours of a department, compare them with your calendar and book one.
+Ontologies give the shared vocabulary; RDF gives the format of the facts.
+\end{nbintuition}
+
+\subsubsection{The Semantic Web stack}
+\slidesrc{Ontologies: 42--45}
+
+The Semantic Web technologies are usually drawn as a \textbf{stack of layers}, each
+built on the ones below, like the language evolution of
+Figure~\ref{fig:languages-evolution}. The stack itself evolved over the years.
+
+\begin{center}
+\begin{tikzpicture}[
+    x=1.3cm, y=0.55cm]
+  % ---- 2003 stack
+  \fill[nbgray!25] (0,0) rectangle (1.95,1);
+  \node[font=\scriptsize] at ($(0,0)!0.5!(1.95,1)$) {URI};
+  \fill[nbgray!25] (2.05,0) rectangle (4,1);
+  \node[font=\scriptsize] at ($(2.05,0)!0.5!(4,1)$) {Unicode};
+  \fill[nborange!25] (0,1.1) rectangle (1.95,2.1);
+  \node[font=\scriptsize] at ($(0,1.1)!0.5!(1.95,2.1)$) {XML};
+  \fill[nborange!25] (2.05,1.1) rectangle (4,2.1);
+  \node[font=\scriptsize] at ($(2.05,1.1)!0.5!(4,2.1)$) {Namespaces};
+  \fill[nborange!45] (0.4,2.2) rectangle (3,3.2);
+  \node[font=\scriptsize] at ($(0.4,2.2)!0.5!(3,3.2)$) {RDF M\&S};
+  \fill[nborange!45] (0.6,3.3) rectangle (3,4.3);
+  \node[font=\scriptsize] at ($(0.6,3.3)!0.5!(3,4.3)$) {RDF Schema};
+  \fill[nbblue!20] (0.8,4.4) rectangle (3,5.4);
+  \node[font=\scriptsize] at ($(0.8,4.4)!0.5!(3,5.4)$) {Ontology};
+  \fill[nbgreen!25] (1.2,5.5) rectangle (3,6.5);
+  \node[font=\scriptsize] at ($(1.2,5.5)!0.5!(3,6.5)$) {Rules};
+  \fill[nbgreen!25] (1.0,6.6) rectangle (3,7.8);
+  \node[font=\scriptsize] at ($(1.0,6.6)!0.5!(3,7.8)$) {Logic framework};
+  \fill[nbteal!25] (1.8,7.9) rectangle (3,8.9);
+  \node[font=\scriptsize] at ($(1.8,7.9)!0.5!(3,8.9)$) {Proof};
+  \fill[nbpurple!20] (2.0,9.0) rectangle (3.9,10);
+  \node[font=\scriptsize] at ($(2.0,9.0)!0.5!(3.9,10)$) {Trust};
+  \fill[nbred!25] (3.1,2.2) rectangle (3.5,8.9);
+  \node[font=\scriptsize, rotate=90] at ($(3.1,2.2)!0.5!(3.5,8.9)$) {Signature};
+  \fill[nbred!25] (3.55,2.2) rectangle (3.95,8.9);
+  \node[font=\scriptsize, rotate=90] at ($(3.55,2.2)!0.5!(3.95,8.9)$) {Encryption};
+  \node[font=\small\bfseries] at (2,-0.8) {2003};
+  % ---- 2005 stack
+  \begin{scope}[xshift=7cm]
+  \fill[nbgray!25] (0,0) rectangle (1.95,1);
+  \node[font=\scriptsize] at ($(0,0)!0.5!(1.95,1)$) {URI};
+  \fill[nbgray!25] (2.05,0) rectangle (4,1);
+  \node[font=\scriptsize] at ($(2.05,0)!0.5!(4,1)$) {Unicode};
+  \fill[nborange!25] (0,1.1) rectangle (1.95,2.1);
+  \node[font=\scriptsize] at ($(0,1.1)!0.5!(1.95,2.1)$) {XML};
+  \fill[nborange!25] (2.05,1.1) rectangle (4,2.1);
+  \node[font=\scriptsize] at ($(2.05,1.1)!0.5!(4,2.1)$) {Namespaces};
+  \fill[nbred!45] (0,2.2) rectangle (3,3.2);
+  \node[font=\scriptsize] at ($(0,2.2)!0.5!(3,3.2)$) {RDF Core};
+  \fill[nborange!45] (0.6,3.3) rectangle (3,4.3);
+  \node[font=\scriptsize] at ($(0.6,3.3)!0.5!(3,4.3)$) {RDF Schema};
+  \fill[nborange!45] (0.6,4.4) rectangle (3,5.4);
+  \node[font=\scriptsize] at ($(0.6,4.4)!0.5!(3,5.4)$) {DLP bit of OWL/Rules};
+  \fill[nbblue!20] (0.6,5.5) rectangle (1.75,6.5);
+  \node[font=\scriptsize] at ($(0.6,5.5)!0.5!(1.75,6.5)$) {OWL};
+  \fill[nbgreen!25] (1.85,5.5) rectangle (3,6.5);
+  \node[font=\scriptsize] at ($(1.85,5.5)!0.5!(3,6.5)$) {Rules};
+  \fill[nbblue!35] (0,3.3) rectangle (0.5,6.5);
+  \node[font=\scriptsize, rotate=90] at ($(0,3.3)!0.5!(0.5,6.5)$) {SPARQL};
+  \fill[nbgreen!25] (0.8,6.6) rectangle (3,7.8);
+  \node[font=\scriptsize] at ($(0.8,6.6)!0.5!(3,7.8)$) {Logic framework};
+  \fill[nbteal!25] (1.4,7.9) rectangle (3,8.9);
+  \node[font=\scriptsize] at ($(1.4,7.9)!0.5!(3,8.9)$) {Proof};
+  \fill[nbpurple!20] (2.0,9.0) rectangle (3.9,10);
+  \node[font=\scriptsize] at ($(2.0,9.0)!0.5!(3.9,10)$) {Trust};
+  \fill[nbred!25] (3.1,3.3) rectangle (3.5,8.9);
+  \node[font=\scriptsize, rotate=90] at ($(3.1,3.3)!0.5!(3.5,8.9)$) {Signature};
+  \fill[nbred!25] (3.55,3.3) rectangle (3.95,8.9);
+  \node[font=\scriptsize, rotate=90] at ($(3.55,3.3)!0.5!(3.95,8.9)$) {Encryption};
+  \node[font=\small\bfseries] at (2,-0.8) {2005};
+  \end{scope}
+\end{tikzpicture}
+\captionof{figure}{The Semantic Web stack according to Tim Berners-Lee, in 2003
+(\emph{WWW past \& future}) and in 2005 (\emph{Web for real people}).}
+\label{fig:sw-stack}
+\end{center}
+
+Reading the 2003 stack from the bottom:
+\begin{itemize}[nosep]
+  \item \textbf{URI} and \textbf{Unicode}: how to name any resource, how to write any
+        character;
+  \item \textbf{XML} and \textbf{namespaces}: a common syntax for structured documents,
+        and a way to mix vocabularies without name clashes;
+  \item \textbf{RDF} (model \& syntax) and \textbf{RDF Schema}: facts as triples, and a
+        basic vocabulary of classes and properties
+        (Section~\ref{sec:ontology-languages});
+  \item \textbf{Ontology} (OWL): rich descriptions of the concepts of a domain;
+  \item \textbf{Rules} and \textbf{logic framework}: inference beyond what the ontology
+        language can express;
+  \item \textbf{Proof} and \textbf{Trust}: explaining why a conclusion holds, and
+        deciding whether to believe it (and its sources);
+  \item \textbf{Signature} and \textbf{encryption} run alongside all the upper layers:
+        who said what, and who can read it.
+\end{itemize}
+
+In the 2005 version the ontology layer is split into \textbf{OWL} and \textbf{Rules}
+side by side, sharing a common fragment (\emph{DLP}, the part of OWL that can also be
+written as rules), and the query language \textbf{SPARQL} appears next to them.
+
+\begin{nbfact}{Stack or two towers?}
+Horrocks, Parsia, Patel-Schneider and Hendler (\emph{Semantic Web Architecture: Stack or
+Two Towers?}, 2005) argued that a single stack does not really work: rules with
+\emph{negation as failure} (NAF, as in Prolog and Datalog) and the open-world logic of
+OWL do not combine smoothly. They proposed \textbf{two towers} sharing the bottom layers
+(URI, Unicode, XML, namespaces): one with \emph{DLP/Datalog}, rules and NAF, the other
+with RDF, RDF Schema, OWL and first-order logic (FOL/SCL), possibly joined at the top by
+a common logic framework. As an alternative they also drew a single stack in which the
+rule layer (SWRL) sits \emph{above} OWL and below full FOL. The slides illustrate the
+debate with Genoa landmarks: the two towers of Porta Soprana for the two-towers view,
+the Lanterna (the lighthouse) for the single stack.
+\end{nbfact}
+
+\subsubsection{What is the Semantic Web really about?}
+\slidesrc{Ontologies: 46}
+
+James Hendler (2009) distinguishes three meanings in which the term is used:
+\begin{itemize}[nosep]
+  \item \textbf{Linked Data} (or Web of Data): datasets rendered into RDF, using very
+        simple ontologies (really more like thesauri or vocabularies than AI languages)
+        to provide terms for linking and describing the data;
+  \item \textbf{Web 3.0}: sometimes used as a synonym for Semantic Web; it grew up as a
+        way of explaining how semantics (especially the simple ontologies above) can be
+        integrated with Web 2.0 technologies;
+  \item \textbf{Semantic Web}: some people use it to mean all of the above (Hendler
+        does).
+\end{itemize}
+
+\begin{nbwhy}
+Linked Data is where the Semantic Web had its largest practical impact: resources such
+as DBpedia and Wikidata are huge RDF knowledge graphs (Section~\ref{sec:what-is-an-ontology}),
+and they are used in NLP for entity linking (connecting a name found by NER,
+Section~\ref{sec:named-entity-recognition}, to the entity it denotes), question answering
+and as background knowledge for language models.
+\end{nbwhy}
+
+\subsubsection{Web 4.0 and Web 5.0}
+\slidesrc{Ontologies: 47--48}
+
+\begin{itemize}
+  \item \textbf{Web 4.0}: its services will be autonomous, proactive, self-learning,
+        content-exploring, collaborative and content-generating \textbf{agents}, based on
+        fully matured semantic and reasoning technologies as well as AI. They will
+        support adaptive content presentation through an intelligent agent; examples are
+        services interacting with sensors and implants, natural-language services and
+        virtual reality services.
+  \item \textbf{Web 5.0}: centred on users' \textbf{control over identity} (credentials
+        for all platforms stored on a decentralised platform controlled only by the
+        user, with no identity information collected by the Internet) and \textbf{data
+        ownership} (complete decentralisation: users choose what to share with
+        companies, and store their data with their own blockchain participation).
+\end{itemize}
+As the slides conclude, people no longer seem very interested in numbering the Web
+versions.
+
+\begin{nbsummary}[ontologies and the Semantic Web]
+\begin{itemize}[nosep]
+  \item \textbf{Ontology}: an explicit specification of a conceptualization (Gruber);
+        classes, properties and relations with their meaning and constraints, at the
+        ``semantic'' level, closer to first-order logic than database schemas. Main
+        motivation: \textbf{semantic interoperability}.
+  \item \textbf{Knowledge graph}: interlinked entities and facts described with an
+        ontology; new facts can be inferred.
+  \item \textbf{Methodology} (Noy \& McGuinness): scope, reuse, terms, classes and
+        hierarchy, slots, facets, instances. Tool: \textbf{Protégé}.
+  \item \textbf{RDF}: triples subject--predicate--object, forming a graph.
+        \textbf{RDFS}: classes, \texttt{subClassOf}, properties with domain and range.
+        \textbf{OWL}: richer primitives (disjointness, object vs.\ datatype properties,
+        imports); Full (undecidable), DL (efficient reasoning), Lite (simplest).
+  \item \textbf{Semantic Web}: the Web with machine-understandable meaning, organised as
+        a layered stack (URI/XML $\to$ RDF $\to$ ontologies/rules $\to$ logic, proof,
+        trust); in practice, mostly Linked Data.
+\end{itemize}
+\end{nbsummary}

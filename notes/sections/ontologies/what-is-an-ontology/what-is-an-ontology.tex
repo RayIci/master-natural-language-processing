@@ -1,0 +1,249 @@
+\subsection{What Is an Ontology}
+\label{sec:what-is-an-ontology}
+\slidesrc{Ontologies: 3--7, 10--21}
+
+\subsubsection{Two definitions}
+\slidesrc{Ontologies: 3--7}
+
+The word comes from philosophy, where \emph{ontology} is the study of being. Computer
+science borrowed it in the early 1990s with a much more practical meaning:
+\begin{itemize}[nosep]
+  \item ``The study of that which is common to all things which exist''
+        (Aristotle, \emph{Metaphysics});
+  \item ``\textbf{Explicit specification of a conceptualization}'' (Tom Gruber,
+        \emph{A Translation Approach to Portable Ontology Specifications}, Knowledge
+        Acquisition 5(2):199--220, 1993).
+\end{itemize}
+
+\begin{nbintuition}[reading Gruber's definition]
+A \emph{conceptualization} is the way we carve up a domain: which kinds of things exist
+(wines, producers, foods), how they are related (a wine \emph{is produced by} a
+producer), which constraints hold. It normally lives only in people's heads.
+\emph{Explicit specification} means writing it down, in a formal language, so that it
+can be shared between people and programs and checked by a machine.
+\end{nbintuition}
+
+\subsubsection{Motivation: semantic interoperability}
+\slidesrc{Ontologies: 10--12}
+
+\begin{nbdef}{Semantic interoperability}
+\textbf{Semantic interoperability} is ``the ability of computer systems to exchange data
+with unambiguous, shared meaning''.
+\end{nbdef}
+
+Two systems can exchange bytes perfectly and still disagree on what they mean: is
+\texttt{price} with or without VAT, is \texttt{date} the order date or the shipping
+date? Semantic interoperability has been one of the most active research fields of the
+last twenty-five years: the advent of ontologies in the early nineties, Web Services at
+the beginning of the new millennium, and their combination into Semantic Web Services
+all aim at making the ``semantic interoperability dream'' come true.
+
+\begin{nbwhy}
+The interest is economic as much as scientific. Walker et al.\ (\emph{The Value of
+Healthcare Information Exchange and Interoperability}, Health Affairs, 2005) estimated
+that a fully standardised system for information exchange and interoperability in US
+health care could yield a net value of \textbf{77.8 billion dollars per year} once
+implemented. More recent work (e.g.\ on semantic interoperability in health care, 2018,
+and the European Data Conference on Reference Data and Semantics, 2023) confirms the
+expected advantages.
+\end{nbwhy}
+
+\subsubsection{Gruber's definition, 2008}
+\slidesrc{Ontologies: 13--15}
+
+Fifteen years after his first definition, Gruber gave a more detailed one (\emph{Ontology},
+Encyclopedia of Database Systems, Springer, 2008).
+
+\begin{nbdef}{Ontology (Gruber, 2008)}
+In computer and information science, an \textbf{ontology} defines a set of
+\textbf{representational primitives} with which to model a domain of knowledge or
+discourse. The primitives are typically
+\begin{itemize}[nosep]
+  \item \textbf{classes} (or sets),
+  \item \textbf{attributes} (or properties),
+  \item \textbf{relationships} (relations among class members).
+\end{itemize}
+Their definitions include information about their \emph{meaning} and \emph{constraints}
+on their logically consistent application.
+\end{nbdef}
+
+From the point of view of databases:
+\begin{itemize}[nosep]
+  \item an ontology is a level of abstraction of data models, analogous to hierarchical
+        and relational models, but intended for modelling \emph{knowledge} about
+        individuals, their attributes and their relationships to other individuals;
+  \item ontology languages abstract away from data structures and implementation
+        strategies, and are closer in expressive power to \textbf{first-order logic} than
+        database languages. Ontologies are therefore said to be at the
+        \textbf{``semantic'' level}, database schemas at the ``logical'' or ``physical''
+        level;
+  \item being independent of the lower-level data models, ontologies are used to
+        integrate heterogeneous databases, to make disparate systems interoperate and to
+        specify interfaces to knowledge-based services. In the Semantic Web standards
+        they are an explicit layer (Section~\ref{sec:semantic-web}), with standard
+        languages and many commercial and open source tools.
+\end{itemize}
+
+\subsubsection{An example: a wine ontology}
+\slidesrc{Ontologies: 16}
+
+The slides show a small ontology of wines and foods (in Italian). Each node is a class;
+each child is a subclass (``is a kind of'') of its parent, exactly like the hypernym
+hierarchy of WordNet (Section~\ref{sec:wordnet}).
+
+\begin{center}
+\begin{tikzpicture}[
+    font=\small, x=0.6cm, y=-0.48cm,
+    cls/.style={anchor=west, inner sep=2pt},
+    inner/.style={cls, text=nbblue!80!black},
+    edge/.style={draw=nbgray, thick}]
+  \node[inner] (thing) at (0,0) {Thing};
+  \node[inner] (vino) at (1,1) {Vino \emph{(wine)}};
+  \node[inner] (vb) at (2,2) {Vino Bianco \emph{(white wine)}};
+  \node[cls] (pb) at (3,3) {Pinot Bianco};
+  \node[inner] (ri) at (3,4) {Riesling};
+  \node[cls] (rs) at (4,5) {Riesling Secco \emph{(dry)}};
+  \node[cls] (rd) at (4,6) {Riesling Dolce \emph{(sweet)}};
+  \node[cls] (ch) at (3,7) {Chardonnay};
+  \node[cls] (vr) at (2,8) {Vino Rosso \emph{(red)}};
+  \node[cls] (vro) at (2,9) {Vino Rosè \emph{(rosé)}};
+  \node[cls] (vd) at (2,10) {Vino da dessert \emph{(dessert wine)}};
+  \node[inner] (cibo) at (1,11) {Cibo \emph{(food)}};
+  \node[inner] (carne) at (2,12) {Carne \emph{(meat)}};
+  \node[cls] (cb) at (3,13) {Carni Bianche \emph{(white meat)}};
+  \node[cls] (cr) at (3,14) {Carni Rosse \emph{(red meat)}};
+  \node[inner] (pesce) at (2,15) {Pesce \emph{(fish)}};
+  \node[cls] (ps) at (3,16) {Pesce d'acqua salata \emph{(saltwater)}};
+  \node[cls] (pd) at (3,17) {Pesce d'acqua dolce \emph{(freshwater)}};
+  \node[cls] (prod) at (1,18) {Produttore \emph{(producer)}};
+  \draw[edge] ([xshift=0.3cm]thing.south west) |- (vino.west);
+  \draw[edge] ([xshift=0.3cm]vino.south west) |- (vb.west);
+  \draw[edge] ([xshift=0.3cm]vb.south west) |- (pb.west);
+  \draw[edge] ([xshift=0.3cm]vb.south west) |- (ri.west);
+  \draw[edge] ([xshift=0.3cm]ri.south west) |- (rs.west);
+  \draw[edge] ([xshift=0.3cm]ri.south west) |- (rd.west);
+  \draw[edge] ([xshift=0.3cm]vb.south west) |- (ch.west);
+  \draw[edge] ([xshift=0.3cm]vino.south west) |- (vr.west);
+  \draw[edge] ([xshift=0.3cm]vino.south west) |- (vro.west);
+  \draw[edge] ([xshift=0.3cm]vino.south west) |- (vd.west);
+  \draw[edge] ([xshift=0.3cm]thing.south west) |- (cibo.west);
+  \draw[edge] ([xshift=0.3cm]cibo.south west) |- (carne.west);
+  \draw[edge] ([xshift=0.3cm]carne.south west) |- (cb.west);
+  \draw[edge] ([xshift=0.3cm]carne.south west) |- (cr.west);
+  \draw[edge] ([xshift=0.3cm]cibo.south west) |- (pesce.west);
+  \draw[edge] ([xshift=0.3cm]pesce.south west) |- (ps.west);
+  \draw[edge] ([xshift=0.3cm]pesce.south west) |- (pd.west);
+  \draw[edge] ([xshift=0.3cm]thing.south west) |- (prod.west);
+\end{tikzpicture}
+\captionof{figure}{The wine ontology of the slides as a class hierarchy (translations in
+italics).}
+\label{fig:wine-ontology}
+\end{center}
+
+The slide also labels the \textbf{levels} of the hierarchy: \emph{top level} (the most
+general classes, such as \emph{Vino}), \emph{middle level} (\emph{Vino Bianco},
+\emph{Riesling}, \emph{Chardonnay}, \ldots) and \emph{bottom level} (the most specific
+classes, \emph{Riesling Secco} and \emph{Riesling Dolce}). A full ontology would also
+have \emph{properties} linking the hierarchies, e.g.\ a wine \emph{is made by} a
+\emph{Produttore}, a wine \emph{goes well with} a \emph{Cibo}.
+
+\subsubsection{Ontologies and databases}
+\slidesrc{Ontologies: 17--18}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+ & \textbf{Ontologies} & \textbf{Databases} \\
+\midrule
+Purpose & sharing, reuse, defining semantics & storing large amounts of structured
+  data \\
+Expressive power & close to first-order logic; description logics & not as powerful as
+  first-order logic \\
+Query standards & no consolidated standard, few proposals (e.g.\ SPARQL) & consolidated
+  standards (e.g.\ SQL) \\
+Management systems & Protégé, Jena (not commercial) & many solid commercial tools and
+  environments (Oracle, \ldots) \\
+\bottomrule
+\end{tabularx}
+\captionof{table}{Ontologies and databases compared.}
+\end{center}
+
+\begin{nbwarning}[SPARQL today]
+SPARQL has since become a W3C Recommendation (2008; SPARQL 1.1 in 2013), so it is now the
+standard query language for RDF data, even if it is far less widespread than SQL. The
+comparison in the slides reflects an earlier state of the field.
+\end{nbwarning}
+
+\subsubsection{Knowledge graphs}
+\slidesrc{Ontologies: 19--21}
+
+\begin{nbdef}{Knowledge graph}
+``The heart of the \textbf{knowledge graph} is a knowledge model: a collection of
+interlinked descriptions of concepts, entities, relationships and events. Knowledge
+graphs put data in context via linking and semantic metadata and this way provide a
+framework for data integration, unification, analytics and sharing'' (Ontotext).
+\end{nbdef}
+
+\begin{center}
+\begin{tikzpicture}[
+    font=\scriptsize,
+    ent/.style={circle, draw=none, fill=nbteal!80, text=white, minimum size=1.25cm,
+                align=center, font=\scriptsize\bfseries},
+    co/.style={ent, fill=nbgray!80},
+    typ/.style={ent, fill=nborange!90},
+    rel/.style={-{Stealth}, thick, nbgray},
+    inf/.style={-{Stealth}, thick, dashed, nbred!80},
+    lab/.style={midway, fill=white, inner sep=1pt, font=\tiny}]
+  \node[co]  (big)  at (0,  4.4) {Big\\Bucks\\Café};
+  \node[co]  (glob) at (0,  2.2) {Global\\Invest.\\Inc.};
+  \node[co]  (my)   at (0,  0)   {My\\Local\\Café};
+  \node[ent] (sea)  at (3.4,4.4) {Seattle};
+  \node[ent] (wb)   at (3.4,2.2) {West\\Bay};
+  \node[ent] (nyc)  at (3.4,0)   {New York\\City};
+  \node[ent] (wa)   at (6.8,4.4) {Washing-\\ton};
+  \node[ent] (cay)  at (6.8,2.2) {Cayman\\Island};
+  \node[ent] (ny)   at (6.8,0)   {New\\York};
+  \node[ent] (usa)  at (10.2,2.2) {USA};
+  \node[typ] (ctry) at (10.2,4.4) {Country};
+  \node[typ] (off)  at (10.2,0)   {Offshore\\Zone};
+  \draw[rel] (big)  -- node[lab]{controls}     (glob);
+  \draw[rel] (glob) -- node[lab]{controls}     (my);
+  \draw[rel] (big)  -- node[lab]{located in}   (sea);
+  \draw[rel] (glob) -- node[lab]{located in}   (wb);
+  \draw[rel] (my)   -- node[lab]{located in}   (nyc);
+  \draw[rel] (sea)  -- node[lab]{subregion of} (wa);
+  \draw[rel] (wb)   -- node[lab]{subregion of} (cay);
+  \draw[rel] (nyc)  -- node[lab]{subregion of} (ny);
+  \draw[rel] (wa)   -- node[lab, pos=0.35]{subregion of} (usa);
+  \draw[rel] (ny)   -- node[lab, pos=0.22]{subregion of} (usa);
+  \draw[rel] (usa)  -- node[lab]{type}         (ctry);
+  \draw[rel] (cay)  -- node[lab, pos=0.8]{type} (off);
+  \draw[inf] (big.north) to[bend left=25] node[lab]{located in} (wa.north);
+  \draw[inf] (my.south)  to[bend right=25] node[lab]{located in} (ny.south);
+  \draw[inf] (glob) to[bend left=22] node[lab]{located in} (cay);
+\end{tikzpicture}
+\captionof{figure}{A knowledge graph of companies and places, after the slides. Solid
+arrows are stated facts, dashed arrows are \emph{inferred} facts.}
+\label{fig:knowledge-graph}
+\end{center}
+
+\begin{nbexample}{what the graph lets us infer}
+The stated facts say that \emph{My Local Café} is located in \emph{New York City}, which
+is a subregion of \emph{New York}: since \emph{located in} propagates along
+\emph{subregion of}, the café is also located in New York, and in the USA. Following the
+\emph{controls} links upwards, \emph{My Local Café} is controlled by \emph{Global
+Investment Inc.}, located in West Bay, a subregion of the Cayman Islands, which are an
+\emph{Offshore Zone}. The slide's conclusion, ``discover suspicious relationships'', is
+a query over the graph: \emph{a company controlled by another company from the same
+country through an offshore zone}. A news item saying that ``My Local Café is a network
+of independent coffee shops'' can be checked against it.
+\end{nbexample}
+
+\begin{nbintuition}[ontology vs.\ knowledge graph]
+The two terms overlap heavily. A useful way to keep them apart: the \emph{ontology} is
+the schema (classes such as \emph{Company}, \emph{Region}; properties such as
+\emph{controls}, \emph{located in}; rules such as ``\emph{located in} is transitive
+through \emph{subregion of}''), while the \emph{knowledge graph} is the large network of
+concrete entities and facts described with that schema.
+\end{nbintuition}
