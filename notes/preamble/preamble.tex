@@ -21,6 +21,7 @@
 \usepackage[normalem]{ulem}    % \sout for struck-out text
 \usepackage{tabularx}
 \usepackage{colortbl}         % \cellcolor in tables
+\usepackage{multirow}         % cells spanning rows
 \usepackage{needspace}        % keep a heading together with what follows
 \providecommand{\R}{\mathbb{R}}
 
@@ -130,7 +131,7 @@
 \DeclareMathOperator{\softmax}{softmax}
 
 % source note under a (sub)section heading: \slidesrc{Intro: 5--8; Terminology introduction: 3}
-\newcommand{\slidesrc}[1]{\par\noindent{\footnotesize\color{nbgray}[Slides\,$\cdot$\,#1]}\par\smallskip}
+\newcommand{\slidesrc}[1]{\par\noindent{\footnotesize\raggedright\color{nbgray}[Slides\,$\cdot$\,#1]}\par\smallskip}
 % for (sub)sections whose content is added and not in any slide
 \newcommand{\notinslides}{\par\noindent{\footnotesize\color{nbgray}[Not in the slides: added material]}\par\smallskip}
 
@@ -140,3 +141,33 @@
 
 % Italian translation of an example, shown in green after the English
 \newcommand{\ita}[1]{\leavevmode{\color{nbgreen!70!black}\textit{#1}}}
+
+% ---------------------------------------------------------------------
+%  Blackboard boxes: what the lecturer wrote on the blackboard in class
+%  (rewritten from the photos). Numbered "Blackboard 1, 2, ..." and
+%  collected in the "List of Blackboards" printed after the contents.
+%  usage: \begin{nbblackboard}{<title>}{<source deck names>} ... \end{nbblackboard}
+% ---------------------------------------------------------------------
+\definecolor{nbchalk}{HTML}{1F3D2B}
+\newcounter{nbblackboard}
+\makeatletter
+\newcommand{\listofblackboards}{%
+  \section*{List of Blackboards}%
+  \noindent{\small Tables the lecturer wrote on the blackboard in class, rewritten from
+  the photos. They summarise exam material.}\par\medskip
+  \@starttoc{lob}}
+\newcommand*{\l@nbblackboard}{\@dottedtocline{1}{0em}{6.5em}}
+\makeatother
+\newtcolorbox{nbblackboardbox}[3]{enhanced, arc=3pt, boxrule=2.2pt,
+  left=6pt, right=6pt, top=5pt, bottom=5pt, before skip=12pt, after skip=12pt,
+  colback=nbchalk!4, colframe=nbchalk, coltitle=white,
+  fonttitle=\bfseries, title={BLACKBOARD #1 \,---\, #2},
+  borderline west={5pt}{-7pt}{nborange},
+  attach boxed title to top left={xshift=4mm, yshift=-2.5mm},
+  boxed title style={colback=nbchalk, colframe=nbchalk, arc=2pt},
+  before upper={{\footnotesize\color{nbgray}[Blackboard photo\,$\cdot$\,#3]}\par\smallskip}}
+\newenvironment{nbblackboard}[2]
+  {\refstepcounter{nbblackboard}%
+   \begin{nbblackboardbox}{\thenbblackboard}{#1}{#2}\phantomsection
+   \addcontentsline{lob}{nbblackboard}{\protect\numberline{Blackboard \thenbblackboard}#1}}
+  {\end{nbblackboardbox}}

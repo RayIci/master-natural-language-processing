@@ -1,0 +1,200 @@
+\subsection{N-ary Relations}
+\label{sec:n-ary-relations}
+\slidesrc{Ontology development: 61--73}
+
+\subsubsection{The problem}
+\slidesrc{Ontology development: 61--62}
+
+In OWL (and RDF) a property is a \textbf{binary} relation: an instance of a property
+links two individuals (\emph{Christine} --has\_diagnosis$\to$ \emph{Breast\_Tumor}), or
+an individual and a value. Sometimes, though, the most natural way to describe a
+situation links an individual to \emph{more than one} other individual or value. Such
+relations are called \textbf{n-ary relations}. Three issues arise:
+\begin{enumerate}[nosep]
+  \item how do we describe \emph{an instance of a relation} (e.g.\ attach a probability
+        to a diagnosis)?
+  \item how do we represent relations among more than two individuals?
+        $\Rightarrow$ \textbf{Pattern 1};
+  \item how do we represent a relation in which one participant is an \emph{ordered
+        list} of individuals? $\Rightarrow$ \textbf{Pattern 2}.
+\end{enumerate}
+The solutions come from the W3C Working Group Note \emph{Defining N-ary Relations on the
+Semantic Web} (W3C Semantic Web Best Practices and Deployment Working Group).
+
+\begin{nbexample}{four situations that binary properties cannot express}
+\begin{enumerate}[nosep]
+  \item \emph{Christine has breast tumor with high probability}: a relation first thought
+        to be binary needs a further argument (the probability).
+  \item \emph{Steve has temperature, which is high, but falling}: two binary properties
+        always go together and should be represented as one n-ary relation.
+  \item \emph{John buys a ``Lenny the Lion'' book from books.example.com for \$15 as a
+        birthday gift}: from the beginning, the relation is among several things.
+  \item \emph{United Airlines flight 3177 visits the following airports: LAX, DFW, and
+        JFK}: one argument is fundamentally a \emph{sequence}, not a single individual.
+\end{enumerate}
+\end{nbexample}
+
+\subsubsection{Pattern 1: the relation becomes a class}
+\slidesrc{Ontology development: 63--70}
+
+\begin{nbfact}{Pattern 1 (reification)}
+Represent the relation as a \textbf{class} rather than a property. Each individual
+instance of this class corresponds to one instance of the relation; additional
+properties provide binary links to each argument of the relation. The classes created in
+this way are often called \textbf{reified relations} (to \emph{reify} = to make a thing
+out of something abstract).
+\end{nbfact}
+
+\paragraph{Case 1: additional attributes describing a relation.}
+\emph{Christine has breast tumor with high probability.} We create an individual that
+represents the relation instance itself, with a link from the subject (Christine) to it,
+and links from it to everything else (the diagnosis and its probability).
+
+\begin{center}
+\begin{tikzpicture}[ind/.style={draw, fill=black!5, font=\small, inner sep=3pt},
+    rel/.style={draw=nborange, fill=nborange!25, font=\small, inner sep=3pt},
+    l/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}, ->, >=Stealth]
+  \node[ind] (c) {Christine};
+  \node[rel, right=2.2cm of c] (d) {\_:Diagnosis\_Relation\_1};
+  \node[ind, anchor=west] (t) at ($(d.east)+(2.2,0.9)$) {Breast\_Tumor\_Christine};
+  \node[ind, anchor=west] (h) at ($(d.east)+(2.2,-0.9)$) {HIGH};
+  \draw (c) -- node[l] {has\_diagnosis} (d);
+  \draw (d) -- node[l] {diagnosis\_value} (t);
+  \draw (d) -- node[l] {diagnosis\_probability} (h);
+\end{tikzpicture}
+\captionof{figure}{Pattern 1, case 1: the diagnosis relation becomes an individual.}
+\end{center}
+
+The individual \texttt{\_:Diagnosis\_Relation\_1} is a single object that encapsulates
+both the diagnosis and its probability: it contains all the information of the three
+original arguments (who is diagnosed, what the diagnosis is, how probable it is). In RDF
+such instances are \textbf{blank nodes}: an \texttt{rdf:Description} element without an
+\texttt{rdf:about} attribute, i.e.\ a node without a global name (hence the
+``\texttt{\_:}'' prefix). Class definitions: Person --has\_diagnosis$\to$
+Diagnosis\_Relation (all values from); Diagnosis\_Relation --diagnosis\_value$\to$ Disease
+and --diagnosis\_probability$\to$ Probability (both functional: exactly one value).
+
+\paragraph{Case 2: different aspects of the same relation.}
+\emph{Steve has temperature, which is high, but falling.} This is not a binary relation
+with an extra attribute: it relates the individual Steve to a \emph{complex object}
+representing different facts about his temperature.
+
+\begin{center}
+\begin{tikzpicture}[ind/.style={draw, fill=black!5, font=\small, inner sep=3pt},
+    rel/.style={draw=nborange, fill=nborange!25, font=\small, inner sep=3pt},
+    l/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}, ->, >=Stealth]
+  \node[ind] (s) {Steve};
+  \node[rel, right=2.6cm of s] (o) {\_:Temperature\_Observation\_1};
+  \node[ind, anchor=west] (e) at ($(o.east)+(2.6,0.9)$) {ELEVATED};
+  \node[ind, anchor=west] (f) at ($(o.east)+(2.6,-0.9)$) {FALLING};
+  \draw (s) -- node[l] {has\_temperature} (o);
+  \draw (o) -- node[l] {temperature\_value} (e);
+  \draw (o) -- node[l] {temperature\_trend} (f);
+\end{tikzpicture}
+\captionof{figure}{Pattern 1, case 2: an observation object groups two aspects of
+Steve's temperature.}
+\end{center}
+
+Such cases often appear while an ontology \textbf{evolves}, when one realises that two
+relations must be collapsed into one: initially one might have had two properties,
+\emph{has\_temperature\_level} and \emph{has\_temperature\_trend}, both relating to
+people; then one realises they are inextricably intertwined, because one needs to talk
+about ``temperatures that are elevated but falling''.
+
+\paragraph{Case 3: n-ary relation with no distinguished participant.}
+\emph{John buys a ``Lenny the Lion'' book from books.example.com for \$15 as a birthday
+gift.} The relation links individuals that play different roles, and none of them stands
+out as the ``owner'' of the relation. We create an individual for the relation instance
+with links to \emph{all} participants.
+
+\begin{center}
+\begin{tikzpicture}[ind/.style={draw, fill=black!5, font=\small, inner sep=3pt},
+    rel/.style={draw=nborange, fill=nborange!25, font=\small, inner sep=3pt},
+    l/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}, ->, >=Stealth]
+  \node[rel] (p) at (0,0) {Purchase\_1};
+  \node[ind] (j) at (-6.0,-1.0) {John};
+  \node[ind] (b) at (-4.2,-3.0) {books.example.com};
+  \node[ind] (l) at (0,-3.0) {Lenny\_The\_Lion};
+  \node[ind] (m) at (4.0,-3.0) {Birthday\_Gift};
+  \node[ind] (d) at (6.0,-1.0) {\$15};
+  \draw (p) -- node[l] {has\_buyer} (j);
+  \draw (p) -- node[l] {has\_seller} (b);
+  \draw (p) -- node[l] {has\_object} (l);
+  \draw (p) -- node[l] {has\_purpose} (m);
+  \draw (p) -- node[l] {has\_amount} (d);
+\end{tikzpicture}
+\captionof{figure}{Pattern 1, case 3: a Purchase individual linked to all participants.
+Class level: Purchase --has\_buyer$\to$ Person, --has\_seller$\to$ Company,
+--has\_object$\to$ Object, --has\_purpose$\to$ Purpose, --has\_amount$\to$ Quantity.}
+\end{center}
+
+\begin{nbwarning}[considerations in introducing a new class]
+\begin{itemize}[nosep]
+  \item The individuals that represent relation instances (and often their classes) are
+        not given meaningful names, just labels: they do not stand on their own, they
+        only group other objects together, so a distinguishing name serves no purpose
+        (the same is done when reifying statements in RDF).
+  \item Creating a class to represent an n-ary relation \textbf{limits the use of many
+        OWL constructs} and creates a \textbf{maintenance problem}, especially with
+        inverse relations (the inverse of a 5-ary relation is not a single property).
+\end{itemize}
+\end{nbwarning}
+
+\subsubsection{Pattern 2: lists for arguments in a relation}
+\slidesrc{Ontology development: 71--73}
+
+Some n-ary relations do not fall into the cases above: they are more like a list or
+sequence of arguments. \emph{United Airlines flight 3177 visits the following airports:
+LAX, DFW, and JFK}: the relation holds between the flight and the airports, \emph{in the
+order} in which the aircraft arrives at each one. It might hold between any number of
+arguments, there is no natural way to break it into distinct properties (first\_stop,
+second\_stop, \ldots), and the order is highly meaningful.
+
+\begin{nbfact}{Pattern 2}
+When all participants but one have no specific role and form an ordered list, connect
+them into a \textbf{sequence} with an ordering relation, and relate the one remaining
+participant to the sequence (or to its first element).
+\end{nbfact}
+
+\begin{center}
+\begin{tikzpicture}[ind/.style={draw, fill=black!5, font=\small, inner sep=3pt},
+    rel/.style={draw=nborange, fill=nborange!25, font=\small, inner sep=3pt},
+    l/.style={font=\scriptsize, midway, fill=white, inner sep=1pt}, ->, >=Stealth]
+  \node[ind] (f) at (-0.6,0) {UA\_1377};
+  \node[rel] (s1) at (4,0) {UA\_1377\_1};
+  \node[rel] (s2) at (4,-1.6) {UA\_1377\_2};
+  \node[rel] (s3) at (4,-3.2) {UA\_1377\_3};
+  \node[ind] (a1) at (8,0) {LAX};
+  \node[ind] (a2) at (8,-1.6) {DFW};
+  \node[ind] (a3) at (8,-3.2) {JFK};
+  \draw (f) -- node[l] {flight\_sequence} (s1);
+  \draw (s1) -- node[l] {next\_segment} (s2);
+  \draw (s2) -- node[l] {next\_segment} (s3);
+  \draw (s1) -- node[l] {destination} (a1);
+  \draw (s2) -- node[l] {destination} (a2);
+  \draw (s3) -- node[l] {destination} (a3);
+\end{tikzpicture}
+\captionof{figure}{Pattern 2: the flight points to its first segment; segments are
+chained by \emph{next\_segment}; each segment has a destination.}
+\end{center}
+
+\emph{nextSegment} is an ordering relation between instances of the class
+\emph{FlightSegment}; each segment has a property for its destination. A special
+subclass, \emph{FinalFlightSegment}, has a \textbf{maximum cardinality of 0} on
+\emph{nextSegment}: the last segment has no next one, which marks the end of the
+sequence. (This is how linked lists work in programming: each node points to the next,
+the last points to nothing.)
+
+\begin{nbsummary}[n-ary relations]
+\begin{itemize}[nosep]
+  \item OWL properties are binary; n-ary relations need a pattern.
+  \item Pattern 1 (reified relation): a new class whose instances are the relation
+        instances, with one binary property per argument. Case 1: extra attributes of a
+        relation (diagnosis + probability); case 2: different aspects of one relation
+        (temperature value + trend); case 3: no distinguished participant (purchase).
+        Instances are often blank nodes; drawbacks: fewer OWL constructs usable,
+        maintenance problems with inverses.
+  \item Pattern 2: ordered arguments as a linked sequence (flight segments with
+        \emph{nextSegment}; final segment with max cardinality 0).
+\end{itemize}
+\end{nbsummary}

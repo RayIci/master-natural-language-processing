@@ -1,0 +1,527 @@
+\subsection{Ontology Matching}
+\label{sec:ontology-matching}
+\slidesrc{Ontology matching: 1--14; Ontology matching (long version): 1--112; Ontology
+development: 75--76}
+
+Different people build different ontologies of the same domain: they use different
+names (\emph{PC} vs.\ \emph{Personal Computers}), different structures, different
+languages. To make two systems that use two ontologies work together we must find
+which entity of one corresponds to which entity of the other. This is
+\textbf{ontology matching}. The source is the tutorial by Pavel Shvaiko and Jérôme
+Euzenat (SWAP 2006); the slides shown in class are the definitions of correspondence and
+alignment, the matching process and the application domains; the rest comes from the
+long version.
+
+\subsubsection{The matching problem}
+\slidesrc{Ontology matching (long version): 2--25}
+
+The goals of the tutorial: illustrate the role of ontology matching, give an overview of
+the basic matching techniques, show how state-of-the-art systems use them, and motivate
+future research.
+
+\begin{nbdef}{Matching operation}
+The \textbf{matching} operation takes as input ontologies, each consisting of a set of
+discrete entities (tables, XML elements, classes, properties, \ldots), and determines as
+output the \textbf{relationships} (equivalence, subsumption, \ldots) holding between
+these entities.
+\end{nbdef}
+
+\begin{center}
+\begin{tikzpicture}[n/.style={draw, rounded corners=2pt, font=\small, inner sep=2.5pt},
+    a/.style={font=\small, text=nbgreen!60!black},
+    c/.style={{Stealth}-{Stealth}, thick, nbblue},
+    r/.style={font=\small, fill=white, inner sep=1pt}]
+  % left schema
+  \node[n, anchor=west] (e1)  at (0,0)     {Electronics};
+  \node[n, anchor=west] (pc1) at (0.4,-0.8) {Personal Computers};
+  \node[n, anchor=west] (mp1) at (0.8,-1.6) {Microprocessors};
+  \node[a, anchor=west]       at (1.2,-2.3) {PID, Name, Quantity, Price};
+  \node[n, anchor=west] (ac1) at (0.4,-3.0) {Accessories};
+  \node[n, anchor=west] (ph1) at (0.4,-3.8) {Photo and Cameras};
+  \node[a, anchor=west]       at (0.8,-4.5) {PID, Name, Quantity, Price};
+  % right schema
+  \node[n, anchor=east] (e2)  at (13,0)     {Electronics};
+  \node[n, anchor=east] (pc2) at (12.6,-0.8) {PC};
+  \node[n, anchor=east] (mp2) at (12.2,-1.6) {PC board};
+  \node[a, anchor=east]       at (11.8,-2.3) {ID, Brand, Amount, Price};
+  \node[n, anchor=east] (cp2) at (12.6,-3.0) {Cameras and Photo};
+  \node[n, anchor=east] (ac2) at (12.2,-3.8) {Accessories};
+  \node[n, anchor=east] (dc2) at (12.2,-4.6) {Digital Cameras};
+  \node[a, anchor=east]       at (11.8,-5.3) {ID, Brand, Amount, Price};
+  \draw[c] (e1) -- node[r] {$=$} (e2);
+  \draw[c] (pc1) -- node[r] {$=$} (pc2);
+  \draw[c] (mp1) -- node[r] {$\perp$} (mp2);
+  \draw[c] (ph1.east) -- node[r, pos=0.5] {$=$} (cp2.west);
+  \draw[c] (ph1.east) -- node[r, pos=0.6] {$\ge$} (dc2.west);
+\end{tikzpicture}
+\captionof{figure}{Motivation: two XML schemas of an electronics catalogue (redrawn,
+simplified). Blue arrows are correspondences: equal ($=$), more general ($\ge$),
+disjoint ($\perp$). Among the attributes (green): Name $\ge$ Brand, Quantity $=$
+Amount, Price $=$ Price.}
+\label{fig:xml-schemas}
+\end{center}
+
+\begin{nbexample}{reading Figure~\ref{fig:xml-schemas}}
+\emph{Personal Computers} on the left is the same as \emph{PC} on the right (equivalence,
+found e.g.\ by expanding the abbreviation). \emph{Microprocessors} and \emph{PC board}
+are disjoint: nothing is both. \emph{Photo and Cameras} is more general than
+\emph{Digital Cameras}. Among the attributes, \emph{Quantity} = \emph{Amount}
+(synonyms), and \emph{Name} is more general than \emph{Brand} (a brand is a kind of
+name). The second motivating example in the slides does the same with two
+\emph{ontologies} of products and books (\emph{Product} vs.\ \emph{Monograph},
+\emph{creator} vs.\ \emph{author}, \emph{Person} vs.\ \emph{Human}), including
+instances such as ``Bertrand Russell: My life'' (an Autobiography) and ``Albert Camus:
+La chute'' (Literature).
+\end{nbexample}
+
+\paragraph{Schema matching vs.\ ontology matching.}
+\textbf{Differences}: schemas often do not give explicit semantics for their data;
+relational schemas provide no generalisation (no is-a); ontologies are logical systems
+that constrain the meaning, defined as sets of logical axioms. \textbf{Commonalities}:
+both provide a vocabulary of terms that describes a domain of interest, and both
+constrain the meaning of these terms. Techniques developed for both problems are of
+mutual benefit.
+
+\paragraph{Scope.}
+Heterogeneity between ontologies can occur when different \emph{languages} are used
+(OWL vs.\ XML schema), different \emph{terminologies} (\emph{car} vs.\
+\emph{automobile}), different \emph{modelling} (colour as a property vs.\ as a class),
+\ldots\ Reducing heterogeneity takes two steps: \textbf{match}, which determines the
+alignment, and \textbf{process the alignment} (merging, transforming, \ldots). Matching
+can happen at \textbf{design time} (by the developers, before the system runs) or at
+\textbf{run time} (on the fly, e.g.\ when two agents meet for the first time).
+
+\subsubsection{Correspondence, alignment, matching process}
+\slidesrc{Ontology matching: 1--13; Ontology matching (long version): 26--38}
+
+\begin{nbdef}{Correspondence}
+Given two ontologies $O$ and $O'$, a \textbf{correspondence} $M$ between $O$ and $O'$ is
+a 5-tuple $\langle id, e, e', R, n\rangle$ such that:
+\begin{itemize}[nosep]
+  \item $id$ is a unique \textbf{identifier} of the correspondence;
+  \item $e$ and $e'$ are \textbf{entities} of $O$ and $O'$ (e.g.\ XML elements, classes);
+  \item $R$ is a \textbf{relation}, e.g.\ equivalence ($=$), more general
+        ($\sqsupseteq$), disjointness ($\perp$);
+  \item $n$ is a \textbf{confidence measure} in some mathematical structure (typically
+        in the $[0,1]$ range).
+\end{itemize}
+\end{nbdef}
+
+\begin{nbdef}{Alignment}
+Given two ontologies $O$ and $O'$, an \textbf{alignment} $A$ between $O$ and $O'$
+\begin{itemize}[nosep]
+  \item is a \textbf{set of correspondences} on $O$ and $O'$;
+  \item with some \textbf{cardinality}: 1-1, 1-*, etc.;
+  \item with some additional \textbf{metadata} (method, date, properties, etc.).
+\end{itemize}
+\end{nbdef}
+
+\begin{nbexample}{correspondences from Figure~\ref{fig:xml-schemas}}
+\begin{align*}
+  &\langle c_1,\ \text{Personal Computers},\ \text{PC},\ =,\ 0.95\rangle\\
+  &\langle c_2,\ \text{Microprocessors},\ \text{PC board},\ \perp,\ 0.80\rangle\\
+  &\langle c_3,\ \text{Photo and Cameras},\ \text{Digital Cameras},\ \sqsupseteq,\ 0.70\rangle
+\end{align*}
+The set $\{c_1, c_2, c_3, \ldots\}$ is an alignment. A \textbf{1-1} alignment matches each
+entity to at most one entity of the other ontology; a \textbf{1-*} alignment lets one
+entity of $O$ match several entities of $O'$ (\emph{Photo and Cameras} matches both
+\emph{Cameras and Photo} and \emph{Digital Cameras}). The confidence values here are
+invented for the example.
+\end{nbexample}
+
+\begin{center}
+\begin{tikzpicture}[o/.style={circle, fill=yellow!70, font=\small, minimum size=0.75cm,
+    inner sep=0pt}, al/.style={circle, fill=nbgreen!50, font=\small, minimum size=0.75cm,
+    inner sep=0pt}, arr/.style={-{Stealth}}]
+  \node[o] (O) at (0,1.1) {$O$};
+  \node[al] (A) at (0,0) {$A$};
+  \node[o] (O2) at (0,-1.1) {$O'$};
+  \node[draw, font=\small\itshape, minimum height=0.8cm] (m) at (2.3,0) {matching};
+  \node[al] (A2) at (4.5,0) {$A'$};
+  \node[font=\small\itshape] (p) at (2.3,1.2) {parameters};
+  \node[font=\small\itshape] (r) at (2.3,-1.2) {resources};
+  \draw[arr] (O) -- (m); \draw[arr] (A) -- (m); \draw[arr] (O2) -- (m);
+  \draw[arr] (m) -- (A2); \draw[arr] (p) -- (m); \draw[arr] (r) -- (m);
+\end{tikzpicture}
+\captionof{figure}{The matching process.}
+\label{fig:matching-process}
+\end{center}
+
+\begin{nbfact}{the matching process}
+The matching process takes as input two ontologies $O$ and $O'$, optionally an
+\emph{input alignment} $A$ (correspondences already known, to be completed), some
+\textbf{parameters} (thresholds, weights) and external \textbf{resources} (a thesaurus
+like WordNet, an upper ontology), and returns an alignment $A'$.
+\end{nbfact}
+
+\subsubsection{Application domains}
+\slidesrc{Ontology matching: 14; Ontology matching (long version): 39--52}
+
+\begin{itemize}[nosep]
+  \item \textbf{Traditional}: ontology evolution (match the old and the new version of
+        an ontology), schema integration, catalog integration, data integration.
+  \item \textbf{Emergent} (long version): P2P information sharing, agent communication,
+        Web service composition, query answering on the Web.
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[o/.style={circle, fill=yellow!70, font=\small, minimum size=0.7cm,
+    inner sep=0pt}, b/.style={draw, font=\small, minimum height=0.7cm},
+    arr/.style={-{Stealth}}]
+  \begin{scope}
+  \node[o] (O) at (0,2.4) {$O$}; \node[o] (O2) at (4,2.4) {$O'$};
+  \node[b] (M) at (2,2.4) {Matcher};
+  \node[circle, fill=nbgreen!50, font=\small, inner sep=1pt] (A) at (2,1.5) {$A$};
+  \node[b] (G) at (2,0.6) {Generator};
+  \node[o] (DB) at (0,-0.4) {DB}; \node[o] (P) at (4,-0.4) {Portal};
+  \node[b, fill=nbred!15, font=\small\itshape] (T) at (2,-0.4) {Transformation};
+  \draw[arr] (O) -- (M); \draw[arr] (O2) -- (M); \draw[arr] (M) -- (A);
+  \draw[arr] (A) -- (G); \draw[arr] (G) -- (T); \draw[arr] (DB) -- (T);
+  \draw[arr] (T) -- (P); \draw[arr] (DB) -- (O); \draw[arr] (P) -- (O2);
+  \node[font=\small\bfseries] at (2,-1.2) {catalog integration};
+  \end{scope}
+  \begin{scope}[xshift=6.3cm]
+  \node[o] (O) at (0,2.4) {$O$}; \node[o] (O2) at (4,2.4) {$O'$};
+  \node[b] (M) at (2,2.4) {Matcher};
+  \node[circle, fill=nbgreen!50, font=\small, inner sep=1pt] (A) at (2,1.5) {$A$};
+  \node[b] (G) at (2,0.6) {Generator};
+  \node[b, fill=nborange!15] (p1) at (0,-0.4) {peer1};
+  \node[b, fill=nborange!15] (p2) at (4,-0.4) {peer2};
+  \node[b, fill=nbred!15, font=\small\itshape] (T) at (2,-0.4) {mediator};
+  \draw[arr] (O) -- (M); \draw[arr] (O2) -- (M); \draw[arr] (M) -- (A);
+  \draw[arr] (A) -- (G); \draw[arr] (G) -- (T);
+  \draw[arr] (p1) -- (O); \draw[arr] (p2) -- (O2);
+  \draw[arr] ([yshift=2pt]p1.east) -- node[above, font=\tiny] {query} ([yshift=2pt]T.west);
+  \draw[arr] ([yshift=-2pt]T.west) -- node[below, font=\tiny] {answer} ([yshift=-2pt]p1.east);
+  \draw[arr] ([yshift=2pt]T.east) -- node[above, font=\tiny] {query} ([yshift=2pt]p2.west);
+  \draw[arr] ([yshift=-2pt]p2.west) -- node[below, font=\tiny] {answer} ([yshift=-2pt]T.east);
+  \node[font=\small\bfseries] at (2,-1.2) {P2P information sharing};
+  \end{scope}
+\end{tikzpicture}
+\captionof{figure}{Two applications (simplified). Left: the ontologies of a database and
+of a portal are matched; from the alignment a generator produces the transformation that
+moves data from one to the other. Right: two peers with different ontologies; the
+alignment produces a mediator that translates queries and answers.}
+\end{center}
+
+\begin{center}
+\small
+\begin{tabular}{@{}l ccccc l@{}}
+\toprule
+\textbf{application} & \rotatebox{90}{instances} & \rotatebox{90}{run time} &
+  \rotatebox{90}{automatic} & \rotatebox{90}{correct} & \rotatebox{90}{complete} &
+  \textbf{operation} \\
+\midrule
+Ontology evolution & \checkmark & & & \checkmark & \checkmark & transformation \\
+Schema integration & \checkmark & & & \checkmark & \checkmark & merging \\
+Catalog integration & \checkmark & & & \checkmark & \checkmark & data translation \\
+Data integration & \checkmark & & & \checkmark & \checkmark & query answering \\
+P2P information sharing & & \checkmark & & & & query answering \\
+Web service composition & & \checkmark & \checkmark & \checkmark & & data mediation \\
+Multi agent communication & & \checkmark & \checkmark & \checkmark & \checkmark & data
+  translation \\
+Query answering & \checkmark & \checkmark & & & & query reformulation \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Requirements of each application (long version): does it need
+instances, run-time matching, full automation, a correct alignment, a complete one; and
+what is done with the alignment.}
+\end{center}
+
+\begin{nbintuition}[reading the table]
+Traditional applications (top four) match at \emph{design time}: a human can check the
+result, and the alignment must be \emph{correct and complete} because it is used once and
+for all to transform or merge. Emergent applications match at \emph{run time}, often
+\emph{automatically} (no human available when two agents meet): there, a partial
+alignment is acceptable as long as what is found is correct.
+\end{nbintuition}
+
+\subsubsection{Classification of matching techniques}
+\slidesrc{Ontology matching (long version): 53--65}
+
+\textbf{Matching dimensions}:
+\begin{itemize}[nosep]
+  \item \emph{input}: the underlying models (XML, OWL, \ldots); \textbf{schema-level}
+        (only classes and properties) vs.\ \textbf{instance-level} (also the data);
+  \item \emph{process}: approximate vs.\ exact; how the input is interpreted;
+  \item \emph{output}: cardinality (1-1, 1-*); only equivalence vs.\ diverse relations
+        (subsumption, \ldots); graded (a confidence in $[0,1]$) vs.\ absolute confidence.
+\end{itemize}
+
+The classification of schema-based techniques has \textbf{three layers}: the
+\emph{upper} layer is about the granularity of the match and how the input is
+interpreted; the \emph{middle} layer lists the classes of elementary (basic) techniques;
+the \emph{lower} layer classifies them by the kind of input they use.
+
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{1.75cm}
+  >{\raggedright\arraybackslash}p{1.45cm} >{\raggedright\arraybackslash}p{2.6cm}
+  >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.0cm}@{}}
+\toprule
+\textbf{granularity} & \textbf{interpre\-tation} & \textbf{basic technique} &
+  \textbf{what it uses} & \textbf{kind of input} \\
+\midrule
+\cellcolor{nbblue!8}Element-level & syntactic & string-based & name and description
+  similarity & terminological \\
+\cellcolor{nbblue!8} & syntactic & language-based & tokenisation, elimination &
+  terminological (linguistic) \\
+\cellcolor{nbblue!8} & syntactic & constraint-based & type similarity, key properties &
+  structural (internal) \\
+\cellcolor{nbblue!8} & external & linguistic resources & lexicons, thesauri (WordNet) &
+  terminological (linguistic) \\
+\cellcolor{nbblue!8} & external & upper / domain-specific formal ontologies & DOLCE,
+  FMA & semantic \\
+\midrule
+\cellcolor{nborange!10}Structure-level & syntactic & graph-based & graph homomorphism,
+  children, leaves & structural (relational) \\
+\cellcolor{nborange!10} & syntactic & taxonomy-based & taxonomy structure & structural
+  (relational) \\
+\cellcolor{nborange!10} & external & repository of structures & structure metadata
+  (previous matches) & structural \\
+\cellcolor{nborange!10} & semantic & model-based & SAT solvers, DL reasoners &
+  semantic \\
+\bottomrule
+\end{tabularx}
+\captionof{table}{Classification of schema-based matching techniques (simplified),
+rewritten as a table from the slide's diagram. Read each row from left to right: the
+upper layer (granularity and interpretation), the middle layer (the basic technique), the
+lower layer (the kind of input it works on). Upper/domain ontologies are used at both
+granularities.}
+\label{fig:matching-classification}
+\end{center}
+
+\begin{itemize}[nosep]
+  \item \textbf{Element-level} techniques look at each entity in isolation (its name,
+        its type); \textbf{structure-level} techniques look at how entities are related
+        to the others (its children, its position in the taxonomy).
+  \item \textbf{Syntactic} techniques use only the input itself; \textbf{external} ones
+        use outside resources (WordNet, an upper ontology, a repository of previous
+        matches); \textbf{semantic} ones reason on the formal meaning (logic).
+\end{itemize}
+
+\subsubsection{Basic techniques}
+\slidesrc{Ontology matching (long version): 66--88}
+
+\paragraph{Element-level, string-based.} (Used e.g.\ by COMA, SF, S-Match, OLA.)
+\begin{itemize}[nosep]
+  \item \textbf{Prefix}: checks whether the first string starts with the second:
+        \emph{net} = \emph{network}; but also, wrongly, \emph{hot} = \emph{hotel}.
+  \item \textbf{Suffix}: checks whether the first string ends with the second: \emph{ID}
+        = \emph{PID}; but also, wrongly, \emph{word} = \emph{sword}.
+  \item \textbf{Edit distance} (Section~\ref{sec:minimum-edit-distance}): the number of
+        edit operations (insertions, deletions, substitutions of characters) needed to
+        transform one string into the other, \textbf{normalised by the length of the
+        longer string}.
+\end{itemize}
+
+\begin{nbexample}{EditDistance(NKN, Nikon) = 0.4}
+Ignoring case, \emph{nkn} becomes \emph{nikon} with two insertions: n\,\underline{i}\,k\,%
+\underline{o}\,n. So the edit distance is 2, and normalised by the length of the longer
+string: $2/5 = 0.4$. A distance of 0.4 (similarity $1-0.4=0.6$) suggests that \emph{NKN}
+may be an abbreviation of \emph{Nikon}. (Used e.g.\ by S-Match, OLA, Anchor-Prompt.)
+\end{nbexample}
+
+\paragraph{Element-level, language-based.} (COMA, Cupid, S-Match, OLA.)
+\begin{itemize}[nosep]
+  \item \textbf{Tokenisation}: parse names into tokens by recognising punctuation and
+        case: \emph{Hands-Free Kits} $\to$ $\langle$hands, free, kits$\rangle$.
+  \item \textbf{Lemmatisation}: morphological analysis of the tokens to find their basic
+        forms: \emph{Kits} $\to$ \emph{Kit}.
+  \item \textbf{Elimination}: discard ``empty'' tokens: articles, prepositions,
+        conjunctions, \ldots (\emph{a, the, by, type of, their, from}), i.e.\ stop words
+        (Section~\ref{sec:stop-words-tfidf}).
+\end{itemize}
+
+\paragraph{Element-level, linguistic resources.} Sense-based, with WordNet (Artemis,
+CtxMatch, S-Match):
+\begin{itemize}[nosep]
+  \item $A \sqsubseteq B$ if $A$ is a hyponym or meronym of $B$: \emph{Brand}
+        $\sqsubseteq$ \emph{Name};
+  \item $A \sqsupseteq B$ if $A$ is a hypernym or holonym of $B$: \emph{Europe}
+        $\sqsupseteq$ \emph{Greece};
+  \item $A = B$ if they are synonyms: \emph{Quantity} $=$ \emph{Amount};
+  \item $A \perp B$ if they are antonyms or siblings in the part-of hierarchy:
+        \emph{Microprocessors} $\perp$ \emph{PC Board}.
+\end{itemize}
+\textbf{Gloss-based} (S-Match): compare the WordNet glosses of the two terms; the more
+words they share, the higher the similarity, and equivalence is returned above a
+threshold. E.g.\ \emph{Maltese dog}: ``a breed of toy dogs having a long straight silky
+white coat''; \emph{Afghan hound}: ``a tall graceful breed of hound with a long silky
+coat'' share \emph{breed, long, silky, coat}. This is the idea of the Lesk algorithm
+(Section~\ref{sec:word-sense-disambiguation}).
+
+\paragraph{Structure-level, taxonomy-based.} Ontologies are seen as graphs of terms and
+their relations (Anchor-Prompt, NOM, QOM):
+\begin{itemize}[nosep]
+  \item \textbf{bounded path matching}: take two paths of hierarchical links, compare the
+        terms and their positions along the paths, and identify similar terms;
+  \item \textbf{super(sub)-concept rules}: if the super-concepts are the same, the
+        concepts themselves are similar.
+\end{itemize}
+
+\paragraph{Structure-level, tree-based.} (Cupid, COMA.)
+\begin{itemize}[nosep]
+  \item \textbf{children}: two non-leaf elements are similar if their sets of immediate
+        children are highly similar;
+  \item \textbf{leaves}: two non-leaf elements are similar if their sets of leaves are
+        highly similar, even if their immediate children are not.
+\end{itemize}
+E.g.\ \emph{Photos and cameras} (left) and \emph{Digital cameras} (right) both have the
+leaves PID/ID, Name/Brand, Quantity/Amount, Price/Price: their leaves match, so the two
+parents are probably related.
+
+\paragraph{Structure-level, model-based.}
+\textbf{Propositional satisfiability (SAT)} (CtxMatch, S-Match): the question ``are the
+two nodes equivalent?'' is turned into a logical formula
+$\text{Axioms} \to rel(context_1, context_2)$ and a SAT solver checks whether it is valid.
+The \emph{context} of a node is the conjunction of the labels on its path from the root.
+
+\begin{nbexample}{SAT-based matching of \emph{Personal Computers} and \emph{PC}}
+Axioms from the lexicon: $\text{Electronics}_1 \leftrightarrow \text{Electronics}_2$ and
+$\text{Personal Computers}_1 \leftrightarrow \text{PC}_2$. Contexts:
+\[
+  context_1 = \text{Electronics}_1 \wedge \text{Personal Computers}_1, \qquad
+  context_2 = \text{Electronics}_2 \wedge \text{PC}_2.
+\]
+To prove equivalence we check that
+\begin{align*}
+  &(\text{Electronics}_1 \leftrightarrow \text{Electronics}_2) \wedge
+   (\text{Personal Computers}_1 \leftrightarrow \text{PC}_2) \\
+  &\qquad \to \bigl((\text{Electronics}_1 \wedge \text{Personal Computers}_1)
+   \leftrightarrow (\text{Electronics}_2 \wedge \text{PC}_2)\bigr)
+\end{align*}
+is valid, i.e.\ that its negation is unsatisfiable. It is: if the two pairs of labels
+are equivalent, the two conjunctions are equivalent. So the two nodes are equivalent.
+\end{nbexample}
+
+\textbf{Description logics (DL)-based}: use a DL reasoner on the definitions.
+
+\begin{nbexample}{micro-company $\sqsubseteq$ SME}
+\begin{align*}
+  \text{micro-company} &= \text{company} \sqcap {\le_5}\,\text{employee}\\
+  \text{SME} &= \text{firm} \sqcap {\le_{10}}\,\text{associate}
+\end{align*}
+Background axioms: company $=$ firm; associate $\sqsubseteq$ employee. A micro-company
+has at most 5 employees; every associate is an employee, so it has at most 5 associates,
+hence at most 10; and a company is a firm. Therefore every micro-company is an SME:
+\[
+  \text{micro-company} \sqsubseteq \text{SME}.
+\]
+No string or structure technique could find this: the names share nothing. Only
+reasoning on the meaning does.
+\end{nbexample}
+
+\subsubsection{Composing matchers and selecting the alignment}
+\slidesrc{Ontology matching (long version): 89--95}
+
+Real systems combine several basic matchers.
+
+\begin{center}
+\begin{tikzpicture}[o/.style={circle, fill=yellow!70, font=\scriptsize, minimum size=0.6cm,
+    inner sep=0pt}, al/.style={circle, fill=nbgreen!50, font=\scriptsize,
+    minimum size=0.6cm, inner sep=0pt}, b/.style={draw, font=\scriptsize\itshape,
+    minimum height=0.6cm}, arr/.style={-{Stealth}}]
+  \node[o] (O) at (0,0.9) {$O$}; \node[al] (A) at (0,0) {$A$}; \node[o] (O2) at (0,-0.9) {$O'$};
+  \node[b] (m1) at (1.6,0) {matching}; \node[al] (A1) at (3.0,0) {$A'$};
+  \node[b] (m2) at (4.4,0) {matching$'$}; \node[al] (A2) at (5.8,0) {$A''$};
+  \draw[arr] (O) -- (m1); \draw[arr] (A) -- (m1); \draw[arr] (O2) -- (m1);
+  \draw[arr] (m1) -- (A1); \draw[arr] (A1) -- (m2); \draw[arr] (m2) -- (A2);
+  \draw[arr] (O) to[bend left=25] (m2); \draw[arr] (O2) to[bend right=25] (m2);
+  \node[font=\scriptsize\bfseries] at (2.9,-1.6) {sequential composition};
+  \begin{scope}[xshift=7.4cm]
+  \node[o] (O) at (0,0.9) {$O$}; \node[al] (A) at (0,0) {$A$}; \node[o] (O2) at (0,-0.9) {$O'$};
+  \node[b] (m1) at (1.7,0.8) {matching}; \node[b] (m2) at (1.7,-0.8) {matching$'$};
+  \node[al] (A1) at (3.0,0.8) {$A'$}; \node[al] (A2) at (3.0,-0.8) {$A''$};
+  \node[b] (ag) at (4.3,0) {aggregation}; \node[al] (A3) at (5.6,0) {$A'''$};
+  \foreach \s in {O,A,O2} {\draw[arr] (\s) -- (m1); \draw[arr] (\s) -- (m2);}
+  \draw[arr] (m1) -- (A1); \draw[arr] (m2) -- (A2);
+  \draw[arr] (A1) -- (ag); \draw[arr] (A2) -- (ag); \draw[arr] (ag) -- (A3);
+  \node[font=\scriptsize\bfseries] at (2.8,-1.6) {parallel composition};
+  \end{scope}
+\end{tikzpicture}
+\captionof{figure}{Composing matchers (parameters and resources of each matcher
+omitted). Sequential: the output of the first matcher is the input alignment of the
+second. Parallel: independent matchers whose results are aggregated.}
+\end{center}
+
+\textbf{Selecting the final alignment} from the candidate correspondences:
+\begin{itemize}[nosep]
+  \item \textbf{ranking strategies}: \emph{thresholds} (keep correspondences with
+        confidence above $t$), \emph{MaxDelta} (keep those within $\delta$ of the best
+        one);
+  \item \textbf{cardinalities}: 1-1, 1-*, *-*;
+  \item \textbf{optimisation}: \emph{stable marriage} (no two entities would both
+        prefer each other to their assigned partners), \emph{maximal weight match}
+        (maximise the total confidence);
+  \item \textbf{directionality}: $O \to O'$ or $O' \to O$ (SmallLarge, LargeSmall), or
+        both directions (Both).
+\end{itemize}
+
+\subsubsection{State-of-the-art systems}
+\slidesrc{Ontology matching (long version): 96--104}
+
+About 50 matching systems existed in 2006; four examples:
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{system} & \textbf{what it does} & \textbf{architecture} \\
+\midrule
+Cupid (U.\ Washington, Microsoft, U.\ Leipzig) & schema-based; similarity coefficients in
+  $[0,1]$; linguistic and structure matching & sequential: linguistic matching (with
+  thesauri) $\to$ structure matching $\to$ weighting $\to$ alignment \\
+Falcon-AO (Southeast U., Nanjing; the slide says ``Southwest'') & linguistic and structure matching & linguistic
+  matching $\to$ structure matching $\to$ alignment \\
+OLA (INRIA Rhône-Alpes, U.\ de Montréal) & schema- and instance-based; computes
+  dissimilarities, then extracts alignments (equivalences in $[0,1]$); terminological
+  (incl.\ linguistic) and structural (internal and relational) distances & neither
+  sequential nor parallel: the similarity computation is iterated until it stabilises \\
+S-Match (U.\ Trento) & schema-based; computes $=$, $\sqsupseteq$, $\sqsubseteq$, $\perp$;
+  analyses the meaning (concepts, not labels) codified in the elements and structures &
+  sequential with composition at the element level: translator $\to$ pre-processing
+  (with oracles) $\to$ PTrees $\to$ match manager (SAT solvers, semantic matchers) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Conclusions, tools and benchmarks}
+\slidesrc{Ontology matching (long version): 105--112; Ontology development: 75--76}
+
+\textbf{Uses of the classification} of Table~\ref{fig:matching-classification}: it
+gives a common basis to compare existing systems; it helps design a new system or
+elementary matcher from the state of the art; it helps design systematic benchmarks
+(e.g.\ discard features from ontologies one at a time and see which class of technique
+deals with which feature).
+
+\textbf{Challenges}: missing background knowledge; performance of the systems;
+interactive approaches; explanations of matching; social aspects of ontology matching;
+large-scale evaluation; infrastructures.
+
+\textbf{Tools and benchmarks}: \url{http://www.ontologymatching.org} (the portal of the
+field), a list of 50 ontology mapping and alignment tools, and the \textbf{OAEI}
+(Ontology Alignment Evaluation Initiative, \url{http://oaei.ontologymatching.org/}), a
+yearly campaign that evaluates matching systems on common benchmarks. The reference
+book is Euzenat and Shvaiko, \emph{Ontology Matching} (Springer).
+
+\begin{nbsummary}[ontology matching]
+\begin{itemize}[nosep]
+  \item Matching: from ontologies (sets of entities) to relationships between their
+        entities. Heterogeneity of languages, terminologies, modelling. Match, then
+        process the alignment; at design time or run time.
+  \item Correspondence $\langle id, e, e', R, n\rangle$: identifier, two entities,
+        relation ($=, \sqsupseteq, \perp$), confidence in $[0,1]$. Alignment: set of
+        correspondences + cardinality + metadata.
+  \item Matching process: $O, O'$, input alignment $A$, parameters, resources $\to A'$.
+  \item Applications: ontology evolution, schema/catalog/data integration; P2P, agents,
+        Web services, query answering.
+  \item Techniques: element-level (string: prefix, suffix, edit distance; language:
+        tokenisation, lemmatisation, elimination; resources: WordNet relations, glosses)
+        and structure-level (taxonomy, tree: children/leaves, model: SAT, DL).
+  \item Composition: sequential or parallel + aggregation; selection by thresholds,
+        cardinality, optimisation, directionality. Systems: Cupid, Falcon-AO, OLA,
+        S-Match. Benchmark: OAEI.
+\end{itemize}
+\end{nbsummary}

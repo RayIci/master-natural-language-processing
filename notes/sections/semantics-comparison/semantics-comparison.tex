@@ -1,0 +1,199 @@
+\section{The Four Approaches to Semantics Compared}
+\label{sec:semantics-comparison}
+\slidesrc{Blackboard: semantics B; Blackboard: semantics A}
+
+We have now met four ways of giving meaning to words and sentences:
+\textbf{distributional} semantics (Section~\ref{sec:distributional-semantics}),
+\textbf{frame} semantics (Section~\ref{sec:frame-semantics}),
+\textbf{model-theoretic} semantics (Section~\ref{sec:semantic-parsing}) and
+\textbf{lexical} semantics (Section~\ref{sec:lexical-semantics}). In class the lecturer
+summarised them in one table on the blackboard, comparing their main features, pros,
+cons, applications and origins. The table is rewritten below exactly as it was written on
+the board; the explanations follow.
+
+\begin{nbblackboard}{The four kinds of semantics compared}{Blackboard: semantics B
+(left half); Blackboard: semantics A (right half)}
+\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\raggedright\arraybackslash}p{1.35cm}
+  >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+ & \textbf{Distributional} & \textbf{Frame} & \textbf{Model-theoretic} & \textbf{Lexical} \\
+\midrule
+Main\newline features &
+  words represented as vectors; vectors' distance [measures how different the meanings
+  are] &
+  meaning of words: their role inside frames given by pre-compiled [frame resources] &
+  semantics of words \& sentences given by their logical meaning, as terms, atoms,
+  formulae, \ldots &
+  listing relations among words composing the lexicon of a language \\
+ &
+  \textcolor{nbred}{$\bullet$ \textbf{statistical} $\bullet$} &
+  \textcolor{nbred}{$\bullet$ \textbf{human-driven} $\bullet$} &
+  \textcolor{nbred}{$\bullet$ \textbf{translation-based} $\bullet$} &
+  \textcolor{nbred}{$\bullet$ \textbf{human-driven} $\bullet$} \\
+\midrule
+Pros &
+  learned by software \newline {\color{nbgray}\itshape(a second line was erased)} &
+  explainability; explicit &
+  in very limited application domains it may work; mainly for \underline{statement}
+  translation &
+  lightweight creation; BabelNet, WordNet exist \\
+\midrule
+Cons &
+  implicit, monolithic learning of the vector space (?); need of large corpus &
+  human annotation; not portable &
+  not ``very feasible'' in practice &
+  human annotation \\
+\midrule
+Applic\-ations &
+  disambiguate meaning (with some intermediate steps); comparison &
+  disambiguate by checking whether a word fits one frame &
+  querying databases; reasoning on the consistency of the sentence &
+  information filtering, retrieval; helping DS \\
+\midrule
+Origins &
+  Wittgenstein &
+  Fillmore &
+  Leibniz, Montague, \ldots &
+  {\color{nbgray}\itshape(left empty)} \\
+\bottomrule
+\end{tabularx}
+
+\smallskip
+{\color{nbgray}\scriptsize Words in square brackets are cut off at the edge of the
+photos and completed from context. ``DS'' = distributional semantics. The ``(?)'' is on
+the board.}
+\end{nbblackboard}
+
+\begin{nbwarning}[how the two photos fit together]
+The board was photographed in two halves. The first photo holds the row headings and the
+\emph{Distributional} and \emph{Frame} columns; the second holds the
+\emph{Model-theoretic} and \emph{Lexical} columns. The \emph{Frame} column runs across
+the gap between two blackboard panels: ``human-dri\ldots'' + ``\ldots ven'', ``human
+annotati\ldots'' + ``\ldots on'', and ``explainability'' is followed by ``explicit'' on
+the next panel. So there are four columns, not five.
+\end{nbwarning}
+
+% ---------------------------------------------------------------------------
+\subsection{Reading the table column by column}
+\label{sec:semantics-comparison-columns}
+\slidesrc{Blackboard: semantics B; Blackboard: semantics A}
+
+\paragraph{Distributional semantics (statistical).}
+\begin{itemize}[nosep]
+  \item \emph{Main features}: every word is a vector of numbers learnt from the contexts
+        in which it occurs; the distance (angle) between two vectors measures how
+        different the meanings are (Section~\ref{sec:geometric-interpretation}). It is
+        \textbf{statistical}: nobody writes the meanings by hand, they come out of counts
+        over a corpus.
+  \item \emph{Pro}: it is \textbf{learned by software}, automatically, for any word that
+        appears often enough in the corpus.
+  \item \emph{Cons}: the knowledge is \textbf{implicit}: a vector like
+        $(0.031, 0.143, -0.243, \ldots)$ does not say \emph{why} two words are similar.
+        The vector space is learnt \textbf{monolithically}, all at once from the whole
+        corpus: one cannot easily correct a single word by hand (the ``(?)'' on the board
+        signals this is a debatable point). And it needs a \textbf{large corpus}: rare
+        words get unreliable vectors.
+  \item \emph{Applications}: \textbf{disambiguating meaning}, but only ``with some
+        intermediate steps'' (context vectors, clustering of senses:
+        Section~\ref{sec:dsm-in-practice}); \textbf{comparison} of words (similarity,
+        synonyms, nearest neighbours).
+  \item \emph{Origins}: \textbf{Wittgenstein}, ``the meaning of a word is its use''
+        (Section~\ref{sec:distributional-hypothesis}).
+\end{itemize}
+
+\paragraph{Frame semantics (human-driven).}
+\begin{itemize}[nosep]
+  \item \emph{Main features}: the meaning of a word is the \textbf{role} it plays inside
+        a \textbf{frame} (a situation with participants, e.g.\ the commercial-transaction
+        frame with buyer, seller, goods, money; Section~\ref{sec:frame-semantics}). The
+        frames are \textbf{pre-compiled} by people (FrameNet, PropBank): it is
+        \textbf{human-driven}.
+  \item \emph{Pros}: \textbf{explainability}: a frame states explicitly that \emph{Cynthia}
+        is the seller and \emph{the bike} the goods; the representation is
+        \textbf{explicit}, readable by a human.
+  \item \emph{Cons}: frames require \textbf{human annotation}, which is slow and costly;
+        and they are \textbf{not portable}: frames written for one language or domain do
+        not carry over to another.
+  \item \emph{Applications}: \textbf{disambiguation by checking whether a word fits one
+        frame}: \emph{bank} in ``I deposited money at the bank'' fits the frame of
+        financial transactions, not the frame of rivers.
+  \item \emph{Origins}: \textbf{Charles Fillmore} (1977), who introduced frames.
+\end{itemize}
+
+\paragraph{Model-theoretic semantics (translation-based).}
+\begin{itemize}[nosep]
+  \item \emph{Main features}: the meaning of words and sentences is their
+        \textbf{logical meaning}: words become \textbf{terms} and predicates, simple
+        sentences become \textbf{atoms}, complex sentences become \textbf{formulae},
+        which can be evaluated as true or false in a model of the world
+        (Section~\ref{sec:semantic-parsing}). It is \textbf{translation-based}: the
+        sentence is \emph{translated} into logic.
+  \item \emph{Pros}: in \textbf{very limited application domains} it may work (a database
+        of US geography, a calendar, the blocks world), mainly for the translation of
+        \textbf{statements} (declarative sentences); questions, commands, irony,
+        metaphors are much harder.
+  \item \emph{Cons}: \textbf{not ``very feasible'' in practice} for open, real language:
+        translating arbitrary text into correct logic is extremely hard.
+  \item \emph{Applications}: \textbf{querying databases} (natural-language interfaces:
+        ``which states border Texas?'' becomes a query); \textbf{reasoning on the
+        consistency} of a sentence (is it contradictory? does it follow from what we
+        know?).
+  \item \emph{Origins}: \textbf{Leibniz} (the dream of a universal logical language in
+        which disputes are settled by calculation), \textbf{Montague} (natural language
+        can be treated like a formal language, compositionally), \ldots
+\end{itemize}
+
+\paragraph{Lexical semantics (human-driven).}
+\begin{itemize}[nosep]
+  \item \emph{Main features}: it \textbf{lists the relations} among the words that make
+        up the lexicon of a language: synonymy, antonymy, hyponymy, meronymy, \ldots
+        (Section~\ref{sec:lexical-relations}). It is \textbf{human-driven}: lexicographers
+        write the relations.
+  \item \emph{Pros}: \textbf{lightweight creation} (much simpler than frames or logic:
+        a relation is just a pair of words with a label), and large resources already
+        \textbf{exist}: \textbf{WordNet} (Section~\ref{sec:wordnet}) and
+        \textbf{BabelNet}, its multilingual extension.
+  \item \emph{Cons}: \textbf{human annotation}, like frames.
+  \item \emph{Applications}: \textbf{information filtering} and \textbf{retrieval} (e.g.\
+        expanding a query with synonyms and hyponyms); \textbf{helping distributional
+        semantics} (``helping DS''): e.g.\ WordNet senses to label the clusters of a
+        DSM, or lexical relations to evaluate and correct vectors.
+  \item \emph{Origins}: left empty on the board.
+\end{itemize}
+
+\begin{nbintuition}[the big picture]
+Read the table along the ``$\bullet$'' row. One approach is \textbf{statistical}
+(meaning is \emph{learnt} from data), two are \textbf{human-driven} (meaning is
+\emph{written} by people), one is \textbf{translation-based} (meaning is a
+\emph{logical formula}). The pros and cons follow from this one choice:
+\begin{itemize}[nosep]
+  \item statistical $\Rightarrow$ cheap, automatic, covers everything, but implicit and
+        hungry for data;
+  \item human-driven $\Rightarrow$ explicit and explainable, but costly to build and hard
+        to port;
+  \item translation-based $\Rightarrow$ precise, supports reasoning, but works only in
+        small, controlled domains.
+\end{itemize}
+This is the same trade-off as between the eras of NLP (Section~\ref{sec:nlp-history}):
+rule-based (human-driven) vs.\ statistical and neural (learned) methods.
+\end{nbintuition}
+
+\begin{nbsummary}[the four semantics]
+\begin{itemize}[nosep]
+  \item \textbf{Distributional}: vectors, distance; statistical; learned automatically;
+        implicit, needs a large corpus; disambiguation (indirectly), comparison;
+        Wittgenstein.
+  \item \textbf{Frame}: role of words inside pre-compiled frames; human-driven;
+        explainable, explicit; human annotation, not portable; disambiguation by frame
+        fitting; Fillmore.
+  \item \textbf{Model-theoretic}: logical meaning (terms, atoms, formulae);
+        translation-based; works in limited domains, for statements; not feasible in
+        general; database querying, consistency reasoning; Leibniz, Montague.
+  \item \textbf{Lexical}: relations among the words of the lexicon; human-driven;
+        lightweight, WordNet and BabelNet exist; human annotation; information
+        filtering/retrieval, helping DS.
+\end{itemize}
+\end{nbsummary}

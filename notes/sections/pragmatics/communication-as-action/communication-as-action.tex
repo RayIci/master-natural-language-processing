@@ -1,0 +1,153 @@
+\subsection{Communication as Action}
+\label{sec:communication-as-action}
+\slidesrc{Pragmatics: 4--10}
+
+These slides come from another course (on agents) and give a very quick introduction to
+``communication as an action''.
+
+\subsubsection{From true/false sentences to actions}
+\slidesrc{Pragmatics: 5--8}
+
+\begin{nbdef}{Communication}
+\textbf{Communication}, in general, is the \emph{intentional} exchange of information
+brought about by the production and perception of \emph{signs} drawn from a
+\emph{shared system of conventional signs}.
+\end{nbdef}
+
+Two views of language:
+\begin{itemize}[nosep]
+  \item the \textbf{``classical'' view} (before 1953): language consists of sentences
+        that are \textbf{true or false} (as in logic; this is the view behind
+        model-theoretic semantics, Section~\ref{sec:semantic-parsing});
+  \item the \textbf{``modern'' view} (after 1953): \textbf{language is a form of
+        action}.
+\end{itemize}
+The turning point is marked by three philosophers.
+
+\paragraph{Wittgenstein (1953), \emph{Philosophical Investigations}.}
+According to Wittgenstein:
+\begin{itemize}[nosep]
+  \item the structure of reality determines the structure of language;
+  \item \textbf{meaning is determined by use}, in the context of a
+        \textbf{``language-game''};
+  \item words are not defined by reference to the objects or things they designate in
+        the external world, nor by the thoughts, ideas or mental representations one
+        might associate with them, but by \textbf{how they are used} in effective,
+        ordinary communication.
+\end{itemize}
+
+\begin{nbintuition}[language-games]
+Think of the word \emph{``Slab!''} shouted by a builder to an assistant: it does not
+describe a slab, it means ``bring me a slab'', and it means that only inside the
+``game'' of building together. Every use of language is a move in some game with its own
+rules: giving orders, asking, telling a joke, praying. This is the same Wittgenstein of
+``meaning is use'' at the root of distributional semantics
+(Section~\ref{sec:distributional-hypothesis}).
+\end{nbintuition}
+
+\begin{nbwarning}[two Wittgensteins]
+The first bullet (``the structure of reality determines the structure of language'') is
+the idea of the \emph{early} Wittgenstein (\emph{Tractatus}, 1921), in which a sentence is
+a picture of a fact. The \emph{Philosophical Investigations} (1953) largely abandon it in
+favour of meaning as use. The slide lists both; remember that the 1953 work is the one of
+language-games.
+\end{nbwarning}
+
+\paragraph{Austin (1962), \emph{How to Do Things with Words}.}
+\textbf{In saying something, we do something}: when a minister joins two people in
+marriage saying ``I now pronounce you husband and wife'', the sentence does not describe
+a marriage, it \emph{makes} it (Section~\ref{sec:course-map}). Such sentences are
+\textbf{performatives}.
+
+\paragraph{Searle (1969), \emph{Speech Act Theory}.}
+\begin{itemize}[nosep]
+  \item Each \textbf{illocution} (the act performed \emph{in} saying something) can be
+        described in terms of what it is attempting to do. An \emph{assertion} counts as
+        an undertaking that something really is the case; a \emph{question} counts as an
+        attempt to elicit some information; \emph{thanking} someone counts as an
+        expression of gratitude.
+  \item What matters is the assumed \textbf{intent of the speaker}, the
+        \textbf{intentionality} of the sentence.
+\end{itemize}
+
+\notinslides
+\begin{nbdef}{Speech act: three levels (Austin)}
+\begin{itemize}[nosep]
+  \item \textbf{Locution}: the act of saying something, the words with their literal
+        meaning (``It's cold in here'').
+  \item \textbf{Illocution}: the act performed \emph{in} saying it, the speaker's
+        intention (a request to close the window).
+  \item \textbf{Perlocution}: the effect produced \emph{by} saying it on the hearer
+        (the hearer gets up and closes the window).
+\end{itemize}
+\end{nbdef}
+
+\subsubsection{Speech acts and the stages of communication}
+\slidesrc{Pragmatics: 9--10}
+
+\begin{center}
+\begin{tikzpicture}[b/.style={font=\small}]
+  \node[draw=nbred, rounded corners=6pt, minimum width=6.2cm, minimum height=1.1cm] (sit) {};
+  \node[font=\tiny, anchor=north west, text=nbred] at (sit.north west) {SITUATION};
+  \node[b, text=nbblue] (s) at (-2.0,-0.1) {Speaker};
+  \node[b, text=nbred] (u) at (0.1,-0.1) {Utterance};
+  \node[b, text=nbblue] (h) at (2.2,-0.1) {Hearer};
+  \draw[-{Stealth}] (s) -- (u); \draw[-{Stealth}] (u) -- (h);
+\end{tikzpicture}
+\captionof{figure}{A speech act: a speaker produces an utterance for a hearer, inside a
+situation.}
+\end{center}
+
+\textbf{Speech acts achieve the speaker's goals}. The examples come from the Wumpus world,
+the cave game used for the grammar of Section~\ref{sec:grammars-parsing}:
+\begin{center}
+\small
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{act} & \textbf{example} \\
+\midrule
+Inform & ``There's a pit in front of you'' \\
+Query & ``Can you see the gold?'' \\
+Command & ``Pick it up'' \\
+Promise & ``I'll share the gold with you'' \\
+Acknowledge & ``OK'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Speech act planning} (deciding what to say to reach a goal) requires knowledge
+of the \emph{situation}, of the \emph{semantic and syntactic conventions}, and of the
+\emph{hearer's goals, knowledge base and rationality}.
+
+\begin{center}
+\small
+\begin{tabular}{@{}l l l@{}}
+\toprule
+ & \textbf{stage} & \textbf{what happens} \\
+\midrule
+\multirow{3}{*}{\textcolor{nbblue}{speaker S}}
+  & Intention & S wants to inform H that $P$ \\
+  & Generation & S selects words $W$ to express $P$ in context $C$ \\
+  & Synthesis & S utters words $W$ \\
+\midrule
+\multirow{4}{*}{\textcolor{nbblue}{hearer H}}
+  & Perception & H perceives $W'$ in context $C'$ \\
+  & Analysis & H infers possible meanings $P_1, \ldots, P_n$ \\
+  & Disambiguation & H infers the intended meaning $P_i$ \\
+  & Incorporation & H incorporates $P_i$ into its knowledge base \\
+\bottomrule
+\end{tabular}
+\captionof{table}{The stages in communication.}
+\label{tab:communication-stages}
+\end{center}
+
+\begin{nbintuition}[where things can go wrong]
+Notice the primes: the hearer perceives $W'$ in context $C'$, not necessarily the same
+$W$ and $C$ of the speaker (noise, mishearing, a different idea of the situation). The
+analysis gives \emph{several} possible meanings, and disambiguation picks one, maybe the
+wrong one. Every stage maps onto a part of NLP: generation and synthesis are natural
+language generation and speech synthesis; perception is speech recognition or reading;
+analysis is syntax and semantics (parsing, Sections~\ref{sec:sentence-level-syntax}
+to~\ref{sec:lexical-semantics}); disambiguation is WSD and intent recognition;
+incorporation is updating a knowledge base, e.g.\ an ontology
+(Section~\ref{sec:ontologies}).
+\end{nbintuition}

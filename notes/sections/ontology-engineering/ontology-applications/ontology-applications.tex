@@ -1,0 +1,93 @@
+\subsection{Applications of Ontologies}
+\label{sec:ontology-applications}
+\slidesrc{Ontology development: 77--104}
+
+\subsubsection{Some research from the course's group}
+\slidesrc{Ontology development: 77--83}
+
+The slides list research papers from the University of Genoa group (with Viviana
+Mascardi), showing that ontologies are an active research topic, often combined with
+software agents:
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{year} & \textbf{paper (topic)} \\
+\midrule
+2010 & \emph{Automatic Ontology Matching via Upper Ontologies: A Systematic Evaluation}:
+  using upper ontologies (SUMO-OWL, OpenCyc, DOLCE) as a semantic bridge in ontology
+  matching (Section~\ref{sec:ontology-matching}); a ``mixed'' method that combines
+  structural matching with upper ontologies improves the recall \\
+2012 & \emph{Semantic Web and Declarative Agent Languages and Technologies: Current and
+  Future Trends} (position paper) \\
+2014 & \emph{CooL-AgentSpeak}: agents that exchange plans and use ontology services
+  (ontology matching to find relevant plans of other agents) \\
+2017 & \emph{Agent-oriented and ontology-driven digital libraries: the IndianaMAS
+  experience}: a multi-agent system that classifies documents of a cultural heritage
+  domain formalised by an ontology \\
+2020 & \emph{OntoScene, a Logic-based Scene Interpreter}: ontologies and Prolog to
+  understand visual scenes, applied to rock art \\
+2023 & \emph{Integrating Ontologies and Cognitive Conversational Agents in On2Conv} \\
+2024 & \emph{Integrating Procedural Ontologies in VEsNA}: procedural ontologies for BDI
+  agents \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Application areas}
+\slidesrc{Ontology development: 84--104}
+
+The application part integrates material from a tutorial by Ian Horrocks.
+
+\begin{itemize}
+  \item \textbf{e-Science, geoscience}: mediating geological maps globally, integrating
+        multi-source geodata, common schemas for water resources. The challenges of an
+        ``ontology spectrum'' for geological data interoperability: modelling vs.\
+        encoding, multilinguality, flexibility and usefulness, mediation and evolution.
+        Resources: geoscience-semantics ontologies, the W3C Geo vocabulary, the GeoNames
+        ontology; also semantic enhancement of volunteered geographic information
+        (user-generated tags on maps, a PhD project in Genoa).
+  \item \textbf{e-Science, bioinformatics}: used for ``in silico'' investigations, which
+        relate theory and data, e.g.\ data on plant structure and functionalities
+        (the \textbf{Plant Ontology}, PO). Resources: the OBO Foundry
+        (\url{http://www.obofoundry.org/}), books on ontologies for bioinformatics and
+        anatomy ontologies.
+  \item \textbf{Medicine}: building and maintaining terminologies such as
+        \textbf{SNOMED}, \textbf{NCI} and \textbf{GALEN}. Examples: the brain anatomy in
+        GALEN, where a reasoner checks definitions such as which gyri are bounded by
+        which sulci; the \textbf{Disease Ontology} (DOID), e.g.\ \emph{viral infectious
+        disease} defined as ``a disease by infectious agent that results in infection,
+        has material basis in some Viruses''; the ICPC-2 ontology for primary care; an
+        ontological framework for a healthcare research cluster.
+  \item \textbf{Organising complex and semi-structured information}: UN-FAO (the
+        \emph{geopolitical ontology}, a master reference of country names and codes in
+        several languages), NASA (\textbf{SWEET}, Semantic Web for Earth and
+        Environmental Terminology), Ordnance Survey, General Motors, Lockheed Martin,
+        \ldots; Genoa projects: ontology-driven management of digital rock art objects
+        (IndianaMAS), \emph{MUSE: MUltilinguality and SEmantics for the citizens of the
+        world}, \emph{Ontologica}: ontologies and natural language for railway
+        management.
+  \item \textbf{Military, government, legal domains}: DARPA, NSA, NIST, SAIC, the UK
+        Ministry of Defence, the US Department of Homeland Security, \ldots; e.g.\
+        ontologies for e-government and \textbf{LKIF-Core}, a core ontology of legal
+        concepts.
+  \item \textbf{The Semantic Web} (Section~\ref{sec:semantic-web}).
+\end{itemize}
+
+\begin{nbwhy}
+In all these areas the problem is the same as in Section~\ref{sec:what-is-an-ontology}:
+many sources and many people describe the same things differently. An ontology gives
+them a shared, machine-readable vocabulary; ontology learning helps build and populate
+it from text; ontology matching connects it with the ontologies of others.
+\end{nbwhy}
+
+\begin{nbsummary}[applications]
+\begin{itemize}[nosep]
+  \item e-Science: geoscience (data interoperability), bioinformatics (Plant Ontology,
+        OBO Foundry).
+  \item Medicine: SNOMED, NCI, GALEN; Disease Ontology.
+  \item Organising complex information: UN-FAO geopolitical ontology, NASA SWEET,
+        cultural heritage, railways.
+  \item Military, government, legal (LKIF-Core); the Semantic Web.
+\end{itemize}
+\end{nbsummary}

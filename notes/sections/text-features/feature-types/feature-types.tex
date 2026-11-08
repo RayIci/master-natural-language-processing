@@ -1,0 +1,234 @@
+\subsection{Families of Features}
+\label{sec:feature-types}
+\slidesrc{Text features: 2--13}
+
+\subsubsection{Stylistic features}
+\slidesrc{Text features: 2--8}
+
+\textbf{Stylistic} features describe \emph{how} something is written, not \emph{what}
+it is about: sentence length, punctuation, the proportion of pronouns or adjectives.
+Two people writing about the same topic use different styles, and the same person
+writing about different topics keeps much of their style. This is why stylistic
+features are the basis of \textbf{author profiling} (guessing the age, gender, native
+language, personality of the author) and \textbf{authorship attribution} (who wrote this
+text?).
+
+The slides show the 29 stylistic features used by an author profiling system for four
+languages:
+
+\begin{center}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}r X c | r X c@{}}
+\toprule
+\textbf{No.} & \textbf{feature} & \textbf{all 4} & \textbf{No.} & \textbf{feature} &
+  \textbf{all 4} \\
+\midrule
+1 & \% question sentences & \checkmark & 16 & \% words with 3+ syllables & \\
+2 & \% short sentences & \checkmark & 17 & average syllables per word & \\
+3 & \% long sentences & \checkmark & 18 & \% adjectives & \\
+4 & average sentence length & \checkmark & 19 & \% adverbs & \\
+5 & average word length & \checkmark & 20 & \% capitals & \checkmark \\
+6 & \% words with 6+ letters & \checkmark & 21 & \% colons & \checkmark \\
+7 & \% words with 2--3 letters & \checkmark & 22 & \% determiners & \\
+8 & \% semicolons & \checkmark & 23 & \% digits & \checkmark \\
+9 & \% punctuation & \checkmark & 24 & \% full stops & \checkmark \\
+10 & \% pronouns & & 25 & \% interjections & \\
+11 & \% prepositions & & 26 & \% modals & \\
+12 & \% coordinating conjunctions & & 27 & \% nouns & \\
+13 & \% commas & \checkmark & 28 & \% personal pronouns & \\
+14 & \% articles & & 29 & \% verbs & \\
+15 & \% words with one syllable & & & & \\
+\bottomrule
+\end{tabularx}
+\captionof{table}{The stylistic features of an author profiling system (from a paper
+cited in the slides). All 29 are used for English; ``all 4'' marks those used also for
+Dutch, Spanish and Italian. The others need a POS tagger or a syllable counter, which
+the system had only for English.}
+\label{tab:stylistic-features}
+\end{center}
+
+\begin{nbintuition}[why only some features in every language?]
+Features 1--9, 13, 20, 21, 23, 24 can be computed by simply counting characters, words
+and sentences: they work in any language. Features like ``\% adjectives'' need a POS
+tagger (Section~\ref{sec:pos-tagging}) and ``syllables per word'' needs a syllable
+counter, which are language-specific tools. A recurring lesson: the cheapest features
+are the most portable.
+\end{nbintuition}
+
+\paragraph{N-grams and collocations.}
+The co-occurrence of the same $n$ characters or words: character n-grams (\emph{ing\_},
+\emph{\_th}) capture spelling and morphology habits, word n-grams and collocations
+(\emph{strong tea}, Section~\ref{sec:corpora}) capture habitual phrasing.
+
+\paragraph{POS (part of speech).}
+Playing a particular role (``part'') in a sentence (``speech'') is a feature of
+\emph{one word inside a sentence}: no need for the full document or corpus. The
+\emph{number} of words with a given POS (number of pronouns, of adjectives, \ldots),
+possibly normalised by the length of the document, is a feature of the
+\emph{document}.
+
+\paragraph{FW (function words).}
+
+\begin{nbdef}{Function word}
+In linguistics, \textbf{function words} (also called \emph{functors}) are words that
+have little lexical meaning, or an ambiguous meaning, and express grammatical
+relationships among other words within a sentence, or specify the attitude or mood of
+the speaker.
+\end{nbdef}
+
+Being a function word is a feature of the \emph{word itself}: if the word is not
+ambiguous, we do not even need the sentence it belongs to. The \emph{number} of function
+words, possibly normalised by the document length, is a feature of the document. Kinds of
+function words:
+\begin{itemize}[nosep]
+  \item \textbf{articles}: \emph{the}, \emph{a} (in some inflected languages the article
+        takes the case of the following noun);
+  \item \textbf{pronouns}: inflected in English (\emph{he}--\emph{him},
+        \emph{she}--\emph{her});
+  \item \textbf{conjunctions}: \emph{and} (uninflected in English);
+  \item \textbf{subordinating conjunctions}: \emph{if}, \emph{then}, \emph{well},
+        \emph{however}, \emph{thus};
+  \item \textbf{auxiliary verbs}: part of the conjugation of main verbs, always
+        inflected (\emph{has} gone, \emph{will} go);
+  \item \textbf{particles}: \emph{up}, \emph{on}, \emph{down} (give \emph{up});
+  \item \textbf{interjections}: sometimes called ``filled pauses'' (\emph{uh}, \emph{um});
+  \item \textbf{expletives}: words that take the place of a sentence, among other
+        functions;
+  \item \textbf{pro-sentences}: \emph{yes}, \emph{okay}.
+\end{itemize}
+There is a \textbf{huge overlap with stop words} (Section~\ref{sec:stop-words-tfidf}):
+the word cloud on the slide, of a novel, is dominated by \emph{the}, \emph{and},
+\emph{to}, \emph{of}, \emph{a}, \emph{was}, \emph{her}, \emph{he}.
+
+\begin{nbwarning}[stop words are not always noise]
+For topic classification we \emph{remove} stop words because they say nothing about the
+topic. For author profiling we \emph{count} them, because \emph{how often} an author uses
+\emph{the}, \emph{of}, \emph{I}, \emph{she} is one of the best clues to who the author is.
+The same words are noise for one task and signal for another.
+\end{nbwarning}
+
+\paragraph{Readability.}
+\textbf{Readability} measures how easy a piece of text is to read. It can include
+elements of complexity, familiarity, legibility and typography. Readability formulas
+usually look at sentence length, syllable density and word familiarity; an example is
+the Flesch--Kincaid grade level of Section~\ref{sec:course-map}. Online tools (e.g.\
+\url{https://readable.com}) compute many such scores.
+
+\subsubsection{Content-based features}
+\slidesrc{Text features: 9}
+
+\textbf{Content-based} features describe \emph{what} the text is about:
+\begin{itemize}[nosep]
+  \item the frequency of words belonging to some given, known \textbf{semantic category}
+        (dictionary-based, topic-based): e.g.\ how many words are about food, sport,
+        money;
+  \item \textbf{emotion words} (based on Ekman's or Plutchik's basic emotions,
+        Section~\ref{sec:course-map});
+  \item \textbf{TF-IDF} (Section~\ref{sec:stop-words-tfidf}). Recall:
+        \begin{align*}
+          \text{tf-idf}(t, d, C) &= \text{tf}(t, d)\cdot\text{idf}(t, C),\\
+          \text{tf}(t, d) &= \frac{\#\,t \text{ in } d}{\text{length}(d)}, \qquad
+          \text{idf}(t, C) = \log\frac{\abs{C}}{\abs{\{d \in C : t \in d\}}};
+        \end{align*}
+  \item \textbf{LSA} (Latent Semantic Analysis, Section~\ref{sec:dsm-in-practice}):
+        dense vectors of the words or of the document.
+\end{itemize}
+
+\begin{nbwarning}[LSA and word2vec]
+The slide writes ``LSA, implemented by word2vec''. Strictly, they are two different
+methods that produce the same kind of object, a dense vector per word: LSA reduces a
+word--document matrix with SVD (Section~\ref{sec:dsm-in-practice}), word2vec trains a
+small neural network to predict words from their contexts. Both are distributional, and
+both can be used as content features.
+\end{nbwarning}
+
+\subsubsection{Content- and style-based features: LIWC}
+\slidesrc{Text features: 10--11}
+
+\textbf{LIWC} (Linguistic Inquiry and Word Count) is a tool with hand-built dictionaries
+of psychologically meaningful word categories. It counts, for a text, the percentage of
+words in each category: some categories are about style (I-words, function words),
+others about content (social words, emotions, cognitive processes). It then combines
+them into summary variables.
+
+\begin{nbexample}{LIWC on a technical paragraph}
+The slides feed LIWC a paragraph from a computer science paper (about the execution
+time of some reasoners analysing log files). The result, compared with the average for
+professional or scientific writing:
+\begin{center}
+\small
+\begin{tabular}{@{}l rr@{}}
+\toprule
+\textbf{LIWC dimension} & \textbf{this text} & \textbf{average (scientific writing)} \\
+\midrule
+I-words (I, me, my)      & 0.0  & 0.63 \\
+social words             & 0.0  & 7.62 \\
+positive emotions        & 0.0  & 2.32 \\
+negative emotions        & 1.1  & 1.45 \\
+cognitive processes      & 17.0 & 7.52 \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{summary variables}} \\
+analytic                 & 99.0 & 92.57 \\
+clout                    & 37.5 & 68.17 \\
+authenticity             & 65.6 & 24.84 \\
+emotional tone           & 11.9 & 43.61 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Reading it: the paragraph is extremely \emph{analytic} (99), full of cognitive-process
+words (\emph{because}, \emph{depends}, \emph{except}: 17\% vs.\ 7.5\%), impersonal (no
+I-words, no social words) and emotionally flat (tone 11.9). This is what we expect from a
+technical text, and LIWC finds it by counting words alone.
+\end{nbexample}
+
+\subsubsection{Vocabulary and idiosyncrasies}
+\slidesrc{Text features: 12}
+
+Features that capture personal or informal writing habits:
+\begin{itemize}[nosep]
+  \item \textbf{unique words}: the number of distinct words in the sample (vocabulary
+        richness);
+  \item \textbf{capital words}: the number of words (longer than 2) written only in
+        capital letters (SHOUTING);
+  \item \textbf{spelling errors}: the number of words not found in the dictionaries of
+        the language;
+  \item \textbf{character flooding}: \emph{sooooo saaaad\ldots};
+  \item \textbf{neologisms}: newly invented words;
+  \item \textbf{slang}: \emph{tanta roba!} (Italian slang, ``great stuff!'');
+  \item \textbf{emoticons}: \texttt{>(}.
+\end{itemize}
+
+\subsubsection{Graph-based features}
+\slidesrc{Text features: 13}
+
+A text can also be turned into a \textbf{graph}, and the properties of the graph used as
+features. The slide shows an example of \textbf{EmoGraph} for a Spanish sentence
+(\emph{He estado tomando cursos en línea sobre temas valiosos que disfruto estudiando y
+que podrían ayudarme a hablar en público}, ``I have been taking online courses about
+valuable subjects that I enjoy studying and that might help me to speak in public''):
+\begin{itemize}[nosep]
+  \item the nodes are the \textbf{POS tags} of the words (detailed tags such as
+        \texttt{NCMP000}, common noun masculine plural, or \texttt{VMIP1S0}, main verb
+        indicative present first person singular) and \textbf{semantic and emotional
+        labels} of the words (\emph{education}, \emph{language}, \emph{joy},
+        \emph{positive}, \ldots);
+  \item the edges follow the order of the words in the text: an edge from a tag to the
+        next one, and from a word's tag to its semantic/emotional labels;
+  \item graph measures (which nodes are most central, how connected the graph is, \ldots)
+        become the features. They capture \emph{how} a person combines grammar and
+        emotions, a stylistic fingerprint.
+\end{itemize}
+
+\begin{nbsummary}[families of features]
+\begin{itemize}[nosep]
+  \item Stylistic: n-grams/collocations, POS counts, function words (huge overlap with
+        stop words), readability, sentence/word length, punctuation.
+  \item Content-based: semantic categories, emotion words, TF-IDF, LSA.
+  \item Content + style: LIWC (psychological word categories + summary variables).
+  \item Vocabulary and idiosyncrasies: unique words, capitals, spelling errors,
+        flooding, neologisms, slang, emoticons.
+  \item Graph-based: e.g.\ EmoGraph (POS + emotion labels as a graph).
+  \item Scope of a feature: the word (FW), the word in its sentence (POS), the document
+        (counts), the corpus (TF-IDF).
+\end{itemize}
+\end{nbsummary}

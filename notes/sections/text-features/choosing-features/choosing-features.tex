@@ -1,0 +1,167 @@
+\subsection{Which Features for Which Goal}
+\label{sec:choosing-features}
+\slidesrc{Text features: 14--23; Blackboard: features}
+
+\subsubsection{Content, FW, POS: when, why?}
+\slidesrc{Text features: 14--22}
+
+``Well\ldots\ it depends on what your goal is.''
+
+\paragraph{Topic classification: content matters.}
+If you need to classify a document into categories such as ``music'', ``biology'',
+``food'' (three examples of BabelNet categories), you probably do not care about function
+words and POS: what matters are the content words. Two texts from the slides:
+\begin{itemize}[nosep]
+  \item \emph{``Baked sea bass with lemon caper dressing. To make the dressing, mix the
+        oil with the lemon zest and juice, capers, mustard, \ldots''} (a recipe: food);
+  \item \emph{``These Russian basses sing so low you'll think the world is ending.
+        \ldots\ the sound of a Russian oktavist, singing a full octave below a normal
+        bass\ldots''} (music).
+\end{itemize}
+Both contain \emph{bass}, which in BabelNet has several senses: \emph{bass, basso} (an
+adult male singer with the lowest voice), \emph{sea bass} (the lean flesh of a saltwater
+fish), \emph{freshwater bass} (a fish), \emph{bass voice} (the lowest adult male singing
+voice). The content words around it (\emph{baked}, \emph{lemon}, \emph{capers} vs.\
+\emph{sing}, \emph{octave}) both pick the right sense (word sense disambiguation,
+Section~\ref{sec:word-sense-disambiguation}) and the right topic. Counting pronouns or
+articles would not help at all.
+
+\paragraph{Author profiling: function words and POS matter.}
+But if you are profiling the \emph{author} of a document\ldots
+
+\begin{nbfact}{Argamon, Koppel, Pennebaker and Schler (2009)}
+``However, the preponderance of evidence suggests that the most consistently effective
+features over a wide variety of authorship problems are \textbf{function words} and
+individual \textbf{parts-of-speech}.''
+
+\smallskip\noindent
+{\footnotesize S.\ Argamon, M.\ Koppel, J.\,W.\ Pennebaker, J.\ Schler,
+\emph{Automatically profiling the author of an anonymous text}, Communications of the
+ACM 52(2), 2009.}
+\end{nbfact}
+
+\begin{nbexample}{female vs.\ male}
+The slides show two abstracts of linguistics papers, one by a female and one by a male
+author, about similar topics (stylistic analysis, rhetorical devices). First the
+\textbf{personal pronouns} are highlighted (\emph{my}, \emph{I}, \emph{he},
+\emph{their}), then the preposition \textbf{of}. The point: the topic of the two texts
+is the same, so content features cannot tell the authors apart, but the \emph{rates} of
+such small words can. In the large studies by Argamon, Koppel and colleagues, texts by
+women use more personal pronouns, texts by men more determiners, numbers and
+prepositions such as \emph{of} (words that specify nouns).
+\end{nbexample}
+
+\subsubsection{So, what?}
+\slidesrc{Text features: 23}
+
+\begin{itemize}[nosep]
+  \item There is a possibly endless amount of features. Many are standard and well
+        studied, and it is also clear which NLP tasks they suit best; others (EmoGraph,
+        for example) are less standard.
+  \item Anyone can use existing features, already implemented by existing tools.
+  \item The real challenge is to \textbf{invent new features}, or well-calibrated
+        combinations of existing ones, and to \textbf{demonstrate} that they are useful
+        for some given NLP task, on some existing benchmark.
+\end{itemize}
+
+\subsubsection{The blackboard summary}
+\slidesrc{Blackboard: features}
+
+In class the lecturer summarised which features are useful for which tasks in a table
+on the blackboard. On the board the features are the \emph{columns}; here the table is
+transposed (one feature per row) so that it fits the page. Nothing else is changed.
+
+\begin{nbblackboard}{Which feature is useful for which task}{Blackboard: features}
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.0cm}
+  >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.0cm}@{}}
+\toprule
+\textnormal{\textbf{feature}} & \textbf{useful for} & \textbf{useless or not
+  applicable for} \\
+\midrule
+Function words & author profiling: $\bullet$ gender of [the author] / pron[ouns];
+  $\bullet$ one specific author & topic classification or filtering \\
+TF-IDF & topic classification & not applicable without a corpus; WSD \\
+POS & author profiling; genre profiling; readability & {\color{nbgray}\itshape(empty)} \\
+Period / stylistic features & Bob or bot?; human author profiling; document genre
+  profiling & {\color{nbgray}\itshape(empty)} \\
+Emotions & sentiment analysis; affective computing; legal cases; fake news &
+  {\color{nbgray}\itshape(empty)} \\
+Length of words & {\color{nbgray}\itshape(empty)} & {\color{nbgray}\itshape(empty)} \\
+Variability of words & readability & {\color{nbgray}\itshape(empty)} \\
+Slang, flooding, jargon & {\color{nbgray}\itshape(empty)} &
+  {\color{nbgray}\itshape(empty)} \\
+\bottomrule
+\end{tabularx}
+
+\smallskip
+{\color{nbgray}\scriptsize On the board a double arrow links the headings ``Period /
+stylistic features'' and ``Length of words'' (they belong together). In the first cell
+the text after ``gender of'' is partly unreadable; brackets mark what is completed from
+context.}
+\end{nbblackboard}
+
+\paragraph{Reading the blackboard, row by row.}
+\begin{itemize}
+  \item \textbf{Function words}. Useful for \textbf{author profiling}: to guess the
+        \emph{gender} of the author (through the use of pronouns, as in the female vs.\
+        male example) or to recognise \emph{one specific author} (authorship
+        attribution: everybody has a personal rate of \emph{the}, \emph{of},
+        \emph{however}). Useless for \textbf{topic classification or filtering}: function
+        words are the same in every topic, which is why they are removed as stop words.
+  \item \textbf{TF-IDF}. Useful for \textbf{topic classification}: the words with high
+        TF-IDF in a document are the ones that characterise its topic. \textbf{Not
+        applicable without a corpus}: the idf needs a collection of documents $C$; with a
+        single text we cannot compute it. Useless for \textbf{WSD}: TF-IDF weighs a word
+        for a whole document, it says nothing about which sense one occurrence has.
+  \item \textbf{POS}. Useful for \textbf{author profiling} (Argamon et al.),
+        \textbf{genre profiling} (a scientific paper has more nouns, a novel more verbs
+        and pronouns, a recipe many imperatives) and \textbf{readability} (many nouns and
+        long noun phrases make a text harder).
+  \item \textbf{Period / stylistic features}. ``Period'' here means the sentence
+        (Italian \emph{periodo}): sentence length, punctuation, question sentences, the
+        stylistic features of Table~\ref{tab:stylistic-features}. Useful to tell
+        \textbf{a human (Bob) from a bot}, for \textbf{human author profiling}, and for
+        \textbf{document genre profiling}.
+  \item \textbf{Emotions}. Emotion words are useful for \textbf{sentiment analysis}
+        (positive or negative opinion), \textbf{affective computing} (systems that
+        recognise and react to human emotions), \textbf{legal cases} (e.g.\ the emotional
+        load of testimonies or of threatening messages) and \textbf{fake news} (fake news
+        often uses a strongly emotional, alarming language).
+  \item \textbf{Length of words}. No task written on the board; it is linked by the
+        arrow to the stylistic features (word length is one of them, features 5--7 of the
+        stylistic table) and enters readability formulas.
+  \item \textbf{Variability of words} (vocabulary richness, the number of unique words).
+        Useful for \textbf{readability}: a text that uses many different and rare words
+        is harder to read.
+  \item \textbf{Slang, flooding, jargon}: no task written on the board; from the
+        previous subsection they are idiosyncrasies of informal writers (useful for
+        author profiling, e.g.\ age, and for bot detection).
+\end{itemize}
+
+\begin{nbintuition}[the rule behind the table]
+Ask: \emph{does the task depend on what is said, or on who says it and how?}
+\begin{itemize}[nosep]
+  \item \textbf{What} is said (topic, filtering): use \emph{content} features (TF-IDF,
+        semantic categories); remove function words.
+  \item \textbf{Who} says it and \textbf{how} (author, gender, human vs.\ bot, genre,
+        readability): use \emph{style} features (function words, POS, sentence and word
+        length, vocabulary richness, idiosyncrasies).
+  \item \textbf{How the author feels} (sentiment, fake news, affective computing): use
+        \emph{emotion} features.
+\end{itemize}
+\end{nbintuition}
+
+\begin{nbsummary}[choosing features]
+\begin{itemize}[nosep]
+  \item Topic classification: content words (TF-IDF); function words and POS useless.
+  \item Author profiling: function words and POS are the most consistently effective
+        features (Argamon et al., 2009); female vs.\ male: pronouns vs.\ noun specifiers.
+  \item TF-IDF needs a corpus; useless for WSD.
+  \item Stylistic (sentence-level) features: bot detection, author and genre profiling.
+  \item Emotions: sentiment analysis, affective computing, legal cases, fake news.
+  \item Variability of words, POS: readability.
+  \item The challenge: invent new features and prove they help on a benchmark.
+\end{itemize}
+\end{nbsummary}

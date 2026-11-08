@@ -1,0 +1,235 @@
+\subsection{Ontology Learning}
+\label{sec:ontology-learning}
+\slidesrc{Ontology learning: 1--25; Ontology development: 74}
+
+Building an ontology by hand (Section~\ref{sec:design-process}) is slow and expensive.
+\textbf{Ontology learning} uses NLP and machine learning to do part of the work
+automatically. The deck is a tutorial by Ícaro Medeiros (CIn--UFPE, 2008).
+
+\subsubsection{What, why and from where}
+\slidesrc{Ontology learning: 4--9}
+
+The field has \textbf{too many names for the same subject}: ontology extraction,
+emergence, generation, acquisition, discovery, population, enrichment\ldots\ The common
+name, after Philipp Cimiano's book \emph{Ontology Learning and Population from Text}
+(2006), is \textbf{ontology learning} (OL).
+
+\begin{nbdef}{Ontology learning}
+\textbf{Ontology learning} is the set of methods and techniques for
+\begin{itemize}[nosep]
+  \item building an ontology from scratch;
+  \item enriching or adapting an existing ontology;
+\end{itemize}
+by extracting concepts and relations (from text or other sources) to form an ontology.
+OL is a \textbf{semi-automatic} task of information extraction: a human remains in the
+loop to validate and correct.
+\end{nbdef}
+
+\paragraph{Why?}
+Ontology engineering has three problems (Maedche and Staab, 2001):
+\begin{itemize}[nosep]
+  \item \textbf{time}: can you develop an ontology fast?
+  \item \textbf{difficulty}: is it difficult to build an ontology?
+  \item \textbf{confidence}: how do you know that you have got the ontology right?
+\end{itemize}
+OL can help with all three, especially with the \textbf{knowledge acquisition
+bottleneck}: experts are few and busy, and writing their knowledge down by hand is the
+slowest part of building any knowledge-based system.
+
+\paragraph{Information sources.}
+Relevant text (mainly Web documents); Web document schemata (XML, DTD, RDF); databases
+on the Web; dictionaries; semi-structured documents; personal wikis, e-mail and file
+folders; existing Web ontologies.
+
+\begin{center}
+\begin{tikzpicture}[st/.style={draw=nborange, fill=nborange!10, font=\small,
+    rounded corners=2pt, inner sep=4pt}, arr/.style={-{Stealth}, very thick, nbteal}]
+  \draw[line width=14pt, black!12] (0,0) circle (2.6);
+  \node[font=\scriptsize\itshape] at (0,2.6) {Legacy + Application Data};
+  \node[font=\scriptsize\itshape] at (0,-2.6) {Legacy + Application Data};
+  \node[draw, circle, fill=nbteal!10, font=\scriptsize, align=center, minimum size=1.7cm]
+       at (0,0) {Domain\\ Ontology};
+  \draw[arr] (150:1.6) arc (150:30:1.6);
+  \draw[arr] (-30:1.6) arc (-30:-150:1.6);
+  \node[font=\scriptsize\itshape, text=nbteal] at (0,1.25) {ontology learning};
+  \node[font=\scriptsize\itshape, text=nbteal] at (0,-1.25) {ontology learning};
+  \node[st] at (150:2.6) {Extract};
+  \node[st] at (40:2.6) {Prune};
+  \node[st] at (-20:2.6) {Refine};
+  \node[st] at (-60:2.6) {Apply};
+  \node[st] at (210:2.6) {Import / Reuse};
+\end{tikzpicture}
+\captionof{figure}{The ontology engineering cycle of Maedche and Staab (2001), redrawn:
+import/reuse existing ontologies, extract, prune, refine, apply, and start again.
+Ontology learning is not only the task of extraction.}
+\end{center}
+
+The cycle shows that OL is \textbf{not only extraction}: one also \emph{imports} and
+reuses existing ontologies, \emph{prunes} what is irrelevant for the application,
+\emph{refines} the result, and \emph{applies} it, which produces new data for the next
+round.
+
+\subsubsection{How to learn ontologies}
+\slidesrc{Ontology learning: 10--15}
+
+The main families of techniques: natural language processing; dictionary parsing;
+statistical analysis; machine learning; hierarchical concept clustering; Formal Concept
+Analysis (lattices).
+
+\paragraph{Why text?}
+Text is massively available on the Web; relevant texts contain relevant knowledge about a
+domain; and when an ontology is learnt from text, the \emph{linguistic} knowledge (how
+concepts are named and talked about) remains associated with the ontology (Sintek et
+al., 2004).
+
+\begin{nbintuition}[OL as reverse engineering (Buitelaar et al., 2005)]
+People share a model of the world (a ``shared world model'') and use it to
+\emph{write} texts: newspapers, manuals, Web pages. Ontology learning goes the opposite
+way: from the texts back to the model. It is \textbf{reverse engineering}: like
+recovering the design of a program from its compiled code, we recover the conceptual
+model from the documents it produced. And like reverse engineering, it is only partial:
+much of the shared knowledge is never written down because everybody already knows it.
+\end{nbintuition}
+
+\begin{center}
+\begin{tikzpicture}[lay/.style={draw, fill=nbblue!6, font=\small, minimum height=0.75cm,
+    anchor=east}]
+  \foreach \t/\w/\y/\ex in {
+      Terms/6.1/0/{disease, illness, hospital},
+      (Multilingual) Synonyms/5.8/0.75/{\{disease, illness, Krankheit\}},
+      Concepts/5.5/1.5/{DISEASE := $\langle$Int, Ext, Lex$\rangle$},
+      Taxonomy/5.2/2.25/{is\_a(DOCTOR, PERSON)},
+      Relations/4.9/3.0/{cure(dom: DOCTOR, range: DISEASE)},
+      Rules \& Axioms/4.6/3.75/{$\forall x, y\,(\mathit{sufferFrom}(x,y) \to \mathit{ill}(x))$}}
+  {
+    \node[lay, minimum width=\w cm - 1.6cm] at (12,\y) {\t};
+    \node[font=\small\itshape, anchor=east] at ({12-(\w-1.6)-0.15},\y) {\ex};
+  }
+\end{tikzpicture}
+\captionof{figure}{The ontology learning layer cake (Buitelaar et al., 2005), redrawn.
+Each layer is a learning task that builds on the layers below it; on the left, an
+example of the output of each task.}
+\label{fig:layer-cake}
+\end{center}
+
+\begin{nbfact}{the layer cake}
+Ontology learning from text is organised in six layers, from the bottom:
+\begin{enumerate}[nosep]
+  \item \textbf{terms}: the relevant words and phrases of the domain (\emph{disease},
+        \emph{illness}, \emph{hospital});
+  \item \textbf{(multilingual) synonyms}: groups of terms with the same meaning, also
+        across languages (\emph{disease}, \emph{illness}, German \emph{Krankheit});
+  \item \textbf{concepts}: a concept is defined by its \textbf{int}ension, its
+        \textbf{ext}ension and its \textbf{lex}ical realisations (see below);
+  \item \textbf{taxonomy}: the is-a hierarchy between concepts (a doctor is a person);
+  \item \textbf{relations}: other relations between concepts, with domain and range
+        (doctors cure diseases);
+  \item \textbf{rules and axioms}: general logical statements (whoever suffers from
+        something is ill).
+\end{enumerate}
+Lower layers are easier to learn automatically and more reliable; upper layers are
+harder and need more human validation.
+\end{nbfact}
+
+\subsubsection{Term extraction}
+\slidesrc{Ontology learning: 16--18}
+
+\textbf{Linguistic methods} reuse the syntactic tools of the course:
+\begin{itemize}[nosep]
+  \item \textbf{part-of-speech tagging} (Section~\ref{sec:pos-tagging}) to identify the
+        syntactic class: a noun suggests a class, a verb a relation;
+  \item \textbf{stemming} (Section~\ref{sec:stemming-lemmatization}): \emph{formalize},
+        \emph{formalization}, \emph{formalized}, \emph{formalizing} are one term;
+  \item \textbf{head-modifier analysis}: in \emph{fast car} the head is \emph{car} and
+        \emph{fast} a modifier; in \emph{the hood of the car}, \emph{hood} is a part of
+        \emph{car};
+  \item \textbf{grammatical function analysis}: ``John played football in the garden''
+        $\to$ \emph{play(John, football)}: the subject and the object of a verb become
+        the arguments of a relation.
+\end{itemize}
+
+\textbf{Statistical methods}:
+\begin{itemize}[nosep]
+  \item \textbf{term weighting} with TF-IDF (Section~\ref{sec:stop-words-tfidf});
+  \item \textbf{co-occurrence analysis} (a common method in text mining);
+  \item \textbf{comparison of frequencies between a domain corpus and a general corpus}:
+        a word much more frequent in medical texts than in newspapers (\emph{tumour}) is
+        likely a medical term; a word equally frequent in both (\emph{table}) is not.
+\end{itemize}
+
+\textbf{Hybrid methods}: linguistic rules extract term candidates (e.g.\ the POS pattern
+``adjective* noun+'' finds \emph{heart disease}, \emph{chronic kidney disease}), then
+statistics filter them (before or after).
+
+\subsubsection{Synonym extraction}
+\slidesrc{Ontology learning: 19--20}
+
+Two approaches: \textbf{extending WordNet} (\emph{term classification}: attach a new
+term to the right synset of WordNet, Section~\ref{sec:wordnet}) and
+\textbf{co-occurrence between terms} (\emph{term clustering}: terms with similar
+contexts are grouped together, the distributional hypothesis of
+Section~\ref{sec:distributional-hypothesis}).
+
+\subsubsection{Concept extraction}
+\slidesrc{Ontology learning: 21--25}
+
+A term may indicate a concept, if we define its:
+\begin{itemize}[nosep]
+  \item \textbf{intension}: an (in)formal definition of the objects the concept
+        describes. E.g.\ ``a disease is an impairment of health or a condition of
+        abnormal functioning'';
+  \item \textbf{extension}: the set of objects described by the concept. E.g.\ cancer,
+        heart disease;
+  \item \textbf{lexical realisations}: the term itself and its (multilingual)
+        synonyms.
+\end{itemize}
+
+\begin{nbintuition}[intension vs.\ extension]
+The \emph{intension} is the \emph{recipe} (``what it takes to be a disease''); the
+\emph{extension} is the \emph{list} (``all the diseases''). The concept ``even number
+between 1 and 9'' has intension ``divisible by 2, between 1 and 9'' and extension
+$\{2, 4, 6, 8\}$. In an ontology, the class definition is the intension, and the
+instances are the extension.
+\end{nbintuition}
+
+\paragraph{Learning the intension.}
+An \emph{informal} definition is a shallow definition as used in WordNet (a gloss):
+find the appropriate WordNet concept for a term and the appropriate conceptual relations
+(Navigli and Velardi, 2004). A \emph{formal} definition gives formal constraints for
+class membership, e.g.\ with Formal Concept Analysis.
+
+\paragraph{Learning the extension: ontology population.}
+Extracting the instances of a concept from text is \textbf{ontology population}. It is
+related to knowledge markup and tag suggestion (semantic metadata), and it uses
+\textbf{named entity recognition} (Section~\ref{sec:named-entity-recognition}):
+``John is a football player'' $\to$ \emph{John} (a Person) is an instance of
+\emph{Football Player}. Instances can be
+\begin{itemize}[nosep]
+  \item names for objects: persons, organisations, countries, cities;
+  \item event instances: a football match, with its teams, players, officials, \ldots
+\end{itemize}
+
+\begin{nbwarning}[what the shortened deck leaves out]
+The outline of the tutorial continues with taxonomy, relation and axiom learning,
+ontology learning from folksonomies (collaborative tags), tools and conclusions. These
+parts are not in the shortened deck shown in class; the layer cake of
+Figure~\ref{fig:layer-cake} gives what these tasks produce.
+\end{nbwarning}
+
+\begin{nbsummary}[ontology learning]
+\begin{itemize}[nosep]
+  \item OL (a.k.a.\ extraction, generation, acquisition, population, enrichment):
+        semi-automatic building or enrichment of ontologies; fights the knowledge
+        acquisition bottleneck (time, difficulty, confidence).
+  \item Sources: Web text, schemata, databases, dictionaries, semi-structured documents,
+        existing ontologies. OE cycle: import/reuse, extract, prune, refine, apply.
+  \item Methods: NLP, dictionary parsing, statistics, ML, clustering, Formal Concept
+        Analysis. OL from text = reverse engineering of the shared world model.
+  \item Layer cake: terms $\to$ synonyms $\to$ concepts $\to$ taxonomy $\to$ relations
+        $\to$ rules \& axioms.
+  \item Terms: POS, stemming, head-modifier, grammatical functions; TF-IDF,
+        co-occurrence, domain vs.\ general corpus; hybrid.
+  \item Concept = intension + extension + lexical realisations; extension learning =
+        ontology population, with NER.
+\end{itemize}
+\end{nbsummary}

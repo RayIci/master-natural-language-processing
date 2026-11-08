@@ -1,0 +1,31 @@
+\section{Text Features}
+\label{sec:text-features}
+\slidesrc{Text features: 1--23; Blackboard: features}
+
+Most NLP tasks that classify texts (by topic, by author, by sentiment, human or bot,
+\ldots) need to turn a text into numbers first. Each number is a \textbf{feature}: a
+measurable property of the text, such as the percentage of pronouns, the TF-IDF weight
+of a word, the number of emotion words. The course map
+(Section~\ref{sec:course-map}) listed the most common ones; this section explains them
+and, above all, \emph{when} to use which.
+
+\begin{nbdef}{Feature}
+A \textbf{feature} of a text is a number (or a symbol) computed from the text that
+describes one of its properties. A text is represented by a \textbf{feature vector}
+$(f_1, f_2, \ldots, f_k)$, which is the input of a classifier or of another algorithm.
+Some features belong to a \emph{single word} (being a function word), some to a
+\emph{word in its sentence} (its POS), some to the \emph{whole document} (the
+percentage of pronouns), and some need a whole \emph{corpus} (TF-IDF).
+\end{nbdef}
+
+This section covers:
+\begin{enumerate}[nosep]
+  \item the families of features: stylistic, content-based, content and style
+        together (LIWC), vocabulary and idiosyncrasies, graph-based
+        (Section~\ref{sec:feature-types});
+  \item which features to use for which goal, with the summary table written on the
+        blackboard (Section~\ref{sec:choosing-features}).
+\end{enumerate}
+
+\input{sections/text-features/feature-types/feature-types}
+\input{sections/text-features/choosing-features/choosing-features}
