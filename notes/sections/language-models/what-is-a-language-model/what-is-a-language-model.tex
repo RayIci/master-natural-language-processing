@@ -1,0 +1,162 @@
+\subsection{What Is a Language Model?}
+\label{sec:what-is-a-language-model}
+\slidesrc{Language models \& RNNs: 2--11}
+
+\subsubsection{Predicting and evaluating language}
+\slidesrc{Language models \& RNNs: 3--6}
+
+A \textbf{language model} is a mathematical model that describes human language. It
+should let us do two things:
+\begin{itemize}[nosep]
+  \item \textbf{predict} language: continue a text that has been started;
+  \item \textbf{evaluate} language: say how ``natural'' or likely a piece of text is.
+\end{itemize}
+
+How can we build such a model? Two facts make it hard to write it down as a fixed set of
+rules:
+\begin{itemize}[nosep]
+  \item \textbf{language is ambiguous}: the same beginning can be continued in many
+        reasonable ways (``she went to \ldots'' the shop? work? bed?);
+  \item \textbf{language is evolving}: new words and new ways of saying things appear
+        all the time, so any fixed list of rules goes out of date.
+\end{itemize}
+Both facts push in the same direction: instead of saying \emph{which} continuation is
+correct, we say \emph{how likely} each continuation is. We therefore use
+\textbf{probabilistic models of language}.
+
+\subsubsection{Next-word prediction}
+\slidesrc{Language models \& RNNs: 7--9}
+
+The fundamental goal of a language model is \textbf{prediction}, and the simplest form
+of prediction is guessing the \textbf{next word}. We number the words of a sentence by
+their position: $\vect x^{(1)}$ is the first word, $\vect x^{(2)}$ the second, and so on
+(the superscript $(t)$ is a position, ``time step $t$'', not a power).
+
+\begin{center}
+\begin{tikzpicture}[word/.style={font=\small, anchor=base, inner sep=2pt},
+                    lab/.style={font=\scriptsize, nbgray}]
+  \foreach \w/\x [count=\i] in {Anna/0, was/1.25, tired/2.45, so/3.55, she/4.5,
+                                went/5.5, to/6.55} {
+    \node[word] (w\i) at (\x,0) {\w};
+    \node[lab] at (\x,-0.5) {$\vect x^{(\i)}$};
+  }
+  \node[word, draw=nbred, dashed, rounded corners, minimum width=1.1cm] (w8) at (7.85,0) {\strut ?};
+  \node[lab, nbred] at (7.85,-0.55) {$\vect x^{(8)}$};
+\end{tikzpicture}
+\captionof{figure}{Next-word prediction: having read the first seven words, the model
+must say which word is likely to come in position 8.}
+\end{center}
+
+Given the words $\vect x^{(1)}, \vect x^{(2)}, \ldots, \vect x^{(t)}$ read so far, the
+model computes the \textbf{probability distribution of the next word}
+$\vect x^{(t+1)}$:
+\[
+  p\bigl(\vect x^{(t+1)} \mid \vect x^{(t)}, \ldots, \vect x^{(1)}\bigr).
+\]
+
+\notinslides
+A few words on this notation, since it is used everywhere in this section.
+\begin{itemize}[nosep]
+  \item The \textbf{vocabulary} $V$ is the set of all words the model knows, and $|V|$
+        is its size (tens of thousands of words for a real model).
+  \item A \textbf{probability distribution over the next word} is a list of $|V|$
+        numbers, one per word of the vocabulary, each between 0 and 1, which add up to
+        1. For example, after ``she went to'' a model could give \emph{the}: 0.5,
+        \emph{work}: 0.25, \emph{school}: 0.2, \emph{bed}: 0.05, and 0 to all other
+        words.
+  \item The vertical bar ``$\mid$'' reads ``given'':
+        $p(A \mid B)$ is the probability of $A$ \emph{knowing that} $B$ happened.
+        What is written after the bar is called the \textbf{context} or the
+        \textbf{conditioning}.
+\end{itemize}
+
+Language models are part of daily life: the slide shows a search engine completing a
+query while it is being typed (each suggestion is a likely continuation of the
+characters typed so far) and a chat assistant writing an answer word by word.
+
+\subsubsection{Evaluating a text: the chain rule}
+\slidesrc{Language models \& RNNs: 10}
+
+An equivalent goal is to \textbf{evaluate} a text, i.e.\ assign it a probability. Given
+the words $\vect x^{(1)}, \ldots, \vect x^{(T)}$ ($T$ is the length of the text), we want
+$p(\vect x^{(1)}, \ldots, \vect x^{(T)})$: the probability that a text is exactly this
+sequence of words. Why is this ``equivalent'' to next-word prediction? Because of the
+\textbf{chain rule of probability}.
+
+The starting point is the definition of conditional probability:
+\[
+  p(A, B) = p(A \mid B)\, p(B),
+\]
+``the probability that both $A$ and $B$ happen is the probability of $B$, times the
+probability of $A$ once we know $B$ happened''. Applying it again and again we can peel
+a sentence one word at a time, from the end. For three words:
+\begin{align*}
+  p(\vect x^{(1)}, \vect x^{(2)}, \vect x^{(3)})
+  &= p(\vect x^{(3)} \mid \vect x^{(2)}, \vect x^{(1)})\; p(\vect x^{(1)}, \vect x^{(2)})
+     \reason{$A = \vect x^{(3)}$, $B = (\vect x^{(1)}, \vect x^{(2)})$} \\
+  &= p(\vect x^{(3)} \mid \vect x^{(2)}, \vect x^{(1)})\; p(\vect x^{(2)} \mid \vect x^{(1)})\;
+     p(\vect x^{(1)}) \reason{again, on $p(\vect x^{(1)}, \vect x^{(2)})$}
+\end{align*}
+Reading the last line from right to left: probability of the first word, times the
+probability of the second word given the first, times the probability of the third
+given the first two. In general:
+
+\begin{nbfact}{Chain rule for a text}
+\begin{align*}
+  p(\vect x^{(1)}, \ldots, \vect x^{(T)})
+  &= p(\vect x^{(1)}) \times p(\vect x^{(2)} \mid \vect x^{(1)}) \times \cdots \times
+     p(\vect x^{(T)} \mid \vect x^{(T-1)}, \ldots, \vect x^{(1)}) \\
+  &= \prod_{t=1}^{T} \underbrace{p(\vect x^{(t)} \mid \vect x^{(t-1)}, \ldots,
+     \vect x^{(1)})}_{\text{next-word prediction!}}
+\end{align*}
+($\prod$ is the product symbol, the multiplicative analogue of $\sum$; for $t = 1$ the
+context is empty and the factor is just $p(\vect x^{(1)})$.)
+\end{nbfact}
+
+So the two goals are really one: a model that can predict the next word can evaluate
+any text (multiply the next-word probabilities of all its words), and a model that can
+evaluate texts can predict the next word (compare the probabilities of the possible
+continuations). This identity is exact: no approximation has been made yet.
+
+\begin{nbexample}{probability of a short sentence}
+\notinslides
+Suppose a model says $p(\textit{the}) = 0.06$ for the first word,
+$p(\textit{cat} \mid \textit{the}) = 0.01$ and
+$p(\textit{sleeps} \mid \textit{the cat}) = 0.05$. Then
+\[
+  p(\textit{the cat sleeps}) = 0.06 \times 0.01 \times 0.05 = 0.00003 .
+\]
+The number is tiny, as is the probability of any particular sentence (there are
+astronomically many possible sentences), but it can be \emph{compared}: a good model
+gives \emph{the cat sleeps} a much higher probability than \emph{sleeps cat the}.
+\end{nbexample}
+
+\subsubsection{Why care about language models?}
+\slidesrc{Language models \& RNNs: 11}
+
+\begin{nbdef}{Language model}
+A \textbf{language model} is a probabilistic model of natural language: it assigns a
+probability to every sequence of words, or equivalently gives, for every context, the
+probability distribution of the next word.
+\end{nbdef}
+
+\begin{itemize}[nosep]
+  \item Language modelling is a good \textbf{benchmark} for general NLP models: to
+        predict the next word well a model must know grammar, meaning and facts about
+        the world.
+  \item Every task that needs to \textbf{estimate the probability of a text} can be
+        built on top of an LM: speech recognition, handwriting recognition, spell
+        checking, machine translation, summarisation, dialogue, \ldots
+  \item Today \textbf{everything else in NLP is built on top of language modelling}:
+        GPT is a language model.
+\end{itemize}
+
+\begin{nbintuition}[how a probability of text helps other tasks]
+\notinslides
+A speech recogniser hears a sound that could be ``recognise speech'' or ``wreck a nice
+beach''. Both match the audio; the language model says the first is a far more likely
+English sentence, so it wins. A spell checker that sees ``I went to the sea \emph{shor}''
+proposes \emph{shore} rather than \emph{short} because $p(\textit{shore} \mid
+\textit{the sea})$ is much higher. In both cases the LM provides the knowledge of
+``what people usually say''.
+\end{nbintuition}

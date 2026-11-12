@@ -39,6 +39,7 @@
   | `8) features.pdf`                                               | `Text features`                            |
   | `9) 20261105_150320.jpg`                                        | `Blackboard: features` (photo)             |
   | `10) pragmatics.pdf`                                            | `Pragmatics`                               |
+  | `11) lm_rnns.pdf`                                               | `Language models \& RNNs`                 |
 
   Pages 1--27 of `6.2)` are the same slides as `6.1)`: cite the shortened deck for them.
 

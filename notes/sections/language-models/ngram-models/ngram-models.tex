@@ -1,0 +1,375 @@
+\subsection{Classical Language Models: n-grams}
+\label{sec:ngram-models}
+\slidesrc{Language models \& RNNs: 12--34}
+
+Before neural networks, language models were built by \textbf{counting}. This section
+shows how, why it works surprisingly well, and why it eventually hits a wall.
+
+\subsubsection{n-grams and the Markov assumption}
+\slidesrc{Language models \& RNNs: 13--16}
+
+\begin{nbdef}{n-gram}
+An \textbf{n-gram} is a sequence of $n$ consecutive words of a text.
+\end{nbdef}
+
+For the sentence ``The quick brown fox jumps over the lazy dog'':
+\begin{center}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+$n$ & n-grams \\
+\midrule
+1 (\textbf{unigrams})  & \emph{the}, \emph{quick}, \emph{brown}, \emph{fox}, \ldots \\
+2 (\textbf{bigrams})   & \emph{the quick}, \emph{quick brown}, \emph{brown fox}, \emph{fox jumps}, \ldots \\
+3 (\textbf{trigrams})  & \emph{the quick brown}, \emph{quick brown fox}, \emph{brown fox jumps}, \ldots \\
+4 (\textbf{four-grams})& \emph{the quick brown fox}, \emph{quick brown fox jumps}, \ldots \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+An \textbf{n-gram language model}:
+\begin{enumerate}[nosep]
+  \item collects the \textbf{frequencies} (counts) of all n-grams in a large text
+        corpus;
+  \item uses these frequencies to predict the next word.
+\end{enumerate}
+
+\paragraph{The Markov assumption.}
+The chain rule (Section~\ref{sec:what-is-a-language-model}) needs the probability
+of the next word given the
+\emph{whole} history. That is impossible to estimate by counting: most long histories
+appear only once in any corpus, or never. An n-gram model makes a simplifying
+assumption, named after the mathematician Markov (we met the same idea in Hidden Markov
+Models, Section~\ref{sec:hmm-pos-tagging}).
+
+\begin{nbdef}{Markov assumption (n-gram model)}
+The next word depends only on the $n-1$ words just before it:
+\[
+  p\bigl(\vect x^{(t+1)} \mid \vect x^{(t)}, \ldots, \vect x^{(1)}\bigr) \approx
+  p\bigl(\vect x^{(t+1)} \mid
+  \underbrace{\vect x^{(t)}, \ldots, \vect x^{(t-n+2)}}_{n-1 \text{ words}}\bigr).
+\]
+(Counting the context: from position $t-n+2$ to position $t$ there are
+$t - (t-n+2) + 1 = n-1$ words. Together with the predicted word they form one n-gram.)
+\end{nbdef}
+
+For example, a \textbf{bigram} model ($n = 2$) looks only at the previous word. The
+probability of ``the quick brown fox'' is decomposed as
+\[
+  p(\texttt{<s>}) \, p(\textit{the} \mid \texttt{<s>}) \, p(\textit{quick} \mid \textit{the})
+  \, p(\textit{brown} \mid \textit{quick}) \, p(\textit{fox} \mid \textit{brown}) \,
+  p(\texttt{</s>} \mid \textit{fox}).
+\]
+\texttt{<s>} and \texttt{</s>} are two special tokens marking the \textbf{beginning} and
+the \textbf{end of the sentence}. They let the model learn which words tend to
+\emph{start} a sentence ($p(\textit{the} \mid \texttt{<s>})$ is high) and which tend to
+\emph{end} it. Every sentence starts with \texttt{<s>}, so $p(\texttt{<s>}) = 1$.
+
+\paragraph{Estimating the probabilities by counting.}
+By the definition of conditional probability, the probability we need is a ratio:
+\[
+  p\bigl(\vect x^{(t+1)} \mid \vect x^{(t)}, \ldots, \vect x^{(t-n+2)}\bigr) =
+  \frac{p\bigl(\vect x^{(t+1)}, \vect x^{(t)}, \ldots, \vect x^{(t-n+2)}\bigr)}
+       {p\bigl(\vect x^{(t)}, \ldots, \vect x^{(t-n+2)}\bigr)} .
+\]
+We do not know these probabilities, but we have a corpus, a finite sample of language.
+The \textbf{finite-sample approximation} replaces each probability with how often the
+sequence occurs in the corpus:
+\[
+  p\bigl(\vect x^{(t+1)} \mid \vect x^{(t)}, \ldots, \vect x^{(t-n+2)}\bigr) \approx
+  \frac{\overbrace{\text{count}\bigl(\vect x^{(t+1)}, \vect x^{(t)}, \ldots,
+        \vect x^{(t-n+2)}\bigr)}^{\text{an n-gram}}}
+       {\underbrace{\text{count}\bigl(\vect x^{(t)}, \ldots,
+        \vect x^{(t-n+2)}\bigr)}_{\text{an $(n-1)$-gram}}} .
+\]
+In words: \emph{among all the times the context appeared, in what fraction was it
+followed by this word?} The quality of the approximation depends on the
+\textbf{size of the corpus}: the more text, the closer the fractions get to the true
+probabilities.
+
+\begin{nbexample}{a four-gram model}
+\slidesrc{Language models \& RNNs: 17--19}
+We want to continue ``Anna was tired so she went to \underline{\quad}'' with a
+\textbf{four-gram} model ($n = 4$). It looks only at the last $n - 1 = 3$ words,
+\emph{she went to}, and discards the rest:
+\[
+  p(x \mid \textit{she went to}) \approx
+  \frac{\text{count}(\textit{she went to } x)}{\text{count}(\textit{she went to})} .
+\]
+Suppose the corpus contains:
+\begin{center}
+\small
+\begin{tabular}{@{}lrl@{}}
+\toprule
+sequence & count & estimated probability of $x$ \\
+\midrule
+\emph{she went to}        & 1000 & (the context) \\
+\emph{she went to the}    & 500  & $500/1000 = 0.50$ \\
+\emph{she went to work}   & 250  & $250/1000 = 0.25$ \\
+\emph{she went to school} & 200  & $200/1000 = 0.20$ \\
+\emph{she went to bed}    & 50   & $50/1000 = 0.05$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The four probabilities add up to 1 (here every occurrence of the context is followed by
+one of these four words). The model predicts \emph{the} as most likely and \emph{bed} as
+least likely.
+
+\textbf{Was it a good idea to discard the longer context?} No: ``Anna was
+\emph{tired}'' is exactly the clue that makes \emph{bed} the most sensible
+continuation, but the model never saw it, because it fell outside the window of three
+words.
+\end{nbexample}
+
+\begin{nbexample}{a bigram model from a toy corpus}
+\notinslides
+The corpus has three sentences:
+\begin{center}
+\texttt{<s>} I like cats \texttt{</s>} \qquad
+\texttt{<s>} I like dogs \texttt{</s>} \qquad
+\texttt{<s>} you like cats \texttt{</s>}
+\end{center}
+Counts we need: \texttt{<s>} appears 3 times, followed twice by \emph{I} and once by
+\emph{you}; \emph{I} appears 2 times, always followed by \emph{like}; \emph{like}
+appears 3 times, followed twice by \emph{cats} and once by \emph{dogs}; \emph{dogs}
+appears once, followed by \texttt{</s>}. So
+\[
+  p(\textit{I} \mid \texttt{<s>}) = \tfrac23, \quad
+  p(\textit{like} \mid \textit{I}) = \tfrac22 = 1, \quad
+  p(\textit{dogs} \mid \textit{like}) = \tfrac13, \quad
+  p(\texttt{</s>} \mid \textit{dogs}) = \tfrac11 = 1 .
+\]
+The probability of the sentence ``I like dogs'' is
+\begin{align*}
+  p(\textit{I like dogs})
+  &= p(\textit{I} \mid \texttt{<s>})\, p(\textit{like} \mid \textit{I})\,
+     p(\textit{dogs} \mid \textit{like})\, p(\texttt{</s>} \mid \textit{dogs}) \\
+  &= \tfrac23 \cdot 1 \cdot \tfrac13 \cdot 1 = \tfrac29 \approx 0.22 .
+\end{align*}
+Two observations that lead to the next topic:
+\begin{itemize}[nosep]
+  \item ``you like dogs'' \emph{never} appears in the corpus, yet the model gives it
+        $\frac13 \cdot 1 \cdot \frac13 \cdot 1 = \frac19$: by cutting sentences into
+        short pieces, the model \textbf{generalises} to new sentences;
+  \item ``I hate cats'' gets probability \textbf{0}, because the bigram \emph{I hate}
+        was never seen. One unseen bigram is enough to kill the whole sentence.
+\end{itemize}
+\end{nbexample}
+
+\subsubsection{Sparsity problems}
+\slidesrc{Language models \& RNNs: 20--26}
+
+\paragraph{Sparsity problem 1: unseen continuations.}
+For many words $x$, the sequence ``she went to $x$'' \textbf{never occurs} in the
+corpus (``she went to Reykjavik'', ``she went to dinner'' may simply be absent). Their
+count is 0, so their probability is 0: the model says they are \emph{impossible}. Many
+words with probability 0 make the LM \textbf{inflexible}.
+
+\textbf{Mitigation: smoothing.} Add a small value $\epsilon$ to the count of every
+word $x \in V$, so that nothing is ever exactly 0:
+\[
+  p(x \mid \textit{she went to}) =
+  \frac{\text{count}(\textit{she went to } x) + \epsilon}
+       {\text{count}(\textit{she went to}) + \epsilon |V|} .
+\]
+
+\begin{nbwarning}[the denominator must change too]
+The slide adds $\epsilon$ only to the numerator. Then the probabilities no longer add
+up to 1: summing the numerators over all $|V|$ words gives
+$\text{count}(\textit{she went to}) + \epsilon|V|$, not
+$\text{count}(\textit{she went to})$. Adding $\epsilon|V|$ to the denominator, as
+above, fixes this. With $\epsilon = 1$ the method is called \textbf{add-one} or
+\textbf{Laplace smoothing}.
+\end{nbwarning}
+
+\begin{nbexample}{add-one smoothing on the toy corpus}
+\notinslides
+In the toy corpus above, a word can be followed by one of the 6 tokens
+\emph{I}, \emph{you}, \emph{like}, \emph{cats}, \emph{dogs}, \texttt{</s>}, so
+$|V| = 6$; and $\text{count}(\textit{I}) = 2$. With $\epsilon = 1$:
+\[
+  p(\textit{like} \mid \textit{I}) = \frac{2 + 1}{2 + 6} = \frac38, \qquad
+  p(\textit{cats} \mid \textit{I}) = \frac{0 + 1}{2 + 6} = \frac18 ,
+\]
+and the same $\frac18$ for each of the other 4 unseen tokens.
+Check: $\frac38 + 5 \cdot \frac18 = 1$. \emph{like} is still by far the most likely, but
+no word is impossible any more. The price: probability mass has been taken from the
+words that were actually seen ($1 \to \frac38$) and spread over unseen ones.
+\end{nbexample}
+
+\paragraph{Sparsity problem 2: unseen contexts.}
+What if ``she went to'' \textbf{never appeared} in the corpus? Then the denominator is
+0, and we cannot compute the probability at all.
+
+\textbf{Mitigation: backoff.} Condition on a shorter context, just ``went to'' (or
+``she went'', as the slide writes), and if that is also missing, shorter still, down to
+the unigram probability of $x$. Shorter contexts are more frequent, so they are more
+likely to have been observed.
+
+\begin{nbfact}{Increasing n makes sparsity worse}
+A longer n-gram is a more specific sequence, so it is seen more rarely. With a larger
+$n$ the model uses more context, but more of its counts are 0 and smoothing/backoff
+are needed more often. In practice $n \le 5$.
+\end{nbfact}
+
+\paragraph{An example of sparsity.}
+The \textbf{Berkeley Restaurant Project} dataset contains 9332 sentences of people
+asking about restaurants, with a vocabulary of $|V| = 1446$ words. The table shows the
+bigram counts for 8 of these words: the entry in row \emph{want}, column \emph{to} is
+how many times \emph{want} was immediately followed by \emph{to}.
+
+\begin{center}
+\small
+\begin{tabular}{@{}l*{8}{r}@{}}
+\toprule
+ & \emph{i} & \emph{want} & \emph{to} & \emph{eat} & \emph{chinese} & \emph{food} &
+   \emph{lunch} & \emph{spend} \\
+\midrule
+\emph{i}       & 5  & 827 & 0  & 9   & 0 & 0 & 0 & 2   \\
+\emph{want}    & 2  & 0  & 608 & 1   & 6  & 6  & 5  & 1   \\
+\emph{to}      & 2  & 0  & 4   & 686 & 2  & 0 & 6  & 211 \\
+\emph{eat}     & 0 & 0  & 2   & 0  & 16 & 2  & 42 & 0  \\
+\emph{chinese} & 1  & 0  & 0  & 0  & 0 & 82 & 1  & 0  \\
+\emph{food}    & 15 & 0  & 15  & 0  & 1  & 4  & 0 & 0  \\
+\emph{lunch}   & 2  & 0  & 0  & 0  & 0 & 1  & 0 & 0  \\
+\emph{spend}   & 1  & 0  & 1   & 0  & 0 & 0 & 0 & 0  \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Bigram counts in the Berkeley Restaurant Project (row = first word,
+column = second word). Half of the 64 entries are 0, even among frequent words.}
+\label{tab:berkeley-bigrams}
+\end{center}
+
+32 of the 64 cells are zero. Some zeros are real impossibilities (\emph{want want}),
+but others are perfectly good English that simply did not occur (\emph{lunch food}?
+\emph{spend lunch}?). And this is with \textbf{bigrams}: there are
+$1446^2 \approx 2.1$ million possible bigrams, far more than a corpus of 9332 sentences
+can show. With $n > 2$ it is much worse.
+
+\subsubsection{Storage problems}
+\slidesrc{Language models \& RNNs: 27}
+
+An n-gram model must \textbf{store the counts} of all n-grams seen in the corpus. As $n$
+grows, or as the corpus grows, this can become huge. With $|V| = 1446$ there are
+\[
+  1446^4 \approx 4.37 \times 10^{12}
+\]
+possible four-grams: naively storing a count for each of them, even at just one byte per
+count, requires about \textbf{4 TB} of memory, for a toy vocabulary. Real vocabularies
+have tens of thousands of words. (Storing only the n-grams actually seen saves a lot,
+but on a large corpus that is still billions of entries.)
+
+\subsubsection{Generating text with an n-gram model}
+\slidesrc{Language models \& RNNs: 28--34}
+
+A language model can also \textbf{generate} text: start from a context, compute the
+distribution of the next word, \textbf{sample} a word from it, append it to the context
+and repeat.
+
+\begin{nbdef}{Sampling from a distribution}
+\notinslides
+\textbf{Sampling} a word means drawing it at random \emph{with the probabilities given
+by the model}: a word with probability 0.3 is picked, on average, 3 times out of 10. It
+is like rolling a die whose faces are the words of the vocabulary and whose faces have
+different sizes. Sampling (instead of always taking the most likely word) gives varied
+text rather than the same sentence every time.
+\end{nbdef}
+
+The slides use a \textbf{trigram} model built on the \textbf{Reuters corpus} (1.7
+million words of financial news). Starting from ``today the'':
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[xbar, width=6.5cm, height=4.2cm, bar width=7pt, xmin=0, xmax=0.2,
+    symbolic y coords={emirate,italian,price,bank,company}, ytick=data,
+    y tick label style={font=\small\itshape}, x tick label style={font=\scriptsize,
+    /pgf/number format/fixed}, nodes near coords, nodes near coords style={font=\scriptsize},
+    every node near coord/.append style={/pgf/number format/fixed,
+    /pgf/number format/precision=3},
+    title={\small $p(x \mid \textit{today the})$}, axis x line*=bottom, axis y line*=left,
+    enlarge y limits=0.15]
+  \addplot[fill=nbblue!60, draw=nbblue] coordinates
+    {(0.153,company) (0.153,bank) (0.077,price) (0.039,italian) (0.039,emirate)};
+\end{axis}
+\end{tikzpicture}
+\captionof{figure}{The five most likely words after ``today the'' in the trigram model
+(the rest of the probability is spread over many other words).}
+\end{center}
+
+\begin{enumerate}[nosep]
+  \item Context \emph{today the} $\to$ distribution: \emph{company} 0.153,
+        \emph{bank} 0.153, \emph{price} 0.077, \emph{italian} 0.039,
+        \emph{emirate} 0.039, \ldots\ Sample: \emph{price}.
+  \item Text \emph{today the price}; context (last 2 words) \emph{the price} $\to$
+        \emph{of} 0.308, \emph{for} 0.050, \emph{it} 0.046, \emph{to} 0.046,
+        \emph{is} 0.031, \ldots\ Sample: \emph{of}.
+  \item Text \emph{today the price of}; context \emph{price of} $\to$ \emph{the} 0.072,
+        \emph{18} 0.043, \emph{oil} 0.043, \emph{its} 0.036, \emph{gold} 0.018, \ldots
+        and so on.
+\end{enumerate}
+Note that at each step only the last $n - 1 = 2$ words are used as context: the
+beginning \emph{today} is forgotten as soon as it leaves the window.
+
+\paragraph{The effect of $n$.}
+The slide shows text generated by n-gram models trained on a novel (Mary Shelley's
+\emph{Frankenstein}), for increasing $n$:
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}c X@{}}
+\toprule
+$n$ & generated text \\
+\midrule
+1 & ``care I of . its destined , in , from . . for the Felix an not which measure excited'' \\
+2 & ``I compassionated him , how heavily ; but I had arrived , but they averred , my unhallowed damps and'' \\
+3 & ``I continued their single offspring . At length I gathered from a man who , born in freedom , spurned'' \\
+4 & ``I continued walking in this manner , during which I enjoyed the feeling of happiness . Still thou canst listen'' \\
+5 & ``I continued walking in this manner for some time , and I feared the effects of the dæmon's disappointment .'' \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\begin{itemize}[nosep]
+  \item Increasing $n$, the model is \textbf{more coherent}: unigrams give a word salad,
+        bigrams give locally plausible pairs, 4- and 5-grams read like real sentences.
+  \item Increasing $n$ \textbf{increases the sparsity problem}.
+  \item With a high $n$ the model \textbf{repeats the training set}: most 5-word
+        contexts were seen only once, so they have only one possible continuation, and
+        the model copies whole passages of the novel instead of creating new text.
+\end{itemize}
+
+\begin{nbsummary}[n-gram language models]
+\begin{itemize}[nosep]
+  \item Markov assumption: the next word depends only on the previous $n-1$ words.
+  \item Estimate: $p(x \mid \text{context}) \approx
+        \text{count}(\text{context}, x) / \text{count}(\text{context})$.
+  \item Sparsity 1 (unseen n-gram, probability 0) $\to$ smoothing; sparsity 2 (unseen
+        context, division by 0) $\to$ backoff. Both get worse as $n$ grows; $n \le 5$.
+  \item Storage grows with $n$ and with the corpus.
+  \item Small $n$: incoherent text; large $n$: coherent but copied from the corpus.
+  \item The context is cut off: anything older than $n-1$ words is forgotten.
+\end{itemize}
+\end{nbsummary}
+
+\begin{nbexercise}{1}{bigram probabilities}
+\notinslides
+Using the toy corpus of this section (\texttt{<s>} I like cats \texttt{</s>},
+\texttt{<s>} I like dogs \texttt{</s>}, \texttt{<s>} you like cats \texttt{</s>}) and a
+bigram model without smoothing, compute $p(\textit{you like cats})$. Which sentence of
+the form ``\emph{subject} like \emph{animal}'' has the highest probability?
+\end{nbexercise}
+\begin{nbsolution}
+Counts: $p(\textit{you} \mid \texttt{<s>}) = \frac13$,
+$p(\textit{like} \mid \textit{you}) = \frac11 = 1$,
+$p(\textit{cats} \mid \textit{like}) = \frac23$,
+$p(\texttt{</s>} \mid \textit{cats}) = \frac22 = 1$. So
+\[
+  p(\textit{you like cats}) = \tfrac13 \cdot 1 \cdot \tfrac23 \cdot 1 = \tfrac29 .
+\]
+The four candidates are
+$p(\textit{I like cats}) = \frac23 \cdot \frac23 = \frac49$,
+$p(\textit{I like dogs}) = \frac23 \cdot \frac13 = \frac29$,
+$p(\textit{you like cats}) = \frac13 \cdot \frac23 = \frac29$,
+$p(\textit{you like dogs}) = \frac13 \cdot \frac13 = \frac19$ (the factors equal to 1
+are omitted). Check: they add up to $\frac{4+2+2+1}{9} = 1$, since these are the only
+sentences the model can produce. \emph{I like cats} wins: it combines the most
+frequent start (\emph{I}) and the most frequent animal (\emph{cats}).
+\end{nbsolution}

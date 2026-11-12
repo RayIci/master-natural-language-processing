@@ -1,0 +1,309 @@
+\subsection{Problems with RNNs: Vanishing and Exploding Gradients}
+\label{sec:vanishing-exploding-gradients}
+\slidesrc{Language models \& RNNs: 85--101}
+
+In practice, training the RNN presented so far (often called a \textbf{vanilla RNN},
+i.e.\ the plain basic version) is hard, because of two related problems:
+\begin{enumerate}[nosep]
+  \item \textbf{vanishing gradients};
+  \item \textbf{exploding gradients}.
+\end{enumerate}
+Both come from the same source: in BPTT the gradient travels backwards through many
+steps, and at each step it is \emph{multiplied} by the same matrix.
+
+\needspace{12\baselineskip}
+\subsubsection{Vanishing gradients: intuition}
+\slidesrc{Language models \& RNNs: 87--91}
+
+How much does the loss at step 4 depend on the hidden state at step 1? By the chain
+rule, the influence of $\vect h^{(1)}$ on $J^{(4)}$ passes through $\vect h^{(2)}$,
+$\vect h^{(3)}$ and $\vect h^{(4)}$, and each passage contributes one factor:
+\[
+  \frac{\partial J^{(4)}}{\partial \vect h^{(1)}} =
+  \frac{\partial \vect h^{(2)}}{\partial \vect h^{(1)}} \times
+  \frac{\partial \vect h^{(3)}}{\partial \vect h^{(2)}} \times
+  \frac{\partial \vect h^{(4)}}{\partial \vect h^{(3)}} \times
+  \frac{\partial J^{(4)}}{\partial \vect h^{(4)}} .
+\]
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth,
+    neu/.style={circle, draw=cyan!70!black, fill=cyan!35, minimum size=5pt, inner sep=0pt},
+    hid/.style={draw=cyan!70!black, rounded corners, thick, minimum width=0.5cm,
+                minimum height=1.4cm}]
+  \foreach \i in {1,...,4} {
+    \node[hid] (h\i) at (2.6*\i,0) {};
+    \foreach \k in {1,...,4} \node[neu] at (2.6*\i,0.7-0.28*\k) {};
+    \node[font=\small, anchor=north] at (h\i.south) {$\vect h^{(\i)}$};
+  }
+  \foreach \i/\j in {1/2,2/3,3/4} \draw[->, nbgray] ([yshift=4pt]h\i.east) --
+      node[above, font=\scriptsize] {$W_h$} ([yshift=4pt]h\j.west);
+  \node[font=\small, nbred] (J) at (10.4,1.9) {$J^{(4)}$};
+  \draw[->, nbgray] ([xshift=-3pt]h4.north) -- ([xshift=-3pt]J.south);
+  % backward arrows getting thinner
+  \draw[->, nbred, line width=3pt] ([xshift=4pt]J.south) -- ([xshift=4pt]h4.north);
+  \draw[->, nbred, line width=2.2pt] ([yshift=-6pt]h4.west) -- ([yshift=-6pt]h3.east);
+  \draw[->, nbred!80, line width=1.3pt] ([yshift=-6pt]h3.west) -- ([yshift=-6pt]h2.east);
+  \draw[->, nbred!60, line width=0.5pt] ([yshift=-6pt]h2.west) -- ([yshift=-6pt]h1.east);
+  \node[font=\scriptsize, nbred, align=center] at (5.2,-1.45)
+       {the gradient shrinks at every step backwards};
+\end{tikzpicture}
+\captionof{figure}{The gradient of $J^{(4)}$ flows backwards from $\vect h^{(4)}$ to
+$\vect h^{(1)}$ (red arrows). If each factor is ``small'', the signal reaching the first
+tokens is tiny.}
+\end{center}
+
+\begin{nbintuition}[multiplying small numbers]
+\notinslides
+If each factor were $0.5$, after 3 steps the signal would be $0.5^3 = 0.125$, after 10
+steps $0.001$, after 20 steps one millionth. A product of many numbers smaller than 1
+\emph{vanishes}; a product of many numbers larger than 1 \emph{explodes}. It is the
+same as the children's game ``telephone'': a message whispered along a long chain of
+people arrives at the end faint or distorted.
+\end{nbintuition}
+
+\begin{nbdef}{Vanishing gradients}
+When the factors $\partial \vect h^{(t)} / \partial \vect h^{(t-1)}$ are small, the
+gradients with respect to the \textbf{first tokens become tiny}: the loss at a late step
+hardly influences how the network processes early words.
+\end{nbdef}
+
+\subsubsection{Vanishing gradients: proof sketch}
+\slidesrc{Language models \& RNNs: 92--95}
+
+Use again the simplified model $\vect h^{(t)} = W_h \vect h^{(t-1)}$,
+$J^{(t)}(\theta) = \mathrm{CE}(\vect h^{(t)}, \vect y^{*(t)})$. Consider the loss at step
+$i$ and its gradient with respect to the hidden state of an earlier step $j < i$. Call
+$l = i - j$ the \textbf{distance} between the two steps.
+\begin{align*}
+  \frac{\partial J^{(i)}(\theta)}{\partial \vect h^{(j)}}
+  &= \frac{\partial J^{(i)}(\theta)}{\partial \vect h^{(i)}}
+     \prod_{j < t \le i} \frac{\partial \vect h^{(t)}}{\partial \vect h^{(t-1)}}
+     \reason{chain rule, one factor per step}\\
+  &= \frac{\partial J^{(i)}(\theta)}{\partial \vect h^{(i)}}
+     \prod_{j < t \le i} W_h
+     \reason{$\vect h^{(t)} = W_h \vect h^{(t-1)}$}\\
+  &= \frac{\partial J^{(i)}(\theta)}{\partial \vect h^{(i)}}\, W_h^{\,l}
+     \reason{$l$ equal factors}
+\end{align*}
+If $W_h$ is ``small'', the power $W_h^{\,l}$ becomes minuscule as $l$ grows. What
+``small'' means for a matrix is made precise by its \textbf{eigenvalues}.
+
+\notinslides
+Recall that an eigenvector $\vect q$ of a matrix is a direction that the matrix only
+stretches: multiplying by the matrix gives $\lambda \vect q$, where the number
+$\lambda$ is the eigenvalue. Multiplying $l$ times stretches it by $\lambda^l$.
+
+Suppose $W_h$ has eigenvalues $\lambda_1, \ldots, \lambda_n$ with
+$|\lambda_k| < 1$ and (left) eigenvectors $\vect q_1, \ldots, \vect q_n$ that form a
+basis. Write the gradient row vector in this basis,
+$\frac{\partial J^{(i)}}{\partial \vect h^{(i)}} = \sum_k c_k \vect q_k\T$. Each
+multiplication by $W_h$ multiplies the $k$-th component by $\lambda_k$, so
+\[
+  \frac{\partial J^{(i)}(\theta)}{\partial \vect h^{(i)}}\, W_h^{\,l}
+  = \sum_{k=1}^{n} c_k\, \lambda_k^{\,l}\, \vect q_k\T
+  \;\approx\; 0 \quad \text{for large } l ,
+\]
+because every $\lambda_k^{\,l} \to 0$: the gradient \textbf{vanishes}. How fast?
+
+\begin{center}
+\small
+\begin{tabular}{@{}c|ccccc@{}}
+\toprule
+$\lambda$ & $l = 1$ & $l = 5$ & $l = 10$ & $l = 20$ & $l = 50$ \\
+\midrule
+0.5 & 0.5 & 0.031 & 0.00098 & $9.5 \times 10^{-7}$ & $\approx 0$ \\
+0.9 & 0.9 & 0.59  & 0.35    & 0.12                 & 0.0052 \\
+1.1 & 1.1 & 1.61  & 2.59    & 6.73                 & 117 \\
+\bottomrule
+\end{tabular}
+\captionof{table}{$\lambda^l$: the factor by which a component of the gradient is
+multiplied after travelling back $l$ steps. Below 1 it decays exponentially, above 1 it
+grows exponentially.}
+\end{center}
+
+The same phenomenon occurs with more realistic RNN models (reference: Pascanu et al.,
+\emph{On the difficulty of training recurrent neural networks}, 2013).
+
+\begin{nbwarning}[details the slide leaves out]
+\begin{itemize}[nosep]
+  \item The condition is on the \emph{absolute value}: $|\lambda_k| < 1$. The slide
+        writes $\lambda_k < 1$, but an eigenvalue $-2$ is smaller than 1 and still
+        makes the gradient explode. (Eigenvalues can even be complex numbers; then
+        $|\lambda|$ is their modulus.)
+  \item The argument assumes $W_h$ has a basis of eigenvectors (it is
+        \emph{diagonalisable}); the general case is similar, using the largest
+        singular value instead.
+  \item The slide uses $i$ both for the time step and for the eigenvalue index; above
+        the eigenvalue index is $k$.
+  \item In a real RNN, $\vect h^{(t)} = \sigma(W_h \vect h^{(t-1)} + \ldots)$, so each
+        factor is $\mathrm{diag}\bigl(\sigma'(\cdot)\bigr) W_h$. The derivative of the
+        sigmoid is at most $\frac14$ (of $\tanh$ at most 1), which makes the factors
+        even smaller and vanishing even more likely.
+\end{itemize}
+\end{nbwarning}
+
+\subsubsection{Why it matters: long-term dependencies}
+\slidesrc{Language models \& RNNs: 96--98}
+
+The gradient that updates the weights is the sum of contributions from all steps. A
+contribution from a \textbf{nearby token} arrives almost intact; one from a
+\textbf{far-away token} arrives multiplied by $W_h^{\,l}$, i.e.\ almost 0. So the
+weights are updated almost only to exploit short-range patterns.
+
+\begin{nbfact}{Long-term dependencies}
+With vanishing gradients, \textbf{long-term dependencies are (practically) impossible
+to learn}, because the gradient from far-away tokens is much smaller than from nearby
+tokens.
+\end{nbfact}
+
+\begin{nbexample}{a dependency 20+ tokens back}
+Predict the next word:
+\begin{quote}\small
+After leaving \textbf{work}, he went to pick up his daughter from school. They had
+planned to go to the pet shop to buy a hamster and drove through town looking for one
+she liked. Eventually they found it, but before heading back home he had to rush back
+to his \underline{\quad\quad}
+\end{quote}
+The right answer is \emph{work}. To predict it the model must connect the blank with
+the word \emph{work} at the very beginning, more than 20 tokens earlier. During
+training, the gradient that would teach this connection is tiny compared with the
+gradients of short-range patterns (``his'' $\to$ a noun, ``rush back to his'' $\to$
+\emph{car}, \emph{house}, \ldots), so it provides little signal and learning
+long-term dependencies becomes very slow. A vanilla RNN tends to guess from the last
+few words only, i.e.\ it behaves much like an n-gram model.
+\end{nbexample}
+
+\subsubsection{Exploding gradients and gradient clipping}
+\slidesrc{Language models \& RNNs: 99--100}
+
+Symmetrically, if the eigenvalues of $W_h$ are larger than 1 (in absolute value), the
+gradients become \textbf{too big}:
+\begin{itemize}[nosep]
+  \item an update $\theta \leftarrow \theta - \alpha \nabla_\theta J$ with a huge
+        gradient is a huge step, which can jump over the minimum and
+        \textbf{increase} the loss instead of decreasing it;
+  \item in the worst case the numbers overflow and the weights become
+        \texttt{inf} or \texttt{NaN} (``not a number''): training is ruined.
+\end{itemize}
+
+\begin{nbdef}{Gradient clipping}
+If the gradient is too large, scale it down. With a threshold $\tau > 0$:
+\begin{enumerate}[nosep]
+  \item set $\hat{\vect g} \leftarrow \nabla_\theta J(\theta)$;
+  \item \textbf{if} $\norm{\hat{\vect g}} \ge \tau$:
+  \item \quad set $\hat{\vect g} \leftarrow \dfrac{\tau}{\norm{\hat{\vect g}}}\,
+        \hat{\vect g}$;
+  \item \textbf{end if}
+\end{enumerate}
+then update the weights with $\hat{\vect g}$.
+\end{nbdef}
+
+Multiplying by the positive number $\tau / \norm{\hat{\vect g}}$ does not change the
+direction of the vector, only its length, which becomes exactly $\tau$. So
+\textbf{the update direction remains the same, but the step size is reduced}.
+
+\begin{nbexample}{clipping a gradient}
+\notinslides
+Gradient $\hat{\vect g} = (30, 40)$, threshold $\tau = 5$. Its length is
+$\norm{\hat{\vect g}} = \sqrt{30^2 + 40^2} = 50 \ge 5$, so
+\[
+  \hat{\vect g} \leftarrow \frac{5}{50}\,(30, 40) = (3, 4),
+\]
+which has length $\sqrt{9 + 16} = 5 = \tau$ and points in the same direction (the
+ratio between the entries is still $3 : 4$).
+\end{nbexample}
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+\begin{axis}[width=8.5cm, height=5.5cm, axis lines=left, xmin=-0.6, xmax=4.6, ymin=0, ymax=5,
+    xlabel={parameter $\theta$}, ylabel={loss $J(\theta)$}, xtick=\empty, ytick=\empty,
+    label style={font=\small}, clip=false]
+  \addplot[domain=-0.3:4.3, samples=200, thick, nbblue]
+     {0.15*(x-1)^2 + 3/(1+exp(-8*(x-3)))};
+  \fill[black] (axis cs:3,2.1) circle (2pt);
+  \draw[->, thick, nbgreen] (axis cs:3,2.1) -- (axis cs:2.5,0.39);
+  \node[font=\scriptsize, nbgreen, align=left, anchor=west] at (axis cs:3.15,1.0)
+       {with clipping:\\small step, same direction};
+  \draw[->, thick, dashed, nbred] (axis cs:3,2.1) .. controls (axis cs:2.0,4.4) ..
+       (axis cs:-0.2,4.1);
+  \node[font=\scriptsize, nbred, align=center] at (axis cs:1.5,4.7)
+       {without clipping: thrown far away};
+  \node[font=\scriptsize, nbgray, anchor=west] at (axis cs:3.3,2.3) {cliff};
+\end{axis}
+\end{tikzpicture}
+\captionof{figure}{A ``cliff'' in the loss, typical of RNNs. On the steep wall the
+gradient is enormous: a plain gradient step throws the parameters far away, undoing
+training; the clipped step goes in the same direction but stays local.}
+\end{center}
+
+The slide illustrates this with the 3D loss surface from Pascanu et al.: a flat region
+with a steep wall, where unclipped updates bounce off the wall, while clipped ones
+proceed smoothly. In practice \textbf{clipping essentially solves the exploding
+gradient problem}. It does nothing, however, for vanishing gradients: one cannot
+enlarge a gradient that carries no information.
+
+\subsubsection{Solutions for vanishing gradients}
+\slidesrc{Language models \& RNNs: 101}
+
+Vanilla RNNs cannot learn long-range dependencies because \textbf{they do not have a
+memory}: in
+\[
+  \vect h^{(t)} = \sigma\bigl(W_h \vect h^{(t-1)} + W_e \vect e^{(t)}\bigr)
+\]
+the hidden state is \textbf{constantly rewritten}: at every step all of it is
+multiplied by $W_h$ and squashed again, so old information fades. The solutions
+follow two ideas:
+\begin{itemize}
+  \item \textbf{Separate memory mechanisms}: \textbf{LSTMs} (Long Short-Term Memory) and
+        \textbf{GRUs} (Gated Recurrent Units) add a memory cell and \emph{gates}, small
+        learnt switches that decide at each step what to keep, what to forget and what
+        to write. Information the gates decide to keep passes from step to step almost
+        unchanged, so its gradient does not vanish. These were the
+        \textbf{state-of-the-art NLP models in the 2010s}.
+  \item \textbf{Direct connections between far-away tokens}: \textbf{attention} lets
+        each position look directly at any earlier position, and \textbf{residual
+        connections} add a shortcut that skips over layers. The gradient can then
+        travel along a short path instead of through dozens of multiplications.
+        Attention is the core of the transformer, the architecture of today's LLMs.
+\end{itemize}
+
+\begin{nbsummary}[vanishing and exploding gradients]
+\begin{itemize}[nosep]
+  \item Gradient across $l$ steps: $\frac{\partial J^{(i)}}{\partial \vect h^{(j)}} =
+        \frac{\partial J^{(i)}}{\partial \vect h^{(i)}} W_h^{\,l}$ (simplified model).
+  \item All $|\lambda_k| < 1$ $\Rightarrow$ $\lambda_k^l \to 0$: \textbf{vanishing}
+        gradients, long-term dependencies are not learnt.
+  \item Some $|\lambda_k| > 1$ $\Rightarrow$ \textbf{exploding} gradients: loss jumps
+        up, \texttt{inf}/\texttt{NaN}.
+  \item Exploding $\to$ \textbf{gradient clipping}: if $\norm{\vect g} \ge \tau$, use
+        $\frac{\tau}{\norm{\vect g}}\vect g$ (same direction, length $\tau$).
+  \item Vanishing $\to$ memory with gates (LSTM, GRU) or direct connections
+        (attention, residual connections).
+\end{itemize}
+\end{nbsummary}
+
+\begin{nbexercise}{3}{vanishing or exploding?}
+\notinslides
+In the simplified model $h^{(t)} = w\,h^{(t-1)}$ with a scalar hidden state, the
+gradient reaching a token $l$ steps back is multiplied by $w^l$. For $w = 0.8$ and
+$w = 1.25$, after how many steps does the factor fall below $\frac{1}{100}$ or rise
+above $100$? What happens with $w = -1.25$?
+\end{nbexercise}
+\begin{nbsolution}
+For $w = 0.8$ we need $0.8^l < 0.01$, i.e.\ $l > \frac{\ln 0.01}{\ln 0.8} =
+\frac{-4.605}{-0.223} \approx 20.6$: from $l = 21$ on (check: $0.8^{21} \approx 0.0092$).
+
+For $w = 1.25$ we need $1.25^l > 100$, i.e.\ $l > \frac{\ln 100}{\ln 1.25} =
+\frac{4.605}{0.223} \approx 20.6$: again from $l = 21$ on ($1.25^{21} \approx 108$).
+(The two answers coincide because $1.25 = 1/0.8$.)
+
+For $w = -1.25$: $|w^l| = 1.25^l$, the same growth, with a sign that alternates at
+every step. The gradient explodes even though $w < 1$, which is why the condition must
+be stated on $|w|$ (on $|\lambda|$ for matrices).
+
+Lesson: about 20 steps are enough to lose or blow up the signal by a factor 100, even
+with a factor only 20\% away from 1. This is the same order of magnitude as the
+truncation length used in BPTT and as the distance in the ``rush back to his work''
+example.
+\end{nbsolution}

@@ -1,0 +1,298 @@
+\subsection{Neural Language Models}
+\label{sec:neural-language-models}
+\slidesrc{Language models \& RNNs: 35--50}
+
+n-gram models fail because they treat every word sequence as a separate, unrelated
+item: seeing ``she went to school'' a thousand times teaches them nothing about ``he
+walked to college''. Neural language models fix this by representing words as
+\textbf{vectors}, so that similar words get similar representations and what is learnt
+about one word transfers to its neighbours.
+
+\subsubsection{Aside: word embeddings via word2vec}
+\slidesrc{Language models \& RNNs: 36}
+
+\paragraph{One-hot vectors.}
+\notinslides
+A computer needs numbers, not words. The simplest way to turn a word into numbers is a
+\textbf{one-hot vector}: number the words of the vocabulary from 1 to $|V|$; word number
+$i$ becomes a vector of length $|V|$ with a 1 in position $i$ and 0 everywhere else.
+With the vocabulary $(\textit{cat}, \textit{dog}, \textit{the}, \textit{sleeps})$:
+\[
+  \textit{cat} = \col{1\\0\\0\\0}, \quad \textit{dog} = \col{0\\1\\0\\0}, \quad
+  \textit{the} = \col{0\\0\\1\\0}, \quad \textit{sleeps} = \col{0\\0\\0\\1}.
+\]
+One-hot vectors identify words but say nothing about their meaning: \emph{cat} is
+exactly as different from \emph{dog} as from \emph{sleeps} (any two of them have
+dot product 0).
+
+\paragraph{Word embeddings.}
+The goal of a \textbf{word embedding} is to represent each word with a short, dense
+vector (a few hundred real numbers) such that:
+\begin{itemize}[nosep]
+  \item the vector of a word is \textbf{similar} to the vectors of words that occur in
+        \emph{similar} contexts;
+  \item it is \textbf{dissimilar} from the vectors of words that are unlikely to appear
+        in the same contexts.
+\end{itemize}
+This is the distributional hypothesis (Section~\ref{sec:distributional-hypothesis})
+turned into vectors (Section~\ref{sec:geometric-interpretation}). \textbf{Word2vec} is
+a popular method that learns such vectors by training a small neural network to
+predict words from their neighbours. Similarity between two vectors is measured by
+their \textbf{dot product}: multiply the entries position by position and add.
+
+\begin{nbexample}{similar and dissimilar words}
+\slidesrc{Language models \& RNNs: 36}
+Eight-dimensional embeddings from the slide:
+\[
+  \textit{baking} = \col{0.286\\0.792\\-0.177\\-0.107\\0.109\\-0.542\\0.349\\0.271}\!,\quad
+  \textit{flour}  = \col{0.413\\0.582\\-0.007\\0.247\\0.216\\-0.718\\0.147\\0.051}\!,\quad
+  \textit{dollar} = \col{-0.154\\0.024\\0.512\\0.782\\0.359\\0.141\\-0.581\\-0.027}\!.
+\]
+\begin{align*}
+  \textit{baking}\T\textit{flour}
+  &= 0.286 \cdot 0.413 + 0.792 \cdot 0.582 + (-0.177)(-0.007) + \cdots\\
+  &\qquad + 0.271 \cdot 0.051\\
+  &= 0.118 + 0.461 + 0.001 - 0.026 + 0.024 + 0.389 + 0.051 + 0.014\\
+  &\approx 1.03
+\end{align*}
+The large positive entries are in the same places (positions 2 and 6 contribute most),
+so the dot product is large: \emph{baking} and \emph{flour} appear in similar contexts
+(recipes). For \emph{baking} and \emph{dollar} the signs disagree in most positions and
+the dot product is negative: they are used in unrelated contexts.
+\end{nbexample}
+
+\begin{nbwarning}[the number on the slide]
+The slide gives $\textit{baking}\T\textit{dollar} = -0.35$. With the vectors as printed
+the dot product is $-0.45$; $-0.34$ is their \emph{cosine similarity} (the dot product
+divided by the lengths of the two vectors, Section~\ref{sec:geometric-interpretation}).
+Either way the conclusion is the same: negative, hence dissimilar.
+\end{nbwarning}
+
+\subsubsection{A fixed-window neural language model}
+\slidesrc{Language models \& RNNs: 37--41}
+
+Recall the language-modelling task: given a sequence of words
+$\vect x^{(1)}, \ldots, \vect x^{(t)}$, output the probability distribution of the next
+word, $p(\vect x^{(t+1)} \mid \vect x^{(1)}, \ldots, \vect x^{(t)})$. The first neural
+approach keeps the n-gram idea of a \textbf{fixed window} of previous words, but
+replaces counting with a \textbf{neural network} that \emph{learns} to predict.
+
+For ``Anna was tired so she went to her \underline{\quad}'', a window of 4 words
+takes \emph{she went to her} and predicts the missing word. The network is built in
+four layers, from bottom to top:
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth,
+    neu/.style={circle, draw=#1, fill=#1!35, minimum size=5pt, inner sep=0pt},
+    lay/.style={draw=#1, rounded corners, thick, inner sep=2pt},
+    lab/.style={font=\small, align=left, anchor=west, text width=4.3cm}]
+  % one-hot words
+  \foreach \w [count=\i] in {she, went, to, her} {
+    \node[font=\small] (w\i) at (1.6*\i,0) {\w};
+    \node[font=\scriptsize, nbgray] at (1.6*\i,-0.4) {$\vect x^{(\i)}$};
+    % embedding block
+    \foreach \k in {1,...,4} \node[neu=magenta] (e\i\k) at (1.6*\i+0.24*\k-0.6,1.2) {};
+    \draw[->, nbgray] (w\i) -- node[right, font=\scriptsize] {$E$} (1.6*\i,1.05);
+  }
+  \node[lay=magenta, fit=(e11)(e44)] (emb) {};
+  % hidden
+  \foreach \k in {1,...,10} \node[neu=cyan] (h\k) at (2.9+0.32*\k,2.5) {};
+  \node[lay=cyan, fit=(h1)(h10)] (hid) {};
+  \draw[->, thick] (emb) -- node[right, font=\scriptsize] {$W_e$} (hid);
+  % output histogram
+  \node[lay=nbred, minimum width=5.6cm, minimum height=0.45cm, font=\scriptsize]
+       (out) at (4.65,3.8) {distribution over the whole vocabulary};
+  \draw[->, thick] (hid) -- node[right, font=\scriptsize] {$U$} (out);
+  \foreach \x/\h in {0.2/0.15,0.5/0.4,0.8/0.2,1.3/0.6,1.6/0.25,2.1/0.3,2.6/0.1,
+                     3.0/0.8,3.3/0.35,3.9/0.2,4.4/0.12,4.9/0.3}
+    \fill[nbred!70] (1.85+\x,4.05) rectangle ++(0.15,\h);
+  % labels
+  \node[lab, nbred]   at (8.0,3.85) {\textbf{output}\\$\hat{\vect y} = \softmax(U\vect h) \in \mathbb R^{|V|}$};
+  \node[lab, cyan!60!black] at (8.0,2.5) {\textbf{hidden layer}\\$\vect h = \sigma(W_e \vect e)$};
+  \node[lab, magenta] at (8.0,1.2) {\textbf{word embeddings}\\$\vect e = [\vect e^{(1)}, \vect e^{(2)}, \vect e^{(3)}, \vect e^{(4)}]$};
+  \node[lab]          at (8.0,-0.15) {\textbf{one-hot word vectors}\\$\vect x^{(1)}, \vect x^{(2)}, \vect x^{(3)}, \vect x^{(4)}$};
+\end{tikzpicture}
+\captionof{figure}{The fixed-window neural language model. Information flows upwards:
+four words $\to$ their embeddings, glued together $\to$ a hidden layer $\to$ a
+probability for every word of the vocabulary (tall bars = likely next words).}
+\end{center}
+
+\begin{enumerate}
+  \item \textbf{One-hot word vectors} $\vect x^{(1)}, \ldots, \vect x^{(4)} \in
+        \mathbb R^{|V|}$: the four words of the window.
+  \item \textbf{Word embeddings.} Each word is turned into its embedding
+        $\vect e^{(i)} = E \vect x^{(i)}$. $E$ is a matrix with one column per word of
+        the vocabulary ($E \in \mathbb R^{d \times |V|}$, $d$ = embedding size).
+        Multiplying a matrix by a one-hot vector simply \emph{picks one column}: the
+        column of that word. So $E$ is just a table of word vectors, stored as a
+        matrix. The four embeddings are then \textbf{concatenated} (written one after
+        the other) into a single vector $\vect e$ of length $4d$.
+  \item \textbf{Hidden layer} $\vect h = \sigma(W_e \vect e)$. The matrix $W_e$ mixes all
+        the numbers of the four embeddings; $\sigma$ is a non-linear function applied
+        to each entry (see below). $\vect h$ is a summary of the window useful for
+        prediction.
+  \item \textbf{Output} $\hat{\vect y} = \softmax(U \vect h) \in \mathbb R^{|V|}$: one
+        number per word of the vocabulary, turned into a probability distribution by
+        the softmax (see below). $\hat{\vect y}_w$ is the predicted probability that
+        the next word is $w$. The hat in $\hat{\vect y}$ means ``predicted''.
+\end{enumerate}
+
+\notinslides
+Two building blocks deserve a closer look.
+\begin{itemize}
+  \item \textbf{The non-linearity $\sigma$.} Typically the \emph{sigmoid}
+        $\sigma(z) = \frac{1}{1 + e^{-z}}$, which squashes any number into $(0, 1)$, or
+        $\tanh$, which squashes into $(-1, 1)$. Without it, the whole network would be
+        a product of matrices, i.e.\ just one big linear map, and could only learn
+        very simple relations. (Real networks also add a \emph{bias} vector inside
+        $\sigma$, $\sigma(W_e \vect e + \vect b)$; the slides omit it for simplicity.)
+  \item \textbf{The weights $E$, $W_e$, $U$} are the \textbf{parameters} of the model,
+        written together as $\theta$. They start as random numbers; \emph{training}
+        (below) adjusts them so that the predictions become good.
+\end{itemize}
+
+\subsubsection{How to train a neural language model}
+\slidesrc{Language models \& RNNs: 42--49}
+
+\begin{nbdef}{The four ingredients of training a neural network}
+\begin{enumerate}[nosep]
+  \item \textbf{A corpus of data}: here a collection of documents, i.e.\ a long sequence
+        of words $\vect x^{(1)}, \ldots, \vect x^{(T)}$.
+  \item \textbf{A model}: here the fixed-window neural LM.
+  \item \textbf{A loss function $J$}: a number measuring how wrong the model's
+        predictions are; it compares the output distribution with the true one.
+  \item \textbf{An optimisation algorithm} that changes the parameters to make the
+        loss smaller: \textbf{stochastic gradient descent}.
+\end{enumerate}
+\end{nbdef}
+
+\paragraph{The softmax.}
+The vector $U\vect h \in \mathbb R^{|V|}$ contains one \emph{score} per word, but scores
+can be negative and do not add up to 1: it is an \textbf{un-normalised} probability
+distribution. The \textbf{softmax} normalises it:
+\[
+  \softmax(\vect z)_i = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}, \qquad i = 1, \ldots, K .
+\]
+The exponential makes every entry positive (and enlarges the gaps between scores),
+and dividing by the sum makes the entries add up to 1.
+
+\begin{nbexample}{softmax}
+\slidesrc{Language models \& RNNs: 47}
+Scores $U\vect h = (1.3,\ 5.1,\ 2.2,\ 0.7,\ 1.1)$ for a vocabulary of $K = 5$ words.
+\begin{align*}
+  (e^{1.3}, e^{5.1}, e^{2.2}, e^{0.7}, e^{1.1})
+  &= (3.67,\ 164.02,\ 9.03,\ 2.01,\ 3.00) \reason{exponentiate}\\
+  \text{sum} &= 3.67 + 164.02 + 9.03 + 2.01 + 3.00 = 181.73 \\
+  \hat{\vect y} &= (0.02,\ 0.90,\ 0.05,\ 0.01,\ 0.02) \reason{divide by the sum}
+\end{align*}
+Check: $0.02 + 0.90 + 0.05 + 0.01 + 0.02 = 1$. The highest score (5.1) gets most of the
+probability, but no word gets exactly 0.
+\end{nbexample}
+
+\paragraph{The loss: cross-entropy.}
+We compare
+\begin{itemize}[nosep]
+  \item the \textbf{computed} probability $\hat y_i = q(V_i \mid \textit{she went to
+        her})$, what the model says about word $V_i$ of the vocabulary;
+  \item the \textbf{true} probability $y^*_i = p(V_i \mid \text{full context})$, what
+        the word really is.
+\end{itemize}
+The standard way to compare two distributions is the \textbf{cross-entropy}:
+\[
+  \mathrm{CE}(\vect y^*, \hat{\vect y}) = - \sum_{i=1}^{|V|} y^*_i \log \hat y_i .
+\]
+In training data we do not know the ``true distribution'': we only know which word
+\emph{actually came next} in the corpus. So $\vect y^*$ is a \textbf{one-hot vector}:
+1 for the true next word, 0 for every other word. All the terms of the sum vanish
+except one. If the true word in the data is the fifth word of the sentence,
+$\vect x^{(5)}$, then
+\[
+  J^{(t)} = \mathrm{CE}(\vect y^*, \hat{\vect y}) = -\log \hat y_{\vect x^{(5)}}
+  \qquad \text{(the negative log-probability of the true word).}
+\]
+(The slide writes $\hat y_5$, meaning ``the entry of $\hat{\vect y}$ belonging to the
+true word $\vect x^{(5)}$''.)
+
+\begin{nbintuition}[why $-\log$ of the probability?]
+\notinslides
+$-\log p$ is 0 when $p = 1$ (the model was certain and right: no penalty) and grows
+without limit as $p \to 0$ (the model said the true word was nearly impossible: huge
+penalty). With the softmax output above (natural logarithm):
+\begin{itemize}[nosep]
+  \item if the true word is the 2nd one ($\hat y = 0.90$): loss
+        $= -\ln 0.90 \approx 0.10$, small;
+  \item if the true word is the 4th one ($\hat y = 0.011$): loss
+        $= -\ln 0.011 \approx 4.50$, large.
+\end{itemize}
+Minimising the loss means: \emph{give high probability to the words that really come
+next}.
+\end{nbintuition}
+
+\paragraph{Gradient descent.}
+\notinslides
+The loss $J(\theta)$ depends on all the parameters $\theta$ (the entries of $E$, $W_e$,
+$U$). The \textbf{gradient} $\nabla_\theta J$ is the vector of the derivatives of $J$
+with respect to each parameter: it points in the direction in which the loss
+\emph{increases} fastest. \textbf{Gradient descent} takes a small step in the opposite
+direction, again and again:
+\[
+  \theta \leftarrow \theta - \alpha\, \nabla_\theta J(\theta),
+\]
+where $\alpha > 0$ (the \textbf{learning rate}) controls the step size. It is like
+walking down a hill in the fog: you cannot see the valley, but you can feel the slope
+under your feet and step downhill. The gradients are computed automatically by
+\textbf{backpropagation}, i.e.\ the chain rule of calculus applied layer by layer from
+the output back to the input. \emph{Stochastic} gradient descent computes the gradient
+on a small random part of the data at each step instead of on the whole corpus
+(Section~\ref{sec:recurrent-neural-networks}).
+
+\subsubsection{Pros and cons of the fixed-window model}
+\slidesrc{Language models \& RNNs: 50}
+
+This model was introduced by Y.~Bengio et al., \emph{A Neural Probabilistic Language
+Model}, 2003.
+
+\textbf{Improvements over n-gram LMs:}
+\begin{itemize}[nosep]
+  \item \textbf{no sparsity problem}: the network computes a probability for every word
+        from the embeddings, so unseen sequences get sensible, non-zero probabilities;
+        if \emph{school} and \emph{college} have similar embeddings, what is learnt
+        for one transfers to the other;
+  \item \textbf{no need to store n-grams}: only the weights are stored.
+\end{itemize}
+
+\textbf{Remaining problems:}
+\begin{itemize}[nosep]
+  \item the \textbf{fixed window is too restrictive}: like an n-gram model it cannot see
+        anything older than its window (``Anna was \emph{tired}'' is still invisible);
+  \item \textbf{enlarging the window increases the size of $W_e$}: $W_e$ has one column
+        per entry of $\vect e$, and $\vect e$ grows with every extra word; a window big
+        enough for any text is impossible;
+  \item \textbf{no symmetry}: $\vect x^{(1)}$ and $\vect x^{(2)}$ are multiplied by
+        \emph{different} columns of $W_e$. What the model learns about the word
+        \emph{school} in position 4 does not transfer to \emph{school} in position 2:
+        the same knowledge has to be learnt separately for every position.
+\end{itemize}
+
+\begin{nbwhy}
+The question left open by this slide, \emph{how can we process inputs of arbitrary
+length?}, is answered by recurrent neural networks (next section), and later by
+transformers. Both keep the two good ideas introduced here: words as learnt
+embeddings, and a softmax over the vocabulary trained with cross-entropy. Every modern
+LLM, GPT included, still ends with exactly this softmax layer.
+\end{nbwhy}
+
+\begin{nbsummary}[neural language models]
+\begin{itemize}[nosep]
+  \item Embedding: $\vect e = E\vect x$ (picks the column of word $\vect x$); similar
+        words have a large dot product.
+  \item Fixed window: $\hat{\vect y} = \softmax(U\, \sigma(W_e [\vect e^{(1)}, \ldots,
+        \vect e^{(n)}]))$.
+  \item $\softmax(\vect z)_i = e^{z_i} / \sum_j e^{z_j}$: positive, sums to 1.
+  \item Loss: cross-entropy with a one-hot target $= -\log \hat y_{\text{true word}}$.
+  \item Training: corpus + model + loss + (stochastic) gradient descent
+        $\theta \leftarrow \theta - \alpha \nabla_\theta J$.
+  \item Solves sparsity and storage; still a fixed window, growing $W_e$, no weight
+        sharing across positions.
+\end{itemize}
+\end{nbsummary}

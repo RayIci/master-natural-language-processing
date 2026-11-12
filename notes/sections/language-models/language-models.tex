@@ -1,0 +1,42 @@
+\section{Language Models and RNNs}
+\label{sec:language-models}
+\slidesrc{Language models \& RNNs: 1--101}
+
+Until now we have studied language mostly by \emph{analysing} it: splitting it into
+words, tagging them, parsing sentences, representing meanings. This section takes a
+different point of view, the one behind every modern NLP system and every chatbot:
+we build a \textbf{model that can predict language}. Given the beginning of a
+sentence, which word comes next? Given a whole sentence, how likely is it?
+
+A model that answers these questions is called a \textbf{language model} (LM). GPT and
+the other Large Language Models are language models; they are just very large and
+built with a more advanced architecture (the transformer). To understand them we
+start from the beginning: what a language model is, the simplest way to build one by
+counting (n-grams), how neural networks improve on counting, and how
+\textbf{recurrent neural networks} (RNNs) read text of any length, together with the
+problems that eventually led to their replacement.
+
+No previous knowledge of neural networks is assumed: every tool (probability chain
+rule, softmax, cross-entropy, gradient descent, backpropagation) is introduced when it
+is first needed.
+
+This section covers:
+\begin{enumerate}[nosep]
+  \item what a language model is and why it is useful
+        (Section~\ref{sec:what-is-a-language-model});
+  \item classical language models built by counting: n-grams, their sparsity and
+        storage problems, and text generation (Section~\ref{sec:ngram-models});
+  \item neural language models with a fixed window, word embeddings, the softmax and
+        the cross-entropy loss (Section~\ref{sec:neural-language-models});
+  \item recurrent neural networks: architecture, training, backpropagation through
+        time, text generation and evaluation with perplexity
+        (Section~\ref{sec:recurrent-neural-networks});
+  \item the problems of RNNs: vanishing and exploding gradients, gradient clipping and
+        the ideas that solve them (Section~\ref{sec:vanishing-exploding-gradients}).
+\end{enumerate}
+
+\input{sections/language-models/what-is-a-language-model/what-is-a-language-model}
+\input{sections/language-models/ngram-models/ngram-models}
+\input{sections/language-models/neural-language-models/neural-language-models}
+\input{sections/language-models/recurrent-neural-networks/recurrent-neural-networks}
+\input{sections/language-models/vanishing-exploding-gradients/vanishing-exploding-gradients}
